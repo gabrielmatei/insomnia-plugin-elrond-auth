@@ -11,5 +11,9 @@
   },
   "scripts": {
     "test": "test"
+  },
+  "dependencies": {
+    "@elrondnetwork/erdjs": "^8.0.1-alpha.13",
+    "axios": "^0.24.0"
   }
 }
