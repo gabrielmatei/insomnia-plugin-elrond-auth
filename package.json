@@ -16,6 +16,7 @@
     "start:mainnet": "npm run copy-mainnet-config & nest start",
     "start:custom": "npm run copy-custom-config & nest start",
     "start:custom:watch": "npm run copy-custom-config & nest start --watch",
+    "start:custom:debug": "npm run copy-custom-config & nest start --watch --debug",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\"",
     "lint:fix": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
