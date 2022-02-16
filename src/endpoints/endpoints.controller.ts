@@ -4,6 +4,7 @@ import { AuthController } from "./auth/auth.controller";
 import { EndpointsServicesModule } from "./endpoints.services.module";
 import { ExampleController } from "./example/example.controller";
 import { HealthCheckController } from "./health-check/health.check.controller";
+import { WalletController } from "./wallet/wallet.controller";
 
 @Module({
   imports: [
@@ -11,7 +12,10 @@ import { HealthCheckController } from "./health-check/health.check.controller";
     EndpointsServicesModule,
   ],
   controllers: [
-    AuthController, ExampleController, HealthCheckController,
+    AuthController,
+    ExampleController,
+    HealthCheckController,
+    WalletController,
   ],
 })
 export class EndpointsControllersModule { }

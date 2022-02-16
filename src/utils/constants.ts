@@ -22,4 +22,8 @@ export class Constants {
   static oneMonth(): number {
     return Constants.oneDay() * 30;
   }
+
+  static sqlDateFormat(): string {
+    return 'yyyy-MM-DD HH:mm:ss';
+  }
 }

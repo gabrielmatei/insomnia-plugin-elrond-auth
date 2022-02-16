@@ -32,59 +32,40 @@ export class ApiConfigService {
     return redisUrl;
   }
 
-  getDatabaseHost(): string {
-    const databaseHost = this.configService.get<string>('database.host');
-    if (!databaseHost) {
-      throw new Error('No database.host present');
+  getTimescaleHost(): string {
+    const host = this.configService.get<string>('timescale.host');
+    if (!host) {
+      throw new Error('No timescale.host present');
     }
 
-    return databaseHost;
+    return host;
   }
 
-  getDatabasePort(): number {
-    const databasePort = this.configService.get<number>('database.port');
-    if (!databasePort) {
-      throw new Error('No database.port present');
+  getTimescaleUsername(): string {
+    const username = this.configService.get<string>('timescale.username');
+    if (!username) {
+      throw new Error('No timescale.username present');
     }
 
-    return databasePort;
+    return username;
   }
 
-
-  getDatabaseUsername(): string {
-    const databaseUsername = this.configService.get<string>('database.username');
-    if (!databaseUsername) {
-      throw new Error('No database.username present');
+  getTimescalePassword(): string {
+    const password = this.configService.get<string>('timescale.password');
+    if (!password) {
+      throw new Error('No timescale.password present');
     }
 
-    return databaseUsername;
+    return password;
   }
 
-  getDatabasePassword(): string {
-    const databasePassword = this.configService.get<string>('database.password');
-    if (!databasePassword) {
-      throw new Error('No database.password present');
-    }
-
-    return databasePassword;
-  }
-
-  getDatabaseName(): string {
-    const databaseName = this.configService.get<string>('database.name');
-    if (!databaseName) {
-      throw new Error('No database.name present');
-    }
-
-    return databaseName;
-  }
-
-  getDatabaseConnection(): { host: string, port: number, username: string, password: string, database: string } {
+  getTimescaleConnection(): { host: string, port: number, username: string, password: string, database: string } {
     return {
-      host: this.getDatabaseHost(),
-      port: this.getDatabasePort(),
-      username: this.getDatabaseUsername(),
-      password: this.getDatabasePassword(),
-      database: this.getDatabaseName(),
+      host: 'devnet-postgres-timescale-db-fra-do-user-6804712-0.b.db.ondigitalocean.com',
+      port: 25060,
+      database: 'testtimescaledb',
+      username: 'testtimescaledb',
+      password: 'W8Z2hhsrNmGQ',
     };
   }
 
