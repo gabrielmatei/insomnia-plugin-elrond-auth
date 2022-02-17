@@ -1,7 +1,8 @@
 import { Injectable } from "@nestjs/common";
-import { SchedulerRegistry } from "@nestjs/schedule";
+import { CronExpression, SchedulerRegistry } from "@nestjs/schedule";
 import { TimescaleService } from "src/common/timescale/timescale.service";
-import { AccountsIngest, Ingester, IngestItem, RefreshIntervals } from "./ingester/ingest";
+import { AccountsIngest } from "./entities/accounts.ingest";
+import { Ingester, IngestItem } from "./entities/ingest";
 
 @Injectable()
 export class DataIngesterService {
@@ -13,7 +14,7 @@ export class DataIngesterService {
   ) {
     const items: IngestItem[] = [
       {
-        refreshInterval: RefreshIntervals.EVERY_5_SECONDS,
+        refreshInterval: CronExpression.EVERY_5_SECONDS,
         tableName: 'test_hyper',
         fetcher: new AccountsIngest(),
       },

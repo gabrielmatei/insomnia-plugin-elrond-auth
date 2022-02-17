@@ -18,7 +18,7 @@ import { QueueWorkerModule } from './workers/queue.worker.module';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { PubSubModule } from './websockets/pub.sub.module';
 import { SocketAdapter } from './websockets/socket.adapter';
-import { DataIngesterModule } from './crons/data.ingester.module';
+import { DataIngesterModule } from './crons/data-ingester/data.ingester.module';
 
 async function bootstrap() {
   const publicApp = await NestFactory.create(PublicAppModule);

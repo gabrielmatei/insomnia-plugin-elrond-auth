@@ -1,5 +1,5 @@
 import { Logger } from "@nestjs/common";
-import { SchedulerRegistry } from "@nestjs/schedule";
+import { CronExpression, SchedulerRegistry } from "@nestjs/schedule";
 import { CronJob } from "cron";
 import { TimescaleService } from "src/common/timescale/timescale.service";
 import { Locker } from "src/utils/locker";
@@ -8,27 +8,10 @@ export interface Ingest {
   fetch(): Promise<Record<string, number>>
 }
 
-export enum RefreshIntervals {
-  EVERY_5_SECONDS = "*/5 * * * * *",
-  EVERY_10_SECONDS = "*/10 * * * * *",
-  EVERY_30_SECONDS = "*/30 * * * * *",
-  EVERY_MINUTE = "*/1 * * * *",
-  EVERY_5_MINUTES = "0 */5 * * * *",
-  EVERY_10_MINUTES = "0 */10 * * * *",
-}
-
 export class IngestItem {
-  refreshInterval: RefreshIntervals = RefreshIntervals.EVERY_5_SECONDS;
+  refreshInterval: CronExpression = CronExpression.EVERY_5_SECONDS;
   tableName: string = '';
   fetcher?: Ingest;
-}
-
-export class AccountsIngest implements Ingest {
-  public async fetch(): Promise<Record<string, number>> {
-    return {
-      'a': 0,
-    };
-  }
 }
 
 export class Ingester {
