@@ -18,6 +18,7 @@ import { QueueWorkerModule } from './workers/queue.worker.module';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { PubSubModule } from './websockets/pub.sub.module';
 import { SocketAdapter } from './websockets/socket.adapter';
+import { DataIngesterModule } from './crons/data.ingester.module';
 
 async function bootstrap() {
   const publicApp = await NestFactory.create(PublicAppModule);
@@ -67,6 +68,11 @@ async function bootstrap() {
     await cacheWarmerApp.listen(apiConfigService.getCacheWarmerFeaturePort());
   }
 
+  if (apiConfigService.getIsDataIngesterFeatureActive()) {
+    const dataIngesterApp = await NestFactory.create(DataIngesterModule);
+    await dataIngesterApp.listen(apiConfigService.getDataIngesterFeaturePort());
+  }
+
   if (apiConfigService.getIsTransactionProcessorFeatureActive()) {
     const transactionProcessorApp = await NestFactory.create(TransactionProcessorModule);
     await transactionProcessorApp.listen(apiConfigService.getTransactionProcessorFeaturePort());
@@ -82,6 +88,7 @@ async function bootstrap() {
   logger.log(`Private API active: ${apiConfigService.getIsPrivateApiFeatureActive()}`);
   logger.log(`Transaction processor active: ${apiConfigService.getIsTransactionProcessorFeatureActive()}`);
   logger.log(`Cache warmer active: ${apiConfigService.getIsCacheWarmerFeatureActive()}`);
+  logger.log(`Data ingester active: ${apiConfigService.getIsDataIngesterFeatureActive()}`);
   logger.log(`Queue worker active: ${apiConfigService.getIsQueueWorkerFeatureActive()}`);
 
   const pubSubApp = await NestFactory.createMicroservice<MicroserviceOptions>(

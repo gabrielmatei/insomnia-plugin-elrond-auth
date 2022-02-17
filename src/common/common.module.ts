@@ -3,7 +3,7 @@ import { ApiConfigModule } from "./api-config/api.config.module";
 import { CachingModule } from "./caching/caching.module";
 import { MetricsModule } from "./metrics/metrics.module";
 import { ApiModule } from "./network/api.module";
-import { PersistenceModule } from "./persistence/persistence.module";
+import { TimescaleModule } from "./timescale/timescale.module";
 
 @Module({
   imports: [
@@ -11,14 +11,14 @@ import { PersistenceModule } from "./persistence/persistence.module";
     forwardRef(() => CachingModule),
     forwardRef(() => ApiModule),
     forwardRef(() => MetricsModule),
-    forwardRef(() => PersistenceModule),
+    forwardRef(() => TimescaleModule),
   ],
   exports: [
     ApiConfigModule,
     CachingModule,
     ApiModule,
     MetricsModule,
-    PersistenceModule,
+    TimescaleModule,
   ],
 })
 export class CommonModule { }

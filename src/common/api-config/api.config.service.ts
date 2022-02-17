@@ -123,6 +123,24 @@ export class ApiConfigService {
     return featurePort;
   }
 
+  getIsDataIngesterFeatureActive(): boolean {
+    const isDataIngesterActive = this.configService.get<boolean>('features.dataIngester.enabled');
+    if (isDataIngesterActive === undefined) {
+      throw new Error('No data ingester feature flag present');
+    }
+
+    return isDataIngesterActive;
+  }
+
+  getDataIngesterFeaturePort(): number {
+    const featurePort = this.configService.get<number>('features.dataIngester.port');
+    if (featurePort === undefined) {
+      throw new Error('No data ingester port present');
+    }
+
+    return featurePort;
+  }
+
   getIsTransactionProcessorFeatureActive(): boolean {
     const isTransactionProcessorActive = this.configService.get<boolean>('features.transactionProcessor.enabled');
     if (isTransactionProcessorActive === undefined) {

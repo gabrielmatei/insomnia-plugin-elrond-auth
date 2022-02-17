@@ -1,13 +1,13 @@
 import { Injectable } from "@nestjs/common";
-import { PersistenceService } from "src/common/persistence/persistence.service";
+import { TimescaleService } from "src/common/timescale/timescale.service";
 
 @Injectable()
 export class WalletService {
-  constructor(private readonly persistenceService: PersistenceService,
+  constructor(private readonly timescaleService: TimescaleService,
   ) { }
 
   public async getNewWallets(): Promise<any> {
-    const newWallets = await this.persistenceService.readData('');
+    const newWallets = await this.timescaleService.readData('test_hyper', 'a');
     return newWallets;
   }
 }

@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ApiConfigModule } from '../api-config/api.config.module';
 import { ApiConfigService } from '../api-config/api.config.service';
-import { PersistenceService } from './persistence.service';
+import { TimescaleService } from './timescale.service';
 
 @Module({
   imports: [
@@ -24,10 +24,10 @@ import { PersistenceService } from './persistence.service';
     }),
   ],
   providers: [
-    PersistenceService,
+    TimescaleService,
   ],
   exports: [
-    PersistenceService,
+    TimescaleService,
   ],
 })
-export class PersistenceModule { }
+export class TimescaleModule { }
