@@ -1,7 +1,9 @@
 import { Logger } from "@nestjs/common";
 import { CronExpression, SchedulerRegistry } from "@nestjs/schedule";
 import { CronJob } from "cron";
+import moment from "moment";
 import { TimescaleService } from "src/common/timescale/timescale.service";
+import { Constants } from "src/utils/constants";
 import { Locker } from "src/utils/locker";
 
 export interface Ingest {
@@ -54,10 +56,16 @@ export class Ingester {
 
   private async fetchRecords(tableName: string, fetcher: Ingest) {
     await Locker.lock(tableName, async () => {
+      const currentTime = moment().utc().format(Constants.sqlDateFormat());
+
       const records = await fetcher.fetch();
-      for (const [key, value] of Object.entries(records)) {
-        await this.timescaleService.writeData(tableName, key, value);
-      }
+
+      // write records
+      await Promise.all(
+        Object
+          .entries(records)
+          .map(async ([key, value]) => await this.timescaleService.writeData(tableName, key, value, currentTime))
+      );
     }, true);
   }
 }

@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { register, Histogram, Gauge, collectDefaultMetrics } from 'prom-client';
+import { ElasticMetricType } from "./entities/elastic.metric.type";
 
 @Injectable()
 export class MetricsService {
@@ -10,6 +11,7 @@ export class MetricsService {
   private static lastProcessedNonceGauge: Gauge<string>;
   private static pendingApiHitGauge: Gauge<string>;
   private static cachedApiHitGauge: Gauge<string>;
+  private static elasticDurationHistogram: Histogram<string>;
   private static isDefaultMetricsRegistered: boolean = false;
 
   constructor() {
@@ -64,6 +66,15 @@ export class MetricsService {
       });
     }
 
+    if (!MetricsService.elasticDurationHistogram) {
+      MetricsService.elasticDurationHistogram = new Histogram({
+        name: 'elastic_duration',
+        help: 'Elastic Duration',
+        labelNames: ['type', 'index'],
+        buckets: [],
+      });
+    }
+
     if (!MetricsService.isDefaultMetricsRegistered) {
       MetricsService.isDefaultMetricsRegistered = true;
       collectDefaultMetrics();
@@ -85,6 +96,10 @@ export class MetricsService {
 
   setLastProcessedNonce(shardId: number, nonce: number) {
     MetricsService.lastProcessedNonceGauge.set({ shardId }, nonce);
+  }
+
+  setElasticDuration(collection: string, type: ElasticMetricType, duration: number) {
+    MetricsService.elasticDurationHistogram.labels(type, collection).observe(duration);
   }
 
   incrementPendingApiHit(endpoint: string) {

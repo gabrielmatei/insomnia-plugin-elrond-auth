@@ -32,6 +32,15 @@ export class ApiConfigService {
     return redisUrl;
   }
 
+  getElasticUrl(): string {
+    const elasticUrls = this.configService.get<string[]>('urls.elastic');
+    if (!elasticUrls) {
+      throw new Error('No elastic urls present');
+    }
+
+    return elasticUrls[Math.floor(Math.random() * elasticUrls.length)];
+  }
+
   getTimescaleHost(): string {
     const host = this.configService.get<string>('timescale.host');
     if (!host) {

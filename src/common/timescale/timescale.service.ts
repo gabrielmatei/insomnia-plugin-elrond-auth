@@ -1,6 +1,4 @@
 import { Injectable, Logger } from '@nestjs/common';
-import moment from 'moment';
-import { Constants } from 'src/utils/constants';
 import { getManager } from 'typeorm';
 
 @Injectable()
@@ -23,12 +21,10 @@ export class TimescaleService {
     }
   }
 
-  public async writeData(tableName: string, key: string, value: number, time?: string): Promise<void> {
+  public async writeData(tableName: string, key: string, value: number, time: string): Promise<void> {
     try {
-      const currentTime = time ?? moment().utc().format(Constants.sqlDateFormat());
-
       const entityManager = getManager();
-      await entityManager.query(`INSERT INTO ${tableName}(time, key, value) VALUES('${currentTime}', '${key}', ${value});`);
+      await entityManager.query(`INSERT INTO ${tableName}(time, key, value) VALUES('${time}', '${key}', ${value});`);
     } catch (error) {
       this.logger.error(error);
     }
