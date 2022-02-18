@@ -9,6 +9,8 @@ import { AccountsBalanceIngest } from "./entities/accounts-balance.ingest";
 import { AccountsCountIngest } from "./entities/accounts-count.ingest";
 import { AccountsDelegationLegacyActiveIngest } from "./entities/accounts-delegation-legacy-active.ingest";
 import { AccountsDelegationIngest } from "./entities/accounts-delegation.ingest";
+import { AccountsTotalBalanceWithStakeIngest } from "./entities/accounts-total-balance-with-stake.ingest";
+import { AccountsTotalStakeIngest } from "./entities/accounts-total-stake.ingest";
 import { EconomicsIngest } from "./entities/economics.ingest";
 import { Ingester, IngestItem } from "./entities/ingest";
 
@@ -44,6 +46,16 @@ export class DataIngesterService {
         refreshInterval: CronExpression.EVERY_HOUR,
         tableName: 'accounts_delegation_legacy_active',
         fetcher: new AccountsDelegationLegacyActiveIngest(this.apiConfigService, this.elasticService, this.gatewayService),
+      },
+      {
+        refreshInterval: CronExpression.EVERY_HOUR,
+        tableName: 'accounts_total_balance_with_stake',
+        fetcher: new AccountsTotalBalanceWithStakeIngest(this.apiConfigService, this.elasticService, this.gatewayService),
+      },
+      {
+        refreshInterval: CronExpression.EVERY_HOUR,
+        tableName: 'accounts_total_stake',
+        fetcher: new AccountsTotalStakeIngest(this.apiConfigService, this.elasticService, this.gatewayService),
       },
       {
         refreshInterval: CronExpression.EVERY_HOUR,
