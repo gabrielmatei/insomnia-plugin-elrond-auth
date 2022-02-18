@@ -230,4 +230,13 @@ export class ApiConfigService {
 
     return admins;
   }
+
+  getExchangeWallets(): Record<string, string[]> {
+    const exchangeWallets = this.configService.get<Record<string, string[]>>('exchangeWallets');
+    if (exchangeWallets === undefined) {
+      throw new Error('No exchange wallets value present');
+    }
+
+    return exchangeWallets;
+  }
 }
