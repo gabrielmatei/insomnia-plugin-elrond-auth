@@ -2,6 +2,7 @@ import { forwardRef, Module } from "@nestjs/common";
 import { ApiConfigModule } from "./api-config/api.config.module";
 import { CachingModule } from "./caching/caching.module";
 import { ElasticModule } from "./elastic/elastic.module";
+import { GatewayModule } from "./gateway/gateway.module";
 import { MetricsModule } from "./metrics/metrics.module";
 import { ApiModule } from "./network/api.module";
 import { TimescaleModule } from "./timescale/timescale.module";
@@ -14,6 +15,7 @@ import { TimescaleModule } from "./timescale/timescale.module";
     forwardRef(() => MetricsModule),
     forwardRef(() => TimescaleModule),
     forwardRef(() => ElasticModule),
+    forwardRef(() => GatewayModule),
   ],
   exports: [
     ApiConfigModule,
@@ -22,6 +24,7 @@ import { TimescaleModule } from "./timescale/timescale.module";
     MetricsModule,
     TimescaleModule,
     ElasticModule,
+    GatewayModule,
   ],
 })
 export class CommonModule { }

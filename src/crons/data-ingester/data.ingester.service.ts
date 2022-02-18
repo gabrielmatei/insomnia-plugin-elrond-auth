@@ -2,9 +2,12 @@ import { Injectable } from "@nestjs/common";
 import { CronExpression, SchedulerRegistry } from "@nestjs/schedule";
 import { ApiConfigService } from "src/common/api-config/api.config.service";
 import { ElasticService } from "src/common/elastic/elastic.service";
+import { GatewayService } from "src/common/gateway/gateway.service";
 import { ApiService } from "src/common/network/api.service";
 import { TimescaleService } from "src/common/timescale/timescale.service";
-import { AccountsIngest } from "./entities/accounts.ingest";
+import { AccountsBalanceIngest } from "./entities/accounts-balance.ingest";
+import { AccountsCountIngest } from "./entities/accounts-count.ingest";
+import { AccountsDelegationIngest } from "./entities/accounts-delegation.ingest";
 import { EconomicsIngest } from "./entities/economics.ingest";
 import { Ingester, IngestItem } from "./entities/ingest";
 
@@ -18,15 +21,26 @@ export class DataIngesterService {
     private readonly elasticService: ElasticService,
     private readonly apiConfigService: ApiConfigService,
     private readonly apiService: ApiService,
+    private readonly gatewayService: GatewayService,
   ) {
     const items: IngestItem[] = [
       {
-        refreshInterval: CronExpression.EVERY_MINUTE,
-        tableName: 'accounts',
-        fetcher: new AccountsIngest(this.elasticService),
+        refreshInterval: CronExpression.EVERY_HOUR,
+        tableName: 'accounts_count',
+        fetcher: new AccountsCountIngest(this.apiConfigService, this.elasticService),
       },
       {
-        refreshInterval: CronExpression.EVERY_MINUTE,
+        refreshInterval: CronExpression.EVERY_HOUR,
+        tableName: 'accounts_balance',
+        fetcher: new AccountsBalanceIngest(this.apiConfigService, this.elasticService),
+      },
+      {
+        refreshInterval: CronExpression.EVERY_HOUR,
+        tableName: 'accounts_delegation',
+        fetcher: new AccountsDelegationIngest(this.apiConfigService, this.elasticService, this.gatewayService),
+      },
+      {
+        refreshInterval: CronExpression.EVERY_HOUR,
         tableName: 'economics',
         fetcher: new EconomicsIngest(this.apiConfigService, this.apiService),
       },

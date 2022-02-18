@@ -32,6 +32,15 @@ export class ApiConfigService {
     return redisUrl;
   }
 
+  getGatewayUrl(): string {
+    const gatewayUrls = this.configService.get<string[]>('urls.gateway');
+    if (!gatewayUrls) {
+      throw new Error('No gateway urls present');
+    }
+
+    return gatewayUrls[Math.floor(Math.random() * gatewayUrls.length)];
+  }
+
   getElasticUrl(): string {
     const elasticUrls = this.configService.get<string[]>('urls.elastic');
     if (!elasticUrls) {
@@ -39,6 +48,15 @@ export class ApiConfigService {
     }
 
     return elasticUrls[Math.floor(Math.random() * elasticUrls.length)];
+  }
+
+  getInternalElasticUrl(): string {
+    const internalElasticUrls = this.configService.get<string[]>('urls.internalElastic');
+    if (!internalElasticUrls) {
+      throw new Error('No internal elastic urls present');
+    }
+
+    return internalElasticUrls[Math.floor(Math.random() * internalElasticUrls.length)];
   }
 
   getTimescaleHost(): string {

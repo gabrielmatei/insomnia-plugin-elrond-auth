@@ -12,6 +12,7 @@ export class MetricsService {
   private static pendingApiHitGauge: Gauge<string>;
   private static cachedApiHitGauge: Gauge<string>;
   private static elasticDurationHistogram: Histogram<string>;
+  private static gatewayDurationHistogram: Histogram<string>;
   private static isDefaultMetricsRegistered: boolean = false;
 
   constructor() {
@@ -75,6 +76,15 @@ export class MetricsService {
       });
     }
 
+    if (!MetricsService.gatewayDurationHistogram) {
+      MetricsService.gatewayDurationHistogram = new Histogram({
+        name: 'gateway_duration',
+        help: 'Gateway Duration',
+        labelNames: ['endpoint'],
+        buckets: [],
+      });
+    }
+
     if (!MetricsService.isDefaultMetricsRegistered) {
       MetricsService.isDefaultMetricsRegistered = true;
       collectDefaultMetrics();
@@ -100,6 +110,10 @@ export class MetricsService {
 
   setElasticDuration(collection: string, type: ElasticMetricType, duration: number) {
     MetricsService.elasticDurationHistogram.labels(type, collection).observe(duration);
+  }
+
+  setGatewayDuration(name: string, duration: number) {
+    MetricsService.gatewayDurationHistogram.labels(name).observe(duration);
   }
 
   incrementPendingApiHit(endpoint: string) {
