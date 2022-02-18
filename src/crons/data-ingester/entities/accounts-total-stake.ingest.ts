@@ -1,7 +1,5 @@
 import { ApiConfigService } from "src/common/api-config/api.config.service";
 import { ElasticService } from "src/common/elastic/elastic.service";
-import { ElasticQuery } from "src/common/elastic/entities/elastic.query";
-import { RangeQuery } from "src/common/elastic/entities/range.query";
 import { GatewayService } from "src/common/gateway/gateway.service";
 import { Ingest } from "./ingest";
 
@@ -27,50 +25,12 @@ export class AccountsTotalStakeIngest implements Ingest {
       count_gt_100,
       count_gt_1000,
       count_gt_10000,
-    ] = await Promise.all([
-      this.elasticService.getCount(
-        this.apiConfigService.getInternalElasticUrl(),
-        `accounts-000001_${epoch}`,
-        ElasticQuery.create().withFilter([
-          new RangeQuery('totalStakeNum', { gt: 0 }),
-        ])),
-      this.elasticService.getCount(
-        this.apiConfigService.getInternalElasticUrl(),
-        `accounts-000001_${epoch}`,
-        ElasticQuery.create().withFilter([
-          new RangeQuery('totalStakeNum', { gt: 0.1 }),
-        ])),
-      this.elasticService.getCount(
-        this.apiConfigService.getInternalElasticUrl(),
-        `accounts-000001_${epoch}`,
-        ElasticQuery.create().withFilter([
-          new RangeQuery('totalStakeNum', { gt: 1 }),
-        ])),
-      this.elasticService.getCount(
-        this.apiConfigService.getInternalElasticUrl(),
-        `accounts-000001_${epoch}`,
-        ElasticQuery.create().withFilter([
-          new RangeQuery('totalStakeNum', { gt: 10 }),
-        ])),
-      this.elasticService.getCount(
-        this.apiConfigService.getInternalElasticUrl(),
-        `accounts-000001_${epoch}`,
-        ElasticQuery.create().withFilter([
-          new RangeQuery('totalStakeNum', { gt: 100 }),
-        ])),
-      this.elasticService.getCount(
-        this.apiConfigService.getInternalElasticUrl(),
-        `accounts-000001_${epoch}`,
-        ElasticQuery.create().withFilter([
-          new RangeQuery('totalStakeNum', { gt: 1000 }),
-        ])),
-      this.elasticService.getCount(
-        this.apiConfigService.getInternalElasticUrl(),
-        `accounts-000001_${epoch}`,
-        ElasticQuery.create().withFilter([
-          new RangeQuery('totalStakeNum', { gt: 10000 }),
-        ])),
-    ]);
+    ] = await this.elasticService.getDetailedRangeCount(
+      this.apiConfigService.getInternalElasticUrl(),
+      `accounts-000001_${epoch}`,
+      'totalStakeNum',
+      [0, 0.1, 1, 10, 100, 1000, 10000]
+    );
 
     return {
       count_gt_0,

@@ -4,6 +4,7 @@ import { PerformanceProfiler } from "src/utils/performance.profiler";
 import { MetricsService } from "src/common/metrics/metrics.service";
 import { ElasticQuery } from "./entities/elastic.query";
 import { ElasticMetricType } from "../metrics/entities/elastic.metric.type";
+import { RangeQuery } from "./entities/range.query";
 
 @Injectable()
 export class ElasticService {
@@ -79,5 +80,18 @@ export class ElasticService {
 
   private async post(url: string, body: any) {
     return await this.apiService.post<any, any>(url, body);
+  }
+
+  async getDetailedRangeCount(elasticUrl: string, collection: string, key: string, gts: number[]) {
+    const result = await Promise.all(
+      gts.map(async (gt: number) => this.getCount(
+        elasticUrl,
+        collection,
+        ElasticQuery.create().withFilter([
+          new RangeQuery(key, { gt }),
+        ])),
+      )
+    );
+    return result;
   }
 }
