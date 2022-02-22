@@ -86,13 +86,31 @@ export class ApiConfigService {
     return password;
   }
 
+  getTimescaleDatabase(): string {
+    const database = this.configService.get<string>('timescale.database');
+    if (!database) {
+      throw new Error('No timescale.database present');
+    }
+
+    return database;
+  }
+
+  getTimescalePort(): number {
+    const port = this.configService.get<number>('timescale.port');
+    if (!port) {
+      throw new Error('No timescale.port present');
+    }
+
+    return port;
+  }
+
   getTimescaleConnection(): { host: string, port: number, username: string, password: string, database: string } {
     return {
-      host: 'devnet-postgres-timescale-db-fra-do-user-6804712-0.b.db.ondigitalocean.com',
-      port: 25060,
-      database: 'testtimescaledb',
-      username: 'testtimescaledb',
-      password: 'W8Z2hhsrNmGQ',
+      host: this.getTimescaleHost(),
+      port: this.getTimescalePort(),
+      database: this.getTimescaleDatabase(),
+      username: this.getTimescaleUsername(),
+      password: this.getTimescalePassword(),
     };
   }
 
