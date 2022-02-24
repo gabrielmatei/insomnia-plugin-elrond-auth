@@ -275,4 +275,13 @@ export class ApiConfigService {
 
     return featuredRepositories;
   }
+
+  getCoinMarketCapAccessToken(): string {
+    const accessToken = this.configService.get<string>('coinmarketcap.accessToken');
+    if (!accessToken) {
+      throw new Error('No coinmarketcap access token value present');
+    }
+
+    return accessToken;
+  }
 }
