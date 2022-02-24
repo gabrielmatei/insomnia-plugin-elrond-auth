@@ -5,18 +5,12 @@ import { ElasticService } from "src/common/elastic/elastic.service";
 import { GatewayService } from "src/common/gateway/gateway.service";
 import { ApiService } from "src/common/network/api.service";
 import { TimescaleService } from "src/common/timescale/timescale.service";
-import { AccountsBalanceIngest } from "./entities/accounts-balance.ingest";
-import { AccountsCountIngest } from "./entities/accounts-count.ingest";
-import { AccountsDelegationLegacyActiveIngest } from "./entities/accounts-delegation-legacy-active.ingest";
-import { AccountsDelegationIngest } from "./entities/accounts-delegation.ingest";
-import { AccountsTotalBalanceWithStakeIngest } from "./entities/accounts-total-balance-with-stake.ingest";
-import { AccountsTotalStakeIngest } from "./entities/accounts-total-stake.ingest";
-import { EconomicsIngest } from "./entities/economics.ingest";
-import { ExchangesIngest } from "./entities/exchanges.ingest";
-import { GithubIngest } from "./entities/github.ingest";
 import { Ingester, IngestItem } from "./entities/ingest";
-import { QuotesIngest } from "./entities/quotes.ingest";
-import { TwitterIngest } from "./entities/twitter.ingest";
+import {
+  AccountsBalanceIngest, AccountsCountIngest, AccountsDelegationIngest, AccountsDelegationLegacyActiveIngest,
+  AccountsTotalBalanceWithStakeIngest, AccountsTotalStakeIngest, EconomicsIngest, ExchangesIngest,
+  GithubIngest, QuotesIngest, TwitterIngest,
+} from "./data.ingester.entities";
 
 @Injectable()
 export class DataIngesterService {
