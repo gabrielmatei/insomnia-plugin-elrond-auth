@@ -16,6 +16,7 @@ import { ExchangesIngest } from "./entities/exchanges.ingest";
 import { GithubIngest } from "./entities/github.ingest";
 import { Ingester, IngestItem } from "./entities/ingest";
 import { QuotesIngest } from "./entities/quotes.ingest";
+import { TwitterIngest } from "./entities/twitter.ingest";
 
 @Injectable()
 export class DataIngesterService {
@@ -79,6 +80,11 @@ export class DataIngesterService {
         refreshInterval: CronExpression.EVERY_HOUR,
         tableName: 'quotes',
         fetcher: new QuotesIngest(this.apiConfigService, this.apiService),
+      },
+      {
+        refreshInterval: CronExpression.EVERY_HOUR,
+        tableName: 'twitter',
+        fetcher: new TwitterIngest(this.apiConfigService, this.apiService),
       },
     ];
     this.ingester = new Ingester(items, this.schedulerRegistry, this.timescaleService);
