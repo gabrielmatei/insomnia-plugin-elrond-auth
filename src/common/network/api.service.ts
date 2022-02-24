@@ -13,11 +13,11 @@ export class ApiService {
     this.logger = new Logger(ApiService.name);
   }
 
-  async get<T>(url: string): Promise<T> {
+  async get<T>(url: string, config?: any): Promise<T> {
     const profiler = new PerformanceProfiler();
 
     try {
-      const result = await axios.get<T>(url);
+      const result = await axios.get<T>(url, config);
 
       return result.data;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any

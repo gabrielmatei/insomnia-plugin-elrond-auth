@@ -257,4 +257,22 @@ export class ApiConfigService {
 
     return exchangeWallets;
   }
+
+  getGithubAccessToken(): string {
+    const githubAccessToken = this.configService.get<string>('github.accessToken');
+    if (!githubAccessToken) {
+      throw new Error('No github access token value present');
+    }
+
+    return githubAccessToken;
+  }
+
+  getFeaturedRepositories(): string[] {
+    const featuredRepositories = this.configService.get<string[]>('github.featuredRepositories');
+    if (!featuredRepositories) {
+      throw new Error('No featured repositories value present');
+    }
+
+    return featuredRepositories;
+  }
 }

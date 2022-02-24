@@ -13,6 +13,7 @@ import { AccountsTotalBalanceWithStakeIngest } from "./entities/accounts-total-b
 import { AccountsTotalStakeIngest } from "./entities/accounts-total-stake.ingest";
 import { EconomicsIngest } from "./entities/economics.ingest";
 import { ExchangesIngest } from "./entities/exchanges.ingest";
+import { GithubIngest } from "./entities/github.ingest";
 import { Ingester, IngestItem } from "./entities/ingest";
 
 @Injectable()
@@ -67,6 +68,11 @@ export class DataIngesterService {
         refreshInterval: CronExpression.EVERY_HOUR,
         tableName: 'exchanges',
         fetcher: new ExchangesIngest(this.apiConfigService, this.apiService),
+      },
+      {
+        refreshInterval: CronExpression.EVERY_HOUR,
+        tableName: 'github',
+        fetcher: new GithubIngest(this.apiConfigService, this.apiService),
       },
     ];
     this.ingester = new Ingester(items, this.schedulerRegistry, this.timescaleService);
