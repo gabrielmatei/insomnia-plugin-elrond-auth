@@ -9,4 +9,5 @@ export { ExchangesIngest } from "./entities/exchanges.ingest";
 export { GithubIngest } from "./entities/github.ingest";
 export { QuotesIngest } from "./entities/quotes.ingest";
 export { TwitterIngest } from "./entities/twitter.ingest";
+export { GoogleIngest } from "./entities/google.ingest";
 export { GoogleTrendsIngest } from "./entities/google-trends.ingest";

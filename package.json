@@ -45,6 +45,7 @@
     "bull": "^4.2.0",
     "cache-manager": "^3.6.0",
     "google-trends-api": "^4.9.2",
+    "googleapis": "^95.0.0",
     "ioredis": "^4.28.3",
     "jsonwebtoken": "^8.5.1",
     "mysql2": "^2.3.3",
