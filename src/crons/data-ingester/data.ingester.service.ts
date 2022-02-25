@@ -7,9 +7,11 @@ import { ApiService } from "src/common/network/api.service";
 import { TimescaleService } from "src/common/timescale/timescale.service";
 import { Ingester, IngestItem } from "./entities/ingest";
 import {
-  AccountsBalanceIngest, AccountsCountIngest, AccountsDelegationIngest, AccountsDelegationLegacyActiveIngest,
-  AccountsTotalBalanceWithStakeIngest, AccountsTotalStakeIngest, EconomicsIngest, ExchangesIngest,
-  GithubIngest, GoogleIngest, GoogleTrendsIngest, QuotesIngest, TwitterIngest,
+  AccountsBalanceIngest, AccountsCountIngest, AccountsDelegationIngest,
+  AccountsDelegationLegacyActiveIngest, AccountsTotalBalanceWithStakeIngest,
+  AccountsTotalStakeIngest, EconomicsIngest, ExchangesIngest, GithubIngest,
+  GoogleIngest, GoogleTrendsIngest, QuotesIngest, TransactionsIngest,
+  TwitterIngest,
 } from "./data.ingester.entities";
 
 @Injectable()
@@ -84,6 +86,11 @@ export class DataIngesterService {
         refreshInterval: CronExpression.EVERY_HOUR,
         tableName: 'quotes',
         fetcher: new QuotesIngest(this.apiConfigService, this.apiService),
+      },
+      {
+        refreshInterval: CronExpression.EVERY_HOUR,
+        tableName: 'transactions',
+        fetcher: new TransactionsIngest(this.apiConfigService, this.elasticService),
       },
       {
         refreshInterval: CronExpression.EVERY_HOUR,
