@@ -9,7 +9,7 @@ import { Ingester, IngestItem } from "./entities/ingest";
 import {
   AccountsBalanceIngest, AccountsCountIngest, AccountsDelegationIngest, AccountsDelegationLegacyActiveIngest,
   AccountsTotalBalanceWithStakeIngest, AccountsTotalStakeIngest, EconomicsIngest, ExchangesIngest,
-  GithubIngest, QuotesIngest, TwitterIngest,
+  GithubIngest, GoogleTrendsIngest, QuotesIngest, TwitterIngest,
 } from "./data.ingester.entities";
 
 @Injectable()
@@ -69,6 +69,11 @@ export class DataIngesterService {
         refreshInterval: CronExpression.EVERY_HOUR,
         tableName: 'github',
         fetcher: new GithubIngest(this.apiConfigService, this.apiService),
+      },
+      {
+        refreshInterval: CronExpression.EVERY_HOUR,
+        tableName: 'trends',
+        fetcher: new GoogleTrendsIngest(),
       },
       {
         refreshInterval: CronExpression.EVERY_HOUR,
