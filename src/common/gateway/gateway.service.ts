@@ -40,10 +40,40 @@ export class GatewayService {
     }
   }
 
+  async createRaw(url: string, component: GatewayComponentRequest, data: any): Promise<any> {
+    const profiler = new PerformanceProfiler();
+
+    try {
+      return await this.apiService.post(`${this.apiConfigService.getGatewayUrl()}/${url}`, data);
+    } finally {
+      profiler.stop();
+
+      this.metricsService.setGatewayDuration(component, profiler.duration);
+    }
+  }
+
   async getEpoch(): Promise<number> {
     const {
       status: { erd_epoch_number },
     } = await this.get('network/status/4294967295', GatewayComponentRequest.networkStatus);
     return erd_epoch_number;
+  }
+
+  async vmQuery(contract: string, func: string, caller: string | undefined = undefined, args: string[] = []): Promise<string[]> {
+    const payload = {
+      scAddress: contract,
+      FuncName: func,
+      caller: caller,
+      args: args,
+    };
+
+    const result = await this.createRaw(
+      'vm-values/query',
+      GatewayComponentRequest.vmQuery,
+      payload,
+    );
+
+    const data = result.data.data;
+    return 'ReturnData' in data ? data.ReturnData : data.returnData;
   }
 }

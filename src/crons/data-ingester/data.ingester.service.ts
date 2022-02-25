@@ -10,8 +10,8 @@ import {
   AccountsBalanceIngest, AccountsCountIngest, AccountsDelegationIngest,
   AccountsDelegationLegacyActiveIngest, AccountsTotalBalanceWithStakeIngest,
   AccountsTotalStakeIngest, EconomicsIngest, ExchangesIngest, GithubIngest,
-  GoogleIngest, GoogleTrendsIngest, QuotesIngest, TransactionsIngest,
-  TwitterIngest,
+  GoogleIngest, GoogleTrendsIngest, QuotesIngest, StakingDetailedIngest,
+  StakingIngest, TransactionsIngest, TwitterIngest,
 } from "./data.ingester.entities";
 
 @Injectable()
@@ -86,6 +86,16 @@ export class DataIngesterService {
         refreshInterval: CronExpression.EVERY_HOUR,
         tableName: 'quotes',
         fetcher: new QuotesIngest(this.apiConfigService, this.apiService),
+      },
+      {
+        refreshInterval: CronExpression.EVERY_HOUR,
+        tableName: 'staking',
+        fetcher: new StakingIngest(this.apiConfigService, this.apiService, this.gatewayService),
+      },
+      {
+        refreshInterval: CronExpression.EVERY_HOUR,
+        tableName: 'staking_historical',
+        fetcher: new StakingDetailedIngest(this.apiConfigService, this.apiService, this.gatewayService, this.elasticService),
       },
       {
         refreshInterval: CronExpression.EVERY_HOUR,

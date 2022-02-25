@@ -67,6 +67,10 @@ Array.prototype.findMissingElements = function <T>(second: T[]) {
   return missing;
 };
 
+Array.prototype.distinct = function <T>(): T[] {
+  return [...new Set(this)];
+};
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 declare interface Array<T> {
   groupBy(predicate: (item: T) => string): { [key: string]: T };
@@ -75,4 +79,5 @@ declare interface Array<T> {
   zip<TSecond, TResult>(second: TSecond[], predicate: (first: T, second: TSecond) => TResult): TResult[];
   remove(element: T): number;
   findMissingElements<T>(second: T[]): T[];
+  distinct(): T[];
 }

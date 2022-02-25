@@ -249,6 +249,33 @@ export class ApiConfigService {
     return admins;
   }
 
+  getDelegationContract(): string {
+    const delegationContract = this.configService.get<string>('contracts.delegation');
+    if (!delegationContract) {
+      throw new Error('No delegation contract present');
+    }
+
+    return delegationContract;
+  }
+
+  getAuctionContract(): string {
+    const auctionContract = this.configService.get<string>('contracts.auction');
+    if (!auctionContract) {
+      throw new Error('No auction contract present');
+    }
+
+    return auctionContract;
+  }
+
+  getStakingContract(): string {
+    const stakingContract = this.configService.get<string>('contracts.staking');
+    if (!stakingContract) {
+      throw new Error('No staking contract present');
+    }
+
+    return stakingContract;
+  }
+
   getExchangeWallets(): Record<string, string[]> {
     const exchangeWallets = this.configService.get<Record<string, string[]>>('exchangeWallets');
     if (exchangeWallets === undefined) {
