@@ -1,4 +1,3 @@
-export { AccountsCountIngest } from './entities/accounts-count.ingest';
 export { AccountsBalanceIngest } from "./entities/accounts-balance.ingest";
 export { AccountsDelegationLegacyActiveIngest } from "./entities/accounts-delegation-legacy-active.ingest";
 export { AccountsDelegationIngest } from "./entities/accounts-delegation.ingest";

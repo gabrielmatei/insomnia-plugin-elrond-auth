@@ -1,6 +1,7 @@
 import { ApiConfigService } from "src/common/api-config/api.config.service";
 import { GatewayService } from "src/common/gateway/gateway.service";
 import { ApiService } from "src/common/network/api.service";
+import { GenericIngestEntity } from "src/ingesters/generic/generic-ingest.entity";
 import { AddressUtils } from "src/utils/address.utils";
 import { NumberUtils } from "src/utils/number.utils";
 import { Ingest } from "./ingest";
@@ -18,7 +19,7 @@ export class StakingIngest implements Ingest {
     this.gatewayService = gatewayService;
   }
 
-  public async fetch(): Promise<Record<string, any>> {
+  public async fetch(): Promise<GenericIngestEntity[]> {
     const { staked } = await this.apiService.get(`${this.apiConfigService.getApiUrl()}/economics`);
 
     const delegationWaitingList = await this.getDelegationWaitingList();
@@ -51,11 +52,15 @@ export class StakingIngest implements Ingest {
       user_average: Math.floor(staking.value / totalList.length),
     };
 
-    return {
+    const data = {
       staking,
       legacyDelegation,
       total,
     };
+    console.log(data);
+
+    return [];
+
   }
 
   private async getStakingWaitingList() {

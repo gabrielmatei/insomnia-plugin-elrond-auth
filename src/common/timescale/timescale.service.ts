@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { getManager } from 'typeorm';
+import { EntityTarget, getManager, getRepository } from 'typeorm';
 
 @Injectable()
 export class TimescaleService {
@@ -21,10 +21,10 @@ export class TimescaleService {
     }
   }
 
-  public async writeData(tableName: string, key: string, value: number, time: string): Promise<void> {
+  public async writeData<T>(entityTarget: EntityTarget<T>, entity: T): Promise<void> {
     try {
-      const entityManager = getManager();
-      await entityManager.query(`INSERT INTO ${tableName}(time, key, value) VALUES('${time}', '${key}', ${value});`);
+      const repository = getRepository(entityTarget);
+      await repository.save(entity);
     } catch (error) {
       this.logger.error(error);
     }

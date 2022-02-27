@@ -1,6 +1,7 @@
 import moment from "moment";
 import { ApiConfigService } from "src/common/api-config/api.config.service";
 import { ApiService } from "src/common/network/api.service";
+import { GenericIngestEntity } from "src/ingesters/generic/generic-ingest.entity";
 import { Ingest } from "./ingest";
 
 export class TwitterIngest implements Ingest {
@@ -12,7 +13,7 @@ export class TwitterIngest implements Ingest {
     this.apiService = apiService;
   }
 
-  public async fetch(): Promise<Record<string, number>> {
+  public async fetch(): Promise<GenericIngestEntity[]> {
     console.log(this.apiConfigService, this.apiService);
 
     const dayOfMonth = moment().date();
@@ -86,10 +87,15 @@ export class TwitterIngest implements Ingest {
     //   followers_count_24h = last_24h && last_24h > 0 ? followers_count - last_24h : 0;
     // }
 
-    return {
-      mentions: mentionsTotal,
-      followers: followers_count,
-      // followers_24h: followers_count_24h,
+    const data = {
+      twitter: {
+        mentions: mentionsTotal,
+        followers: followers_count,
+        // followers_24h: followers_count_24h,
+      },
     };
+    console.log(data);
+    return [];
+
   }
 }

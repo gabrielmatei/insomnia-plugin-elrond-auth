@@ -1,6 +1,7 @@
 import { Logger } from "@nestjs/common";
 import { ApiConfigService } from "src/common/api-config/api.config.service";
 import { ApiService } from "src/common/network/api.service";
+import { GenericIngestEntity } from "src/ingesters/generic/generic-ingest.entity";
 import { Ingest } from "./ingest";
 
 export class GithubIngest implements Ingest {
@@ -16,7 +17,7 @@ export class GithubIngest implements Ingest {
     this.logger = new Logger(GithubIngest.name);
   }
 
-  public async fetch(): Promise<Record<string, number>> {
+  public async fetch(): Promise<GenericIngestEntity[]> {
     const featuredRepositories = this.apiConfigService.getFeaturedRepositories();
 
     const repoDetails: any = {};
@@ -135,7 +136,9 @@ export class GithubIngest implements Ingest {
     repoDetails.featured['stars'] = featuredStars;
     repoDetails.featured['contributors'] = featuredAuthors.size;
 
-    return repoDetails;
+    console.log(repoDetails);
+    return [];
+
   }
 
   private async getGithubRepositories(): Promise<string[]> {

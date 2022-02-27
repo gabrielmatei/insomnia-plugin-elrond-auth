@@ -1,5 +1,6 @@
 import { ApiConfigService } from "src/common/api-config/api.config.service";
 import { ApiService } from "src/common/network/api.service";
+import { GenericIngestEntity } from "src/ingesters/generic/generic-ingest.entity";
 import { Ingest } from "./ingest";
 
 export class ExchangesIngest implements Ingest {
@@ -11,7 +12,7 @@ export class ExchangesIngest implements Ingest {
     this.apiService = apiService;
   }
 
-  public async fetch(): Promise<Record<string, number>> {
+  public async fetch(): Promise<GenericIngestEntity[]> {
     const exchangeWallets = this.apiConfigService.getExchangeWallets();
 
     const balances = await Promise.all(
@@ -31,10 +32,15 @@ export class ExchangesIngest implements Ingest {
       return record;
     }, {} as Record<string, number>);
 
-    return {
-      ...balanceKeys,
-      total: totalBalance,
+    const data = {
+      exchanges: {
+        ...balanceKeys,
+        total: totalBalance,
+      },
     };
+    console.log(data);
+
+    return [];
   }
 
   private async getExchangeBalance(wallets: string[]): Promise<number> {

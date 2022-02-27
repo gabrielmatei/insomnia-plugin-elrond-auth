@@ -1,5 +1,6 @@
 import { ApiConfigService } from "src/common/api-config/api.config.service";
 import { ElasticService } from "src/common/elastic/elastic.service";
+import { GenericIngestEntity } from "src/ingesters/generic/generic-ingest.entity";
 import { Ingest } from "./ingest";
 
 export class AccountsBalanceIngest implements Ingest {
@@ -11,7 +12,7 @@ export class AccountsBalanceIngest implements Ingest {
     this.elasticService = elasticService;
   }
 
-  public async fetch(): Promise<Record<string, number>> {
+  public async fetch(): Promise<GenericIngestEntity[]> {
     const [
       count_gt_0,
       count_gt_0_1,
@@ -27,7 +28,7 @@ export class AccountsBalanceIngest implements Ingest {
       [0, 0.1, 1, 10, 100, 1000, 10000]
     );
 
-    return {
+    const data = {
       count_gt_0,
       count_gt_0_1,
       count_gt_1,
@@ -37,5 +38,7 @@ export class AccountsBalanceIngest implements Ingest {
       count_gt_10000,
       // count_24h, // TODO
     };
+    console.log(data);
+    return [];
   }
 }

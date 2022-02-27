@@ -1,5 +1,6 @@
 import { ApiConfigService } from "src/common/api-config/api.config.service";
 import { ApiService } from "src/common/network/api.service";
+import { GenericIngestEntity } from "src/ingesters/generic/generic-ingest.entity";
 import { Ingest } from "./ingest";
 
 export class QuotesIngest implements Ingest {
@@ -11,7 +12,7 @@ export class QuotesIngest implements Ingest {
     this.apiService = apiService;
   }
 
-  public async fetch(): Promise<Record<string, number>> {
+  public async fetch(): Promise<GenericIngestEntity[]> {
     const { data: quotesRaw } = await this.apiService.get<any>(
       'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest',
       {
@@ -35,6 +36,8 @@ export class QuotesIngest implements Ingest {
       };
     });
 
-    return data;
+    console.log(data);
+    return [];
+
   }
 }

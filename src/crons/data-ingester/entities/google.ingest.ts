@@ -1,6 +1,7 @@
 import moment from "moment";
 import { Ingest } from "./ingest";
 import { google, webmasters_v3 } from "googleapis";
+import { GenericIngestEntity } from "src/ingesters/generic/generic-ingest.entity";
 
 export class GoogleIngest implements Ingest {
   private readonly webmasters: webmasters_v3.Webmasters = google.webmasters('v3');
@@ -16,7 +17,7 @@ export class GoogleIngest implements Ingest {
     google.options({ auth });
   }
 
-  public async fetch(): Promise<Record<string, number>> {
+  public async fetch(): Promise<GenericIngestEntity[]> {
     const startDate = moment().startOf('day').subtract(3, 'days').format('YYYY-MM-DD');
     const endDate = moment().startOf('day').subtract(2, 'days').format('YYYY-MM-DD');
     const highlightedWords = ['elrond', 'egld', 'egold'];
@@ -64,6 +65,6 @@ export class GoogleIngest implements Ingest {
       })
     );
 
-    return {};
+    return [];
   }
 }

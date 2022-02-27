@@ -1,18 +1,19 @@
 import { Logger } from "@nestjs/common";
 import { CronExpression, SchedulerRegistry } from "@nestjs/schedule";
 import { CronJob } from "cron";
-import moment from "moment";
 import { TimescaleService } from "src/common/timescale/timescale.service";
-import { Constants } from "src/utils/constants";
+import { GenericIngestEntity } from "src/ingesters/generic/generic-ingest.entity";
 import { Locker } from "src/utils/locker";
+import { EntityTarget } from "typeorm";
 
 export interface Ingest {
-  fetch(): Promise<Record<string, number>>
+  fetch(): Promise<GenericIngestEntity[]>
 }
 
 export class IngestItem {
   refreshInterval: CronExpression = CronExpression.EVERY_5_SECONDS;
   tableName: string = '';
+  entityTarget?: EntityTarget<unknown>;
   fetcher?: Ingest;
 }
 
@@ -46,7 +47,7 @@ export class Ingester {
         return;
       }
 
-      await this.fetchRecords(item.tableName, item.fetcher);
+      await this.fetchRecords(item.tableName, item.entityTarget!, item.fetcher);
     });
 
     this.schedulerRegistry.addCronJob(item.tableName, job);
@@ -54,18 +55,13 @@ export class Ingester {
     return job;
   }
 
-  private async fetchRecords(tableName: string, fetcher: Ingest) {
+  private async fetchRecords(tableName: string, entityTarget: EntityTarget<unknown>, fetcher: Ingest) {
     await Locker.lock(tableName, async () => {
-      const currentTime = moment().utc().format(Constants.sqlDateFormat());
-
       const records = await fetcher.fetch();
 
-      // write records
-      await Promise.all(
-        Object
-          .entries(records)
-          .map(async ([key, value]) => await this.timescaleService.writeData(tableName, key, value, currentTime))
-      );
+      await Promise.all(records.map(async (record) => {
+        await this.timescaleService.writeData(entityTarget, record);
+      }));
     }, true);
   }
 }

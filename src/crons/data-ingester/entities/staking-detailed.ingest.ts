@@ -4,6 +4,7 @@ import { ElasticQuery } from "src/common/elastic/entities/elastic.query";
 import { RangeQuery } from "src/common/elastic/entities/range.query";
 import { GatewayService } from "src/common/gateway/gateway.service";
 import { ApiService } from "src/common/network/api.service";
+import { GenericIngestEntity } from "src/ingesters/generic/generic-ingest.entity";
 import { Ingest } from "./ingest";
 
 export class StakingDetailedIngest implements Ingest {
@@ -19,7 +20,7 @@ export class StakingDetailedIngest implements Ingest {
     this.elasticService = elasticService;
   }
 
-  public async fetch(): Promise<Record<string, any>> {
+  public async fetch(): Promise<GenericIngestEntity[]> {
     const epoch = await this.gatewayService.getEpoch();
 
     const { staked: totalStaked } = await this.apiService.get(`${this.apiConfigService.getApiUrl()}/economics`);
@@ -196,7 +197,8 @@ export class StakingDetailedIngest implements Ingest {
         user_average: userAverage,
       },
     };
-    return data;
+    console.log(data);
+    return [];
   }
 
   private async getDelegationLegacyTotal(): Promise<number[]> {
