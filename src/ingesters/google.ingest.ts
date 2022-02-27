@@ -1,7 +1,7 @@
 import moment from "moment";
-import { Ingest } from "./ingest";
 import { google, webmasters_v3 } from "googleapis";
 import { GenericIngestEntity } from "src/ingesters/generic/generic-ingest.entity";
+import { Ingest } from "src/crons/data-ingester/ingester";
 
 export class GoogleIngest implements Ingest {
   private readonly webmasters: webmasters_v3.Webmasters = google.webmasters('v3');

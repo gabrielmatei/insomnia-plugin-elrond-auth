@@ -1,7 +1,7 @@
 import moment from "moment";
 import { ApiConfigService } from "src/common/api-config/api.config.service";
 import { ElasticService } from "src/common/elastic/elastic.service";
-import { Ingest } from "src/crons/data-ingester/entities/ingest";
+import { Ingest } from "src/crons/data-ingester/ingester";
 import { AccountsCount } from "./accounts-count.entity";
 
 export class AccountsCountIngest implements Ingest {
@@ -14,7 +14,6 @@ export class AccountsCountIngest implements Ingest {
   }
 
   public async fetch(): Promise<AccountsCount[]> {
-
     const count = await this.elasticService.getCount(this.apiConfigService.getElasticUrl(), 'accounts');
 
     const timestamp = moment().utc().toDate();

@@ -1,21 +1,16 @@
 import moment from "moment";
-import { ApiConfigService } from "src/common/api-config/api.config.service";
 import { ApiService } from "src/common/network/api.service";
+import { Ingest } from "src/crons/data-ingester/ingester";
 import { GenericIngestEntity } from "src/ingesters/generic/generic-ingest.entity";
-import { Ingest } from "./ingest";
 
 export class TwitterIngest implements Ingest {
-  private readonly apiConfigService: ApiConfigService;
   private readonly apiService: ApiService;
 
-  constructor(apiConfigService: ApiConfigService, apiService: ApiService) {
-    this.apiConfigService = apiConfigService;
+  constructor(apiService: ApiService) {
     this.apiService = apiService;
   }
 
   public async fetch(): Promise<GenericIngestEntity[]> {
-    console.log(this.apiConfigService, this.apiService);
-
     const dayOfMonth = moment().date();
     // Twitter allows the parsing of a maximum of 500000 tweets per month per account
     // Since we already have 2 accounts, we can parse up to 1000000 tweets per month
@@ -50,7 +45,7 @@ export class TwitterIngest implements Ingest {
       });
 
       let mentions = 0;
-      // if (meta.next_token && meta.next_token !== previousToken && callsMade < 290) {
+      // TODO if (meta.next_token && meta.next_token !== previousToken && callsMade < 290) {
       if (meta.next_token && meta.next_token !== previousToken && callsMade < 1) {
         callsMade += 1;
         mentions = await getTwitterMentions(meta.next_token);
@@ -74,24 +69,10 @@ export class TwitterIngest implements Ingest {
       headers,
     });
 
-    // const followers_count_24h = 0;
-    // const previousResult24h = await previousValue24h('twitter', 'twitter', 'followers');
-    // if (previousResult24h.Rows.length) {
-    //   const {
-    //     Rows: [
-    //       {
-    //         Data: [{ ScalarValue: last_24h }],
-    //       },
-    //     ],
-    //   } = previousResult24h;
-    //   followers_count_24h = last_24h && last_24h > 0 ? followers_count - last_24h : 0;
-    // }
-
     const data = {
       twitter: {
         mentions: mentionsTotal,
         followers: followers_count,
-        // followers_24h: followers_count_24h,
       },
     };
     console.log(data);

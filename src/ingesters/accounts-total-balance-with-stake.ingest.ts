@@ -1,10 +1,10 @@
 import { ApiConfigService } from "src/common/api-config/api.config.service";
 import { ElasticService } from "src/common/elastic/elastic.service";
 import { GatewayService } from "src/common/gateway/gateway.service";
+import { Ingest } from "src/crons/data-ingester/ingester";
 import { GenericIngestEntity } from "src/ingesters/generic/generic-ingest.entity";
-import { Ingest } from "./ingest";
 
-export class AccountsTotalStakeIngest implements Ingest {
+export class AccountsTotalBalanceWithStakeIngest implements Ingest {
   private readonly apiConfigService: ApiConfigService;
   private readonly elasticService: ElasticService;
   private readonly gatewayService: GatewayService;
@@ -29,7 +29,7 @@ export class AccountsTotalStakeIngest implements Ingest {
     ] = await this.elasticService.getDetailedRangeCount(
       this.apiConfigService.getInternalElasticUrl(),
       `accounts-000001_${epoch}`,
-      'totalStakeNum',
+      'totalBalanceWithStakeNum',
       [0, 0.1, 1, 10, 100, 1000, 10000]
     );
 
@@ -41,7 +41,6 @@ export class AccountsTotalStakeIngest implements Ingest {
       count_gt_100,
       count_gt_1000,
       count_gt_10000,
-      // count_24h, // TODO
     };
     console.log(data);
 

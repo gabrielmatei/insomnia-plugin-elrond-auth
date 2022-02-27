@@ -1,6 +1,6 @@
 import moment from "moment";
+import { Ingest } from "src/crons/data-ingester/ingester";
 import { GenericIngestEntity } from "src/ingesters/generic/generic-ingest.entity";
-import { Ingest } from "./ingest";
 const googleTrends = require('google-trends-api');
 
 export class GoogleTrendsIngest implements Ingest {

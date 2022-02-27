@@ -4,8 +4,8 @@ import { ElasticQuery } from "src/common/elastic/entities/elastic.query";
 import { RangeQuery } from "src/common/elastic/entities/range.query";
 import { GatewayService } from "src/common/gateway/gateway.service";
 import { ApiService } from "src/common/network/api.service";
+import { Ingest } from "src/crons/data-ingester/ingester";
 import { GenericIngestEntity } from "src/ingesters/generic/generic-ingest.entity";
-import { Ingest } from "./ingest";
 
 export class StakingDetailedIngest implements Ingest {
   private readonly apiConfigService: ApiConfigService;

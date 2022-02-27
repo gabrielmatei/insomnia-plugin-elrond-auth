@@ -11,8 +11,8 @@ export interface Ingest {
 }
 
 export class IngestItem {
+  name: string = '';
   refreshInterval: CronExpression = CronExpression.EVERY_5_SECONDS;
-  tableName: string = '';
   entityTarget?: EntityTarget<unknown>;
   fetcher?: Ingest;
 }
@@ -47,10 +47,10 @@ export class Ingester {
         return;
       }
 
-      await this.fetchRecords(item.tableName, item.entityTarget!, item.fetcher);
+      await this.fetchRecords(item.name, item.entityTarget!, item.fetcher);
     });
 
-    this.schedulerRegistry.addCronJob(item.tableName, job);
+    this.schedulerRegistry.addCronJob(item.name, job);
 
     return job;
   }

@@ -1,8 +1,8 @@
 import { Logger } from "@nestjs/common";
 import { ApiConfigService } from "src/common/api-config/api.config.service";
 import { ApiService } from "src/common/network/api.service";
+import { Ingest } from "src/crons/data-ingester/ingester";
 import { GenericIngestEntity } from "src/ingesters/generic/generic-ingest.entity";
-import { Ingest } from "./ingest";
 
 export class GithubIngest implements Ingest {
   private readonly logger: Logger;
@@ -21,7 +21,6 @@ export class GithubIngest implements Ingest {
     const featuredRepositories = this.apiConfigService.getFeaturedRepositories();
 
     const repoDetails: any = {};
-
 
     let totalStars = 0;
     let totalCommits = 0;
@@ -49,7 +48,6 @@ export class GithubIngest implements Ingest {
         });
 
         if (featuredRepositories.includes(repository)) {
-
           let commits = 0;
           contributors.map((contributor) => {
             featuredAuthors.add(contributor.author);
@@ -57,28 +55,9 @@ export class GithubIngest implements Ingest {
             featuredCommits += contributor.commits;
           });
 
-          // const previousResult24h = await previousValue24h(
-          //   'github',
-          //   formattedRepoName,
-          //   'commits'
-          // );
-          // let commits_24h = 0;
-          // if (previousResult24h.Rows.length) {
-          //   const {
-          //     Rows: [
-          //       {
-          //         Data: [{ ScalarValue: repo_last_24h }],
-          //       },
-          //     ],
-          //   } = previousResult24h;
-          //   const new_commits = repo_last_24h > 0 ? commits - repo_last_24h : 0;
-          //   commits_24h = new_commits > 0 ? new_commits : 0;
-          // }
-
           const formattedRepoName = repository.replace(/-/g, '_');
           repoDetails[formattedRepoName] = {
             commits: commits,
-            // commits_24h: commits_24h,
             stars: stars,
             contributors: contributors.length,
           };
@@ -86,47 +65,6 @@ export class GithubIngest implements Ingest {
 
       })
     );
-
-    // const previousResult24h = await previousValue24h('github', 'total', 'commits');
-    // let commits_24h = 0;
-    // if (previousResult24h.Rows.length) {
-    //   const {
-    //     Rows: [
-    //       {
-    //         Data: [{ ScalarValue: total_last_24h }],
-    //       },
-    //     ],
-    //   } = previousResult24h;
-    //   if (totalCommits < total_last_24h) {
-    //     totalCommits = total_last_24h;
-    //   }
-    //   const newCommits = total_last_24h > 0 ? totalCommits - total_last_24h : 0;
-    //   commits_24h = newCommits > 0 ? newCommits : 0;
-    // }
-    // repoDetails['total'] = {
-    //   commits_24h: commits_24h,
-    // };
-
-    // const featuredResult24h = await previousValue24h('github', 'featured', 'commits');
-    // let featured_commits_24h = 0;
-    // if (featuredResult24h.Rows.length) {
-    //   const {
-    //     Rows: [
-    //       {
-    //         Data: [{ ScalarValue: featured_last_24h }],
-    //       },
-    //     ],
-    //   } = featuredResult24h;
-    //   if (featuredCommits < featured_last_24h) {
-    //     featuredCommits = featured_last_24h;
-    //   }
-    //   const newCommits = featured_last_24h > 0 ? featuredCommits - featured_last_24h : 0;
-    //   featured_commits_24h = newCommits > 0 ? newCommits : 0;
-    // }
-    // repoDetails['featured'] = {
-    //   commits_24h: featured_commits_24h,
-    // };
-
 
     repoDetails['total']['commits'] = totalCommits;
     repoDetails['total']['stars'] = totalStars;

@@ -1,7 +1,7 @@
 import { ApiConfigService } from "src/common/api-config/api.config.service";
 import { ApiService } from "src/common/network/api.service";
+import { Ingest } from "src/crons/data-ingester/ingester";
 import { GenericIngestEntity } from "src/ingesters/generic/generic-ingest.entity";
-import { Ingest } from "./ingest";
 
 export class ExchangesIngest implements Ingest {
   private readonly apiConfigService: ApiConfigService;
@@ -24,8 +24,6 @@ export class ExchangesIngest implements Ingest {
         }))
     );
     const totalBalance = balances.reduce((sum, { balance }) => sum + balance, 0);
-
-    // TODO 24h data
 
     const balanceKeys = balances.reduce((record, { exchange, balance }) => {
       record[exchange] = balance;

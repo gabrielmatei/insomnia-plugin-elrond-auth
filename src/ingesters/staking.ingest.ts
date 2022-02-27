@@ -1,10 +1,10 @@
 import { ApiConfigService } from "src/common/api-config/api.config.service";
 import { GatewayService } from "src/common/gateway/gateway.service";
 import { ApiService } from "src/common/network/api.service";
+import { Ingest } from "src/crons/data-ingester/ingester";
 import { GenericIngestEntity } from "src/ingesters/generic/generic-ingest.entity";
 import { AddressUtils } from "src/utils/address.utils";
 import { NumberUtils } from "src/utils/number.utils";
-import { Ingest } from "./ingest";
 
 import { stakingActiveList } from "./temp_stakingWallets.json";
 
