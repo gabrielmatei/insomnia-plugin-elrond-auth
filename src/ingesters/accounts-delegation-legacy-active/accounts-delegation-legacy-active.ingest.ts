@@ -1,10 +1,11 @@
+import moment from "moment";
 import { ApiConfigService } from "src/common/api-config/api.config.service";
 import { ElasticService } from "src/common/elastic/elastic.service";
 import { GatewayService } from "src/common/gateway/gateway.service";
 import { Ingest } from "src/crons/data-ingester/ingester";
-import { GenericIngestEntity } from "src/ingesters/generic/generic-ingest.entity";
+import { AccountsDelegationLegacyActive } from "./accounts-delegation-legacy-active.entity";
 
-export class AccountsTotalBalanceWithStakeIngest implements Ingest {
+export class AccountsDelegationLegacyActiveIngest implements Ingest {
   private readonly apiConfigService: ApiConfigService;
   private readonly elasticService: ElasticService;
   private readonly gatewayService: GatewayService;
@@ -15,7 +16,7 @@ export class AccountsTotalBalanceWithStakeIngest implements Ingest {
     this.gatewayService = gatewayService;
   }
 
-  public async fetch(): Promise<GenericIngestEntity[]> {
+  public async fetch(): Promise<AccountsDelegationLegacyActive[]> {
     const epoch = await this.gatewayService.getEpoch();
 
     const [
@@ -29,11 +30,12 @@ export class AccountsTotalBalanceWithStakeIngest implements Ingest {
     ] = await this.elasticService.getDetailedRangeCount(
       this.apiConfigService.getInternalElasticUrl(),
       `accounts-000001_${epoch}`,
-      'totalBalanceWithStakeNum',
+      'delegationLegacyActiveNum',
       [0, 0.1, 1, 10, 100, 1000, 10000]
     );
 
-    const data = {
+    const timestamp = moment().utc().toDate();
+    return AccountsDelegationLegacyActive.fromRecord(timestamp, {
       count_gt_0,
       count_gt_0_1,
       count_gt_1,
@@ -41,10 +43,6 @@ export class AccountsTotalBalanceWithStakeIngest implements Ingest {
       count_gt_100,
       count_gt_1000,
       count_gt_10000,
-    };
-    console.log(data);
-
-    return [];
-
+    });
   }
 }

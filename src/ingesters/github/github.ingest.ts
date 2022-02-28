@@ -1,8 +1,9 @@
 import { Logger } from "@nestjs/common";
+import moment from "moment";
 import { ApiConfigService } from "src/common/api-config/api.config.service";
 import { ApiService } from "src/common/network/api.service";
 import { Ingest } from "src/crons/data-ingester/ingester";
-import { GenericIngestEntity } from "src/ingesters/generic/generic-ingest.entity";
+import { Github } from "./github.entity";
 
 export class GithubIngest implements Ingest {
   private readonly logger: Logger;
@@ -17,7 +18,7 @@ export class GithubIngest implements Ingest {
     this.logger = new Logger(GithubIngest.name);
   }
 
-  public async fetch(): Promise<GenericIngestEntity[]> {
+  public async fetch(): Promise<Github[]> {
     const featuredRepositories = this.apiConfigService.getFeaturedRepositories();
 
     const repoDetails: any = {};
@@ -66,17 +67,18 @@ export class GithubIngest implements Ingest {
       })
     );
 
+    repoDetails['total'] = {};
     repoDetails['total']['commits'] = totalCommits;
     repoDetails['total']['stars'] = totalStars;
     repoDetails['total']['contributors'] = totalAuthors.size;
 
-    repoDetails.featured['commits'] = featuredCommits;
-    repoDetails.featured['stars'] = featuredStars;
-    repoDetails.featured['contributors'] = featuredAuthors.size;
+    repoDetails['featured'] = {};
+    repoDetails['featured']['commits'] = featuredCommits;
+    repoDetails['featured']['stars'] = featuredStars;
+    repoDetails['featured']['contributors'] = featuredAuthors.size;
 
-    console.log(repoDetails);
-    return [];
-
+    const timestamp = moment().utc().toDate();
+    return Github.fromObject(timestamp, repoDetails);
   }
 
   private async getGithubRepositories(): Promise<string[]> {

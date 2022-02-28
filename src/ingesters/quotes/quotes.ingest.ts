@@ -1,7 +1,8 @@
+import moment from "moment";
 import { ApiConfigService } from "src/common/api-config/api.config.service";
 import { ApiService } from "src/common/network/api.service";
 import { Ingest } from "src/crons/data-ingester/ingester";
-import { GenericIngestEntity } from "src/ingesters/generic/generic-ingest.entity";
+import { Quotes } from "./quotes.entity";
 
 export class QuotesIngest implements Ingest {
   private readonly apiConfigService: ApiConfigService;
@@ -12,7 +13,7 @@ export class QuotesIngest implements Ingest {
     this.apiService = apiService;
   }
 
-  public async fetch(): Promise<GenericIngestEntity[]> {
+  public async fetch(): Promise<Quotes[]> {
     const { data: quotesRaw } = await this.apiService.get<any>(
       'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest',
       {
@@ -36,8 +37,7 @@ export class QuotesIngest implements Ingest {
       };
     });
 
-    console.log(data);
-    return [];
-
+    const timestamp = moment().utc().toDate();
+    return Quotes.fromObject(timestamp, data);
   }
 }

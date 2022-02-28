@@ -1,7 +1,8 @@
+import moment from "moment";
 import { ApiConfigService } from "src/common/api-config/api.config.service";
 import { ApiService } from "src/common/network/api.service";
 import { Ingest } from "src/crons/data-ingester/ingester";
-import { GenericIngestEntity } from "src/ingesters/generic/generic-ingest.entity";
+import { Exchanges } from "./exchanges.entity";
 
 export class ExchangesIngest implements Ingest {
   private readonly apiConfigService: ApiConfigService;
@@ -12,7 +13,7 @@ export class ExchangesIngest implements Ingest {
     this.apiService = apiService;
   }
 
-  public async fetch(): Promise<GenericIngestEntity[]> {
+  public async fetch(): Promise<Exchanges[]> {
     const exchangeWallets = this.apiConfigService.getExchangeWallets();
 
     const balances = await Promise.all(
@@ -30,15 +31,11 @@ export class ExchangesIngest implements Ingest {
       return record;
     }, {} as Record<string, number>);
 
-    const data = {
-      exchanges: {
-        ...balanceKeys,
-        total: totalBalance,
-      },
-    };
-    console.log(data);
-
-    return [];
+    const timestamp = moment().utc().toDate();
+    return Exchanges.fromRecord(timestamp, {
+      ...balanceKeys,
+      total: totalBalance,
+    });
   }
 
   private async getExchangeBalance(wallets: string[]): Promise<number> {

@@ -25,6 +25,7 @@ export abstract class GenericIngestEntity {
 
   @Column({
     nullable: false,
+    type: 'double precision',
   })
   value: number = 0;
 }

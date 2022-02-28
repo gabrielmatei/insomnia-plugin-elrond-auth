@@ -1,10 +1,11 @@
+import moment from "moment";
 import { ApiConfigService } from "src/common/api-config/api.config.service";
 import { GatewayService } from "src/common/gateway/gateway.service";
 import { ApiService } from "src/common/network/api.service";
 import { Ingest } from "src/crons/data-ingester/ingester";
-import { GenericIngestEntity } from "src/ingesters/generic/generic-ingest.entity";
 import { AddressUtils } from "src/utils/address.utils";
 import { NumberUtils } from "src/utils/number.utils";
+import { Staking } from "./staking.entity";
 
 import { stakingActiveList } from "./temp_stakingWallets.json";
 
@@ -19,7 +20,7 @@ export class StakingIngest implements Ingest {
     this.gatewayService = gatewayService;
   }
 
-  public async fetch(): Promise<GenericIngestEntity[]> {
+  public async fetch(): Promise<Staking[]> {
     const { staked } = await this.apiService.get(`${this.apiConfigService.getApiUrl()}/economics`);
 
     const delegationWaitingList = await this.getDelegationWaitingList();
@@ -52,15 +53,12 @@ export class StakingIngest implements Ingest {
       user_average: Math.floor(staking.value / totalList.length),
     };
 
-    const data = {
+    const timestamp = moment().utc().toDate();
+    return Staking.fromObject(timestamp, {
       staking,
       legacyDelegation,
       total,
-    };
-    console.log(data);
-
-    return [];
-
+    });
   }
 
   private async getStakingWaitingList() {

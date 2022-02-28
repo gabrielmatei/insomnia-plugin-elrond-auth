@@ -1,3 +1,4 @@
+import moment from "moment";
 import { ApiConfigService } from "src/common/api-config/api.config.service";
 import { ElasticService } from "src/common/elastic/elastic.service";
 import { ElasticQuery } from "src/common/elastic/entities/elastic.query";
@@ -5,7 +6,7 @@ import { RangeQuery } from "src/common/elastic/entities/range.query";
 import { GatewayService } from "src/common/gateway/gateway.service";
 import { ApiService } from "src/common/network/api.service";
 import { Ingest } from "src/crons/data-ingester/ingester";
-import { GenericIngestEntity } from "src/ingesters/generic/generic-ingest.entity";
+import { StakingDetailed } from "./staking-detailed.entity";
 
 export class StakingDetailedIngest implements Ingest {
   private readonly apiConfigService: ApiConfigService;
@@ -20,7 +21,7 @@ export class StakingDetailedIngest implements Ingest {
     this.elasticService = elasticService;
   }
 
-  public async fetch(): Promise<GenericIngestEntity[]> {
+  public async fetch(): Promise<StakingDetailed[]> {
     const epoch = await this.gatewayService.getEpoch();
 
     const { staked: totalStaked } = await this.apiService.get(`${this.apiConfigService.getApiUrl()}/economics`);
@@ -162,7 +163,6 @@ export class StakingDetailedIngest implements Ingest {
         : totalStaked / totalUniqueUsers
     );
 
-    // const timestamp = moment.utc().subtract(1, 'days').format('x');
     const data = {
       legacydelegation: {
         value: delegationLegacyTotal,
@@ -197,8 +197,9 @@ export class StakingDetailedIngest implements Ingest {
         user_average: userAverage,
       },
     };
-    console.log(data);
-    return [];
+
+    const timestamp = moment.utc().subtract(1, 'days').toDate();
+    return StakingDetailed.fromObject(timestamp, data);
   }
 
   private async getDelegationLegacyTotal(): Promise<number[]> {

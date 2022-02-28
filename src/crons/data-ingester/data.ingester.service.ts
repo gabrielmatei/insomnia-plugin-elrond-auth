@@ -12,21 +12,32 @@ import { AccountsBalance } from "src/ingesters/accounts-balance/accounts-balance
 import { Economics } from "src/ingesters/economics/economics.entity";
 import { EconomicsIngest } from "src/ingesters/economics/economics.ingest";
 import { Ingester, IngestItem } from "./ingester";
-import { AccountsDelegationLegacyActiveIngest } from "src/ingesters/accounts-delegation-legacy-active.ingest";
-import { AccountsTotalBalanceWithStakeIngest } from "src/ingesters/accounts-total-balance-with-stake.ingest";
-import { AccountsTotalStakeIngest } from "src/ingesters/accounts-total-stake.ingest";
-import { ExchangesIngest } from "src/ingesters/exchanges.ingest";
-import { GithubIngest } from "src/ingesters/github.ingest";
-import { GoogleIngest } from "src/ingesters/google.ingest";
-import { GoogleTrendsIngest } from "src/ingesters/google-trends.ingest";
-import { QuotesIngest } from "src/ingesters/quotes.ingest";
-import { StakingIngest } from "src/ingesters/staking.ingest";
-import { StakingDetailedIngest } from "src/ingesters/staking-detailed.ingest";
-import { TwitterIngest } from "src/ingesters/twitter.ingest";
 import { Transactions } from "src/ingesters/transactions/transactions.entity";
 import { TransactionsIngest } from "src/ingesters/transactions/transactions.ingest";
 import { AccountsDelegation } from "src/ingesters/accounts-delegation/accounts-delegation.entity";
 import { AccountsDelegationIngest } from "src/ingesters/accounts-delegation/accounts-delegation.ingest";
+import { AccountsTotalStake } from "src/ingesters/accounts-total-stake/accounts-total-stake.entity";
+import { AccountsTotalStakeIngest } from "src/ingesters/accounts-total-stake/accounts-total-stake.ingest";
+import { AccountsDelegationLegacyActive } from "src/ingesters/accounts-delegation-legacy-active/accounts-delegation-legacy-active.entity";
+import { AccountsDelegationLegacyActiveIngest } from "src/ingesters/accounts-delegation-legacy-active/accounts-delegation-legacy-active.ingest";
+import { AccountsTotalBalanceWithStakeIngest } from "src/ingesters/accounts-total-balance-with-stake/accounts-total-balance-with-stake.ingest";
+import { AccountsTotalBalanceWithStake } from "src/ingesters/accounts-total-balance-with-stake/accounts-total-balance-with-stake.entity";
+import { Exchanges } from "src/ingesters/exchanges/exchanges.entity";
+import { ExchangesIngest } from "src/ingesters/exchanges/exchanges.ingest";
+import { GithubIngest } from "src/ingesters/github/github.ingest";
+import { Github } from "src/ingesters/github/github.entity";
+import { Google } from "src/ingesters/google/google.entity";
+import { GoogleIngest } from "src/ingesters/google/google.ingest";
+import { GoogleTrends } from "src/ingesters/google-trends/google-trends.entity";
+import { GoogleTrendsIngest } from "src/ingesters/google-trends/google-trends.ingest";
+import { Staking } from "src/ingesters/staking/staking.entity";
+import { StakingDetailed } from "src/ingesters/staking-detailed/staking-detailed.entity";
+import { StakingIngest } from "src/ingesters/staking/staking.ingest";
+import { StakingDetailedIngest } from "src/ingesters/staking-detailed/staking-detailed.ingest";
+import { Quotes } from "src/ingesters/quotes/quotes.entity";
+import { Twitter } from "src/ingesters/twitter/twitter.entity";
+import { QuotesIngest } from "src/ingesters/quotes/quotes.ingest";
+import { TwitterIngest } from "src/ingesters/twitter/twitter.ingest";
 
 @Injectable()
 export class DataIngesterService {
@@ -62,16 +73,19 @@ export class DataIngesterService {
       {
         name: 'accounts_delegation_legacy_active',
         refreshInterval: CronExpression.EVERY_HOUR,
+        entityTarget: AccountsDelegationLegacyActive,
         fetcher: new AccountsDelegationLegacyActiveIngest(this.apiConfigService, this.elasticService, this.gatewayService),
       },
       {
         name: 'accounts_total_balance_with_stake',
         refreshInterval: CronExpression.EVERY_HOUR,
+        entityTarget: AccountsTotalBalanceWithStake,
         fetcher: new AccountsTotalBalanceWithStakeIngest(this.apiConfigService, this.elasticService, this.gatewayService),
       },
       {
         name: 'accounts_total_stake',
         refreshInterval: CronExpression.EVERY_HOUR,
+        entityTarget: AccountsTotalStake,
         fetcher: new AccountsTotalStakeIngest(this.apiConfigService, this.elasticService, this.gatewayService),
       },
       {
@@ -83,36 +97,43 @@ export class DataIngesterService {
       {
         name: 'exchanges',
         refreshInterval: CronExpression.EVERY_HOUR,
+        entityTarget: Exchanges,
         fetcher: new ExchangesIngest(this.apiConfigService, this.apiService),
       },
       {
         name: 'github',
         refreshInterval: CronExpression.EVERY_HOUR,
+        entityTarget: Github,
         fetcher: new GithubIngest(this.apiConfigService, this.apiService),
       },
       {
         name: 'google',
         refreshInterval: CronExpression.EVERY_HOUR,
+        entityTarget: Google,
         fetcher: new GoogleIngest(),
       },
       {
-        name: 'trends',
+        name: 'google_trends',
         refreshInterval: CronExpression.EVERY_HOUR,
+        entityTarget: GoogleTrends,
         fetcher: new GoogleTrendsIngest(),
       },
       {
         name: 'quotes',
         refreshInterval: CronExpression.EVERY_HOUR,
+        entityTarget: Quotes,
         fetcher: new QuotesIngest(this.apiConfigService, this.apiService),
       },
       {
         name: 'staking',
         refreshInterval: CronExpression.EVERY_HOUR,
+        entityTarget: Staking,
         fetcher: new StakingIngest(this.apiConfigService, this.apiService, this.gatewayService),
       },
       {
         name: 'staking_historical',
         refreshInterval: CronExpression.EVERY_HOUR,
+        entityTarget: StakingDetailed,
         fetcher: new StakingDetailedIngest(this.apiConfigService, this.apiService, this.gatewayService, this.elasticService),
       },
       {
@@ -124,6 +145,7 @@ export class DataIngesterService {
       {
         name: 'twitter',
         refreshInterval: CronExpression.EVERY_HOUR,
+        entityTarget: Twitter,
         fetcher: new TwitterIngest(this.apiService),
       },
     ];
