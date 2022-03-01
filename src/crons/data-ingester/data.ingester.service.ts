@@ -94,7 +94,7 @@ export class DataIngesterService {
         name: 'economics',
         refreshInterval: CronExpression.EVERY_HOUR,
         entityTarget: Economics,
-        fetcher: new EconomicsIngest(this.apiConfigService, this.apiService),
+        fetcher: new EconomicsIngest(this.apiConfigService, this.apiService, this.elasticService),
       },
       {
         name: 'exchanges',
