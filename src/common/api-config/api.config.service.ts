@@ -311,4 +311,28 @@ export class ApiConfigService {
 
     return accessToken;
   }
+
+  getCoingeckoUrl(): string {
+    const url = this.configService.get<string>('coingecko.url');
+    if (!url) {
+      throw new Error('No Coingecko url value present');
+    }
+    return url;
+  }
+
+  getCoingeckoElrondId(): string {
+    const elrondId = this.configService.get<string>('coingecko.elrondId');
+    if (!elrondId) {
+      throw new Error('No Coingecko Elrond Id value present');
+    }
+    return elrondId;
+  }
+
+  getCoingeckoVsCurrencies(): string[] {
+    const vsCurrencies = this.configService.get<string[]>('coingecko.vsCurrencies');
+    if (!vsCurrencies) {
+      throw new Error('No Coingecko vs currencies value present');
+    }
+    return vsCurrencies;
+  }
 }
