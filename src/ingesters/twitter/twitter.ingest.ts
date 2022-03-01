@@ -4,6 +4,9 @@ import { Ingest } from "src/crons/data-ingester/ingester";
 import { Twitter } from "./twitter.entity";
 
 export class TwitterIngest implements Ingest {
+  public readonly name = TwitterIngest.name;
+  public readonly entityTarget = Twitter;
+
   private readonly apiService: ApiService;
 
   constructor(apiService: ApiService) {

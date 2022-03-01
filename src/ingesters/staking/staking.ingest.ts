@@ -10,6 +10,9 @@ import { Staking } from "./staking.entity";
 import { stakingActiveList } from "./temp_stakingWallets.json";
 
 export class StakingIngest implements Ingest {
+  public readonly name = StakingIngest.name;
+  public readonly entityTarget = Staking;
+
   private readonly apiConfigService: ApiConfigService;
   private readonly apiService: ApiService;
   private readonly gatewayService: GatewayService;

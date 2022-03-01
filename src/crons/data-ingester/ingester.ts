@@ -7,29 +7,30 @@ import { Locker, LockResult } from "src/utils/locker";
 import { EntityTarget } from "typeorm";
 
 export interface Ingest {
+  name: string;
+  entityTarget: EntityTarget<unknown>;
   fetch(): Promise<GenericIngestEntity[]>
 }
 
 export class IngestItem {
-  name: string = '';
-  refreshInterval: CronExpression = CronExpression.EVERY_5_SECONDS;
-  entityTarget?: EntityTarget<unknown>;
-  fetcher?: Ingest;
+  refreshInterval!: CronExpression;
+  fetcher!: Ingest;
 }
 
 export class Ingester {
-  private readonly logger: Logger;
+  public static readonly MAX_RETRIES = 3;
 
+  private readonly logger: Logger;
   private readonly items: IngestItem[];
   private readonly schedulerRegistry: SchedulerRegistry;
   private readonly timescaleService: TimescaleService;
 
   constructor(items: IngestItem[], schedulerRegistry: SchedulerRegistry, timescaleService: TimescaleService) {
+    this.logger = new Logger(Ingester.name);
+
     this.items = items;
     this.schedulerRegistry = schedulerRegistry;
     this.timescaleService = timescaleService;
-
-    this.logger = new Logger(Ingester.name);
   }
 
   public async start() {
@@ -43,31 +44,27 @@ export class Ingester {
 
   private scheduleIngestItem(item: IngestItem) {
     const job = new CronJob(item.refreshInterval, async () => {
-      if (!item.fetcher) {
-        return;
-      }
-
-      await this.fetchRecords(item.name, item.entityTarget!, item.fetcher);
+      await this.fetchRecords(item);
     });
 
-    this.schedulerRegistry.addCronJob(item.name, job);
+    this.schedulerRegistry.addCronJob(item.fetcher.name, job);
 
     return job;
   }
 
-  private async fetchRecords(tableName: string, entityTarget: EntityTarget<unknown>, fetcher: Ingest) {
+  private async fetchRecords(item: IngestItem) {
     let result: LockResult = LockResult.error;
     let retries = 0;
 
-    while (result === LockResult.error && retries < 3) {
+    while (result === LockResult.error && retries < Ingester.MAX_RETRIES) {
       if (result === LockResult.error && retries > 0) {
-        this.logger.log(`Retry #${retries} for table '${tableName}'`);
+        this.logger.log(`Retry #${retries} for fetcher '${item.fetcher.name}'`);
       }
 
-      result = await Locker.lock(tableName, async () => {
-        const records = await fetcher.fetch();
+      result = await Locker.lock(item.fetcher.name, async () => {
+        const records = await item.fetcher.fetch();
 
-        await this.timescaleService.writeData(entityTarget, records);
+        await this.timescaleService.writeData(item.fetcher.entityTarget, records);
       }, true);
 
       retries++;

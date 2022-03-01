@@ -4,6 +4,9 @@ import { Ingest } from "src/crons/data-ingester/ingester";
 import { Google } from "./google.entity";
 
 export class GoogleIngest implements Ingest {
+  public readonly name = GoogleIngest.name;
+  public readonly entityTarget = Google;
+
   private readonly webmasters: webmasters_v3.Webmasters = google.webmasters('v3');
 
   constructor() {

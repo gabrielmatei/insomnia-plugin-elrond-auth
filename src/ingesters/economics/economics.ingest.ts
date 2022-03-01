@@ -6,6 +6,9 @@ import { Ingest } from "src/crons/data-ingester/ingester";
 import { Economics } from "./economics.entity";
 
 export class EconomicsIngest implements Ingest {
+  public readonly name = EconomicsIngest.name;
+  public readonly entityTarget = Economics;
+
   private readonly apiConfigService: ApiConfigService;
   private readonly apiService: ApiService;
   private readonly elasticService: ElasticService;

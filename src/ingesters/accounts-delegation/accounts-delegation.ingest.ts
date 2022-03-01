@@ -6,6 +6,9 @@ import { Ingest } from "src/crons/data-ingester/ingester";
 import { AccountsDelegation } from "./accounts-delegation.entity";
 
 export class AccountsDelegationIngest implements Ingest {
+  public readonly name = AccountsDelegationIngest.name;
+  public readonly entityTarget = AccountsDelegation;
+
   private readonly apiConfigService: ApiConfigService;
   private readonly elasticService: ElasticService;
   private readonly gatewayService: GatewayService;

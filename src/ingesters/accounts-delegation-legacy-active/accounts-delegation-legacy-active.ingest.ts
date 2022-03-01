@@ -6,6 +6,9 @@ import { Ingest } from "src/crons/data-ingester/ingester";
 import { AccountsDelegationLegacyActive } from "./accounts-delegation-legacy-active.entity";
 
 export class AccountsDelegationLegacyActiveIngest implements Ingest {
+  public readonly name = AccountsDelegationLegacyActiveIngest.name;
+  public readonly entityTarget = AccountsDelegationLegacyActive;
+
   private readonly apiConfigService: ApiConfigService;
   private readonly elasticService: ElasticService;
   private readonly gatewayService: GatewayService;

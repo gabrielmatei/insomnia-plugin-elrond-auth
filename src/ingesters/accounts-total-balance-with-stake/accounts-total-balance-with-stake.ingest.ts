@@ -6,6 +6,9 @@ import { Ingest } from "src/crons/data-ingester/ingester";
 import { AccountsTotalBalanceWithStake } from "./accounts-total-balance-with-stake.entity";
 
 export class AccountsTotalBalanceWithStakeIngest implements Ingest {
+  public readonly name = AccountsTotalBalanceWithStakeIngest.name;
+  public readonly entityTarget = AccountsTotalBalanceWithStake;
+
   private readonly apiConfigService: ApiConfigService;
   private readonly elasticService: ElasticService;
   private readonly gatewayService: GatewayService;

@@ -5,6 +5,9 @@ import { Ingest } from "src/crons/data-ingester/ingester";
 import { PricesEntity } from "./prices.entity";
 
 export class PricesIngest implements Ingest {
+  public readonly name = PricesIngest.name;
+  public readonly entityTarget = PricesEntity;
+
   private readonly apiConfigService: ApiConfigService;
   private readonly apiService: ApiService;
 

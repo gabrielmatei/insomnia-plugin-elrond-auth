@@ -9,6 +9,9 @@ import { Ingest } from "src/crons/data-ingester/ingester";
 import { StakingDetailed } from "./staking-detailed.entity";
 
 export class StakingDetailedIngest implements Ingest {
+  public readonly name = StakingDetailedIngest.name;
+  public readonly entityTarget = StakingDetailed;
+
   private readonly apiConfigService: ApiConfigService;
   private readonly apiService: ApiService;
   private readonly gatewayService: GatewayService;

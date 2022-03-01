@@ -6,6 +6,9 @@ import { Ingest } from "src/crons/data-ingester/ingester";
 import { AccountsCount } from "./accounts-count.entity";
 
 export class AccountsCountIngest implements Ingest {
+  public readonly name = AccountsCountIngest.name;
+  public readonly entityTarget = AccountsCount;
+
   private readonly apiConfigService: ApiConfigService;
   private readonly elasticService: ElasticService;
   private readonly timescaleService: TimescaleService;

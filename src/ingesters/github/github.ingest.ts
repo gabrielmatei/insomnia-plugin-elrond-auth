@@ -6,8 +6,10 @@ import { Ingest } from "src/crons/data-ingester/ingester";
 import { Github } from "./github.entity";
 
 export class GithubIngest implements Ingest {
-  private readonly logger: Logger;
+  public readonly name = GithubIngest.name;
+  public readonly entityTarget = Github;
 
+  private readonly logger: Logger;
   private readonly apiConfigService: ApiConfigService;
   private readonly apiService: ApiService;
 
