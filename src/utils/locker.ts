@@ -4,12 +4,12 @@ import { PerformanceProfiler } from "./performance.profiler";
 export class Locker {
   private static lockArray: string[] = [];
 
-  static async lock(key: string, func: () => Promise<void>, log: boolean = false) {
+  static async lock(key: string, func: () => Promise<void>, log: boolean = false): Promise<LockResult> {
     const logger = new Logger('Lock');
 
     if (Locker.lockArray.includes(key) && log) {
       logger.log(`${key} is already running`);
-      return;
+      return LockResult.alreadyRunning;
     }
 
     Locker.lockArray.push(key);
@@ -18,9 +18,11 @@ export class Locker {
 
     try {
       await func();
+      return LockResult.success;
     } catch (error) {
       logger.error(`Error running ${key}`);
       logger.error(error);
+      return LockResult.error;
     } finally {
       profiler.stop(`Running ${key}`, log);
       const index = Locker.lockArray.indexOf(key);
@@ -29,4 +31,10 @@ export class Locker {
       }
     }
   }
+}
+
+export enum LockResult {
+  success = 'success',
+  alreadyRunning = 'alreadyRunning',
+  error = 'error'
 }

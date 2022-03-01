@@ -3,7 +3,7 @@ import { CronExpression, SchedulerRegistry } from "@nestjs/schedule";
 import { CronJob } from "cron";
 import { TimescaleService } from "src/common/timescale/timescale.service";
 import { GenericIngestEntity } from "src/ingesters/generic/generic-ingest.entity";
-import { Locker } from "src/utils/locker";
+import { Locker, LockResult } from "src/utils/locker";
 import { EntityTarget } from "typeorm";
 
 export interface Ingest {
@@ -56,12 +56,21 @@ export class Ingester {
   }
 
   private async fetchRecords(tableName: string, entityTarget: EntityTarget<unknown>, fetcher: Ingest) {
-    await Locker.lock(tableName, async () => {
-      const records = await fetcher.fetch();
+    let result: LockResult = LockResult.error;
+    let retries = 0;
 
-      await Promise.all(records.map(async (record) => {
-        await this.timescaleService.writeData(entityTarget, record);
-      }));
-    }, true);
+    while (result === LockResult.error && retries < 3) {
+      if (result === LockResult.error && retries > 0) {
+        this.logger.log(`Retry #${retries} for table '${tableName}'`);
+      }
+
+      result = await Locker.lock(tableName, async () => {
+        const records = await fetcher.fetch();
+
+        await this.timescaleService.writeData(entityTarget, records);
+      }, true);
+
+      retries++;
+    }
   }
 }
