@@ -58,7 +58,7 @@ export class DataIngesterService {
         name: 'accounts_count',
         refreshInterval: CronExpression.EVERY_HOUR,
         entityTarget: AccountsCount,
-        fetcher: new AccountsCountIngest(this.apiConfigService, this.elasticService),
+        fetcher: new AccountsCountIngest(this.apiConfigService, this.elasticService, this.timescaleService),
       },
       {
         name: 'accounts_balance',
