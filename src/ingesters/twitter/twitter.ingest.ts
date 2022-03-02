@@ -1,11 +1,11 @@
 import moment from "moment";
 import { ApiService } from "src/common/network/api.service";
 import { Ingest } from "src/crons/data-ingester/ingester";
-import { Twitter } from "./twitter.entity";
+import { TwitterEntity } from "./twitter.entity";
 
 export class TwitterIngest implements Ingest {
   public readonly name = TwitterIngest.name;
-  public readonly entityTarget = Twitter;
+  public readonly entityTarget = TwitterEntity;
 
   private readonly apiService: ApiService;
 
@@ -13,7 +13,7 @@ export class TwitterIngest implements Ingest {
     this.apiService = apiService;
   }
 
-  public async fetch(): Promise<Twitter[]> {
+  public async fetch(): Promise<TwitterEntity[]> {
     const dayOfMonth = moment().date();
     // Twitter allows the parsing of a maximum of 500000 tweets per month per account
     // Since we already have 2 accounts, we can parse up to 1000000 tweets per month
@@ -73,7 +73,7 @@ export class TwitterIngest implements Ingest {
     });
 
     const timestamp = moment().utc().toDate();
-    return Twitter.fromRecord(timestamp, {
+    return TwitterEntity.fromRecord(timestamp, {
       mentions: mentionsTotal,
       followers: followers_count,
     });

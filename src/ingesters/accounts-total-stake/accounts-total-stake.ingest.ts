@@ -3,11 +3,11 @@ import { ApiConfigService } from "src/common/api-config/api.config.service";
 import { ElasticService } from "src/common/elastic/elastic.service";
 import { GatewayService } from "src/common/gateway/gateway.service";
 import { Ingest } from "src/crons/data-ingester/ingester";
-import { AccountsTotalStake } from "./accounts-total-stake.entity";
+import { AccountsTotalStakeEntity } from "./accounts-total-stake.entity";
 
 export class AccountsTotalStakeIngest implements Ingest {
   public readonly name = AccountsTotalStakeIngest.name;
-  public readonly entityTarget = AccountsTotalStake;
+  public readonly entityTarget = AccountsTotalStakeEntity;
 
   private readonly apiConfigService: ApiConfigService;
   private readonly elasticService: ElasticService;
@@ -19,7 +19,7 @@ export class AccountsTotalStakeIngest implements Ingest {
     this.gatewayService = gatewayService;
   }
 
-  public async fetch(): Promise<AccountsTotalStake[]> {
+  public async fetch(): Promise<AccountsTotalStakeEntity[]> {
     const epoch = await this.gatewayService.getEpoch();
 
     const [
@@ -38,7 +38,7 @@ export class AccountsTotalStakeIngest implements Ingest {
     );
 
     const timestamp = moment().utc().toDate();
-    return AccountsTotalStake.fromRecord(timestamp, {
+    return AccountsTotalStakeEntity.fromRecord(timestamp, {
       count_gt_0,
       count_gt_0_1,
       count_gt_1,

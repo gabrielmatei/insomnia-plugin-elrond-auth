@@ -1,6 +1,6 @@
 import { Column, Generated, PrimaryColumn } from "typeorm";
 
-export abstract class GenericIngestEntity {
+export class GenericIngestEntity {
   @Generated('increment')
   @Column()
   @PrimaryColumn()
@@ -28,4 +28,24 @@ export abstract class GenericIngestEntity {
     type: 'double precision',
   })
   value: number = 0;
+
+  static fromObject(timestamp: Date, object: any): GenericIngestEntity[] {
+    const entities = Object
+      .entries(object)
+      .map(([series, record]: [string, any]) => GenericIngestEntity.fromRecord(timestamp, record, series))
+      .flat(1);
+    return entities;
+  }
+
+  static fromRecord(timestamp: Date, record: Record<string, number>, series?: string): GenericIngestEntity[] {
+    const entities = Object.entries(record).map(([key, value]) => {
+      const entity = new GenericIngestEntity();
+      entity.timestamp = timestamp;
+      entity.series = series;
+      entity.key = key;
+      entity.value = value;
+      return entity;
+    });
+    return entities;
+  }
 }

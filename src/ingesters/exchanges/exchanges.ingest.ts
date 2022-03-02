@@ -2,11 +2,11 @@ import moment from "moment";
 import { ApiConfigService } from "src/common/api-config/api.config.service";
 import { ApiService } from "src/common/network/api.service";
 import { Ingest } from "src/crons/data-ingester/ingester";
-import { Exchanges } from "./exchanges.entity";
+import { ExchangesEntity } from "./exchanges.entity";
 
 export class ExchangesIngest implements Ingest {
   public readonly name = ExchangesIngest.name;
-  public readonly entityTarget = Exchanges;
+  public readonly entityTarget = ExchangesEntity;
 
   private readonly apiConfigService: ApiConfigService;
   private readonly apiService: ApiService;
@@ -16,7 +16,7 @@ export class ExchangesIngest implements Ingest {
     this.apiService = apiService;
   }
 
-  public async fetch(): Promise<Exchanges[]> {
+  public async fetch(): Promise<ExchangesEntity[]> {
     const exchangeWallets = this.apiConfigService.getExchangeWallets();
 
     const balances = await Promise.all(
@@ -35,7 +35,7 @@ export class ExchangesIngest implements Ingest {
     }, {} as Record<string, number>);
 
     const timestamp = moment().utc().toDate();
-    return Exchanges.fromRecord(timestamp, {
+    return ExchangesEntity.fromRecord(timestamp, {
       ...balanceKeys,
       total: totalBalance,
     });

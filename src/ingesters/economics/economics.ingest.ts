@@ -3,11 +3,11 @@ import { ApiConfigService } from "src/common/api-config/api.config.service";
 import { ElasticService } from "src/common/elastic/elastic.service";
 import { ApiService } from "src/common/network/api.service";
 import { Ingest } from "src/crons/data-ingester/ingester";
-import { Economics } from "./economics.entity";
+import { EconomicsEntity } from "./economics.entity";
 
 export class EconomicsIngest implements Ingest {
   public readonly name = EconomicsIngest.name;
-  public readonly entityTarget = Economics;
+  public readonly entityTarget = EconomicsEntity;
 
   private readonly apiConfigService: ApiConfigService;
   private readonly apiService: ApiService;
@@ -19,7 +19,7 @@ export class EconomicsIngest implements Ingest {
     this.elasticService = elasticService;
   }
 
-  public async fetch(): Promise<Economics[]> {
+  public async fetch(): Promise<EconomicsEntity[]> {
     const {
       totalSupply,
       circulatingSupply,
@@ -32,13 +32,13 @@ export class EconomicsIngest implements Ingest {
     const leftPerUser = floatingSupply / numAccounts;
 
     const timestamp = moment().utc().toDate();
-    return Economics.fromRecord(timestamp, {
+    return EconomicsEntity.fromRecord(timestamp, {
       total_supply: totalSupply,
       circulating_supply: circulatingSupply,
       floating_supply: floatingSupply,
       staked,
       left_per_user: leftPerUser,
-    }, 'economics');
+    });
 
   }
 }

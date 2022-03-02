@@ -4,11 +4,11 @@ import { ElasticService } from "src/common/elastic/elastic.service";
 import { ElasticQuery } from "src/common/elastic/entities/elastic.query";
 import { RangeQuery } from "src/common/elastic/entities/range.query";
 import { Ingest } from "src/crons/data-ingester/ingester";
-import { Transactions } from "./transactions.entity";
+import { TransactionsEntity } from "./transactions.entity";
 
 export class TransactionsIngest implements Ingest {
   public readonly name = TransactionsIngest.name;
-  public readonly entityTarget = Transactions;
+  public readonly entityTarget = TransactionsEntity;
 
   private readonly apiConfigService: ApiConfigService;
   private readonly elasticService: ElasticService;
@@ -18,7 +18,7 @@ export class TransactionsIngest implements Ingest {
     this.elasticService = elasticService;
   }
 
-  public async fetch(): Promise<Transactions[]> {
+  public async fetch(): Promise<TransactionsEntity[]> {
     const gte = moment().startOf('day').subtract(1, 'day').unix();
     const lt = moment().startOf('day').unix();
 
@@ -36,7 +36,7 @@ export class TransactionsIngest implements Ingest {
     ]);
 
     const timestamp = moment().utc().toDate();
-    return Transactions.fromRecord(timestamp, {
+    return TransactionsEntity.fromRecord(timestamp, {
       count,
       count_24h,
     });

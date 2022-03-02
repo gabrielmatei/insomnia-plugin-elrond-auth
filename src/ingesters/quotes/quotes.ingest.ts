@@ -2,11 +2,11 @@ import moment from "moment";
 import { ApiConfigService } from "src/common/api-config/api.config.service";
 import { ApiService } from "src/common/network/api.service";
 import { Ingest } from "src/crons/data-ingester/ingester";
-import { Quotes } from "./quotes.entity";
+import { QuotesEntity } from "./quotes.entity";
 
 export class QuotesIngest implements Ingest {
   public readonly name = QuotesIngest.name;
-  public readonly entityTarget = Quotes;
+  public readonly entityTarget = QuotesEntity;
 
   private readonly apiConfigService: ApiConfigService;
   private readonly apiService: ApiService;
@@ -16,7 +16,7 @@ export class QuotesIngest implements Ingest {
     this.apiService = apiService;
   }
 
-  public async fetch(): Promise<Quotes[]> {
+  public async fetch(): Promise<QuotesEntity[]> {
     const { data: quotesRaw } = await this.apiService.get<any>(
       'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest',
       {
@@ -41,6 +41,6 @@ export class QuotesIngest implements Ingest {
     });
 
     const timestamp = moment().utc().toDate();
-    return Quotes.fromObject(timestamp, data);
+    return QuotesEntity.fromObject(timestamp, data);
   }
 }

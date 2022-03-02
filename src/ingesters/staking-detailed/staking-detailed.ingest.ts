@@ -6,11 +6,11 @@ import { RangeQuery } from "src/common/elastic/entities/range.query";
 import { GatewayService } from "src/common/gateway/gateway.service";
 import { ApiService } from "src/common/network/api.service";
 import { Ingest } from "src/crons/data-ingester/ingester";
-import { StakingDetailed } from "./staking-detailed.entity";
+import { StakingDetailedEntity } from "./staking-detailed.entity";
 
 export class StakingDetailedIngest implements Ingest {
   public readonly name = StakingDetailedIngest.name;
-  public readonly entityTarget = StakingDetailed;
+  public readonly entityTarget = StakingDetailedEntity;
 
   private readonly apiConfigService: ApiConfigService;
   private readonly apiService: ApiService;
@@ -24,7 +24,7 @@ export class StakingDetailedIngest implements Ingest {
     this.elasticService = elasticService;
   }
 
-  public async fetch(): Promise<StakingDetailed[]> {
+  public async fetch(): Promise<StakingDetailedEntity[]> {
     const epoch = await this.gatewayService.getEpoch();
 
     const { staked: totalStaked } = await this.apiService.get(`${this.apiConfigService.getApiUrl()}/economics`);
@@ -202,7 +202,7 @@ export class StakingDetailedIngest implements Ingest {
     };
 
     const timestamp = moment.utc().subtract(1, 'days').toDate();
-    return StakingDetailed.fromObject(timestamp, data);
+    return StakingDetailedEntity.fromObject(timestamp, data);
   }
 
   private async getDelegationLegacyTotal(): Promise<number[]> {

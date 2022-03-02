@@ -1,11 +1,11 @@
 import moment from "moment";
 import { google, webmasters_v3 } from "googleapis";
 import { Ingest } from "src/crons/data-ingester/ingester";
-import { Google } from "./google.entity";
+import { GoogleEntity } from "./google.entity";
 
 export class GoogleIngest implements Ingest {
   public readonly name = GoogleIngest.name;
-  public readonly entityTarget = Google;
+  public readonly entityTarget = GoogleEntity;
 
   private readonly webmasters: webmasters_v3.Webmasters = google.webmasters('v3');
 
@@ -20,7 +20,7 @@ export class GoogleIngest implements Ingest {
     google.options({ auth });
   }
 
-  public async fetch(): Promise<Google[]> {
+  public async fetch(): Promise<GoogleEntity[]> {
     const startDate = moment().startOf('day').subtract(3, 'days').format('YYYY-MM-DD');
     const endDate = moment().startOf('day').subtract(2, 'days').format('YYYY-MM-DD');
     const highlightedWords = ['elrond', 'egld', 'egold'];
@@ -69,6 +69,6 @@ export class GoogleIngest implements Ingest {
     );
 
     const timestamp = moment().utc().toDate();
-    return Google.fromObject(timestamp, queryData);
+    return GoogleEntity.fromObject(timestamp, queryData);
   }
 }

@@ -1,13 +1,13 @@
 import moment from "moment";
 import { Ingest } from "src/crons/data-ingester/ingester";
-import { GoogleTrends } from "./google-trends.entity";
+import { GoogleTrendsEntity } from "./google-trends.entity";
 const googleTrends = require('google-trends-api');
 
 export class GoogleTrendsIngest implements Ingest {
   public readonly name = GoogleTrendsIngest.name;
-  public readonly entityTarget = GoogleTrends;
+  public readonly entityTarget = GoogleTrendsEntity;
 
-  public async fetch(): Promise<GoogleTrends[]> {
+  public async fetch(): Promise<GoogleTrendsEntity[]> {
     const startTime = moment().startOf('day').subtract(1, 'day').toDate();
     const endTime = moment().startOf('day').toDate();
 
@@ -22,7 +22,7 @@ export class GoogleTrendsIngest implements Ingest {
     const averages = trends?.default?.averages || trends?.averages;
 
     const timestamp = moment().utc().toDate();
-    return GoogleTrends.fromRecord(timestamp, {
+    return GoogleTrendsEntity.fromRecord(timestamp, {
       google: averages[0],
     });
   }

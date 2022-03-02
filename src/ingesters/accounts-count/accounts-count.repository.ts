@@ -2,14 +2,14 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { EntityRepository, Repository } from "typeorm";
 import { GenericIngestService } from "../generic/generic-ingest.service";
-import { AccountsCount } from "./accounts-count.entity";
+import { AccountsCountEntity } from "./accounts-count.entity";
 
 @Injectable()
-@EntityRepository(AccountsCount)
-export class AccountsCountRepository extends GenericIngestService<AccountsCount> {
+@EntityRepository(AccountsCountEntity)
+export class AccountsCountRepository extends GenericIngestService<AccountsCountEntity> {
   constructor(
-    @InjectRepository(AccountsCount)
-    protected repository: Repository<AccountsCount>
+    @InjectRepository(AccountsCountEntity)
+    protected repository: Repository<AccountsCountEntity>
   ) {
     super(repository);
   }

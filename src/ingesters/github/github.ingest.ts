@@ -3,11 +3,11 @@ import moment from "moment";
 import { ApiConfigService } from "src/common/api-config/api.config.service";
 import { ApiService } from "src/common/network/api.service";
 import { Ingest } from "src/crons/data-ingester/ingester";
-import { Github } from "./github.entity";
+import { GithubEntity } from "./github.entity";
 
 export class GithubIngest implements Ingest {
   public readonly name = GithubIngest.name;
-  public readonly entityTarget = Github;
+  public readonly entityTarget = GithubEntity;
 
   private readonly logger: Logger;
   private readonly apiConfigService: ApiConfigService;
@@ -20,7 +20,7 @@ export class GithubIngest implements Ingest {
     this.logger = new Logger(GithubIngest.name);
   }
 
-  public async fetch(): Promise<Github[]> {
+  public async fetch(): Promise<GithubEntity[]> {
     const featuredRepositories = this.apiConfigService.getFeaturedRepositories();
 
     const repoDetails: any = {};
@@ -80,7 +80,7 @@ export class GithubIngest implements Ingest {
     repoDetails['featured']['contributors'] = featuredAuthors.size;
 
     const timestamp = moment().utc().toDate();
-    return Github.fromObject(timestamp, repoDetails);
+    return GithubEntity.fromObject(timestamp, repoDetails);
   }
 
   private async getGithubRepositories(): Promise<string[]> {

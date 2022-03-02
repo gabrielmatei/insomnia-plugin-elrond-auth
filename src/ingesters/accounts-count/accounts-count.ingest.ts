@@ -3,11 +3,11 @@ import { ApiConfigService } from "src/common/api-config/api.config.service";
 import { ElasticService } from "src/common/elastic/elastic.service";
 import { TimescaleService } from "src/common/timescale/timescale.service";
 import { Ingest } from "src/crons/data-ingester/ingester";
-import { AccountsCount } from "./accounts-count.entity";
+import { AccountsCountEntity } from "./accounts-count.entity";
 
 export class AccountsCountIngest implements Ingest {
   public readonly name = AccountsCountIngest.name;
-  public readonly entityTarget = AccountsCount;
+  public readonly entityTarget = AccountsCountEntity;
 
   private readonly apiConfigService: ApiConfigService;
   private readonly elasticService: ElasticService;
@@ -19,15 +19,15 @@ export class AccountsCountIngest implements Ingest {
     this.timescaleService = timescaleService;
   }
 
-  public async fetch(): Promise<AccountsCount[]> {
+  public async fetch(): Promise<AccountsCountEntity[]> {
     const timestamp = moment().utc().toDate();
 
     const count = await this.elasticService.getCount(this.apiConfigService.getElasticUrl(), 'accounts');
 
-    const previousResult24h = await this.timescaleService.getPreviousValue24h(AccountsCount, timestamp, 'count');
+    const previousResult24h = await this.timescaleService.getPreviousValue24h(AccountsCountEntity, timestamp, 'count');
     const count24h = previousResult24h && previousResult24h.value > 0 ? count - previousResult24h.value : 0;
 
-    return AccountsCount.fromRecord(timestamp, {
+    return AccountsCountEntity.fromRecord(timestamp, {
       count,
       count_24h: count24h,
     });

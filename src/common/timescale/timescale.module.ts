@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AccountsCount } from 'src/ingesters/accounts-count/accounts-count.entity';
 import { ApiConfigModule } from '../api-config/api.config.module';
 import { ApiConfigService } from '../api-config/api.config.service';
 import { TimescaleService } from './timescale.service';
@@ -24,9 +23,6 @@ import { TimescaleService } from './timescale.service';
       }),
       inject: [ApiConfigService],
     }),
-    TypeOrmModule.forFeature([
-      AccountsCount,
-    ]),
   ],
   providers: [
     TimescaleService,

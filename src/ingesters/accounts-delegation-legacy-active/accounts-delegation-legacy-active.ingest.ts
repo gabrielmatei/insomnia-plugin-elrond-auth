@@ -3,11 +3,11 @@ import { ApiConfigService } from "src/common/api-config/api.config.service";
 import { ElasticService } from "src/common/elastic/elastic.service";
 import { GatewayService } from "src/common/gateway/gateway.service";
 import { Ingest } from "src/crons/data-ingester/ingester";
-import { AccountsDelegationLegacyActive } from "./accounts-delegation-legacy-active.entity";
+import { AccountsDelegationLegacyActiveEntity } from "./accounts-delegation-legacy-active.entity";
 
 export class AccountsDelegationLegacyActiveIngest implements Ingest {
   public readonly name = AccountsDelegationLegacyActiveIngest.name;
-  public readonly entityTarget = AccountsDelegationLegacyActive;
+  public readonly entityTarget = AccountsDelegationLegacyActiveEntity;
 
   private readonly apiConfigService: ApiConfigService;
   private readonly elasticService: ElasticService;
@@ -19,7 +19,7 @@ export class AccountsDelegationLegacyActiveIngest implements Ingest {
     this.gatewayService = gatewayService;
   }
 
-  public async fetch(): Promise<AccountsDelegationLegacyActive[]> {
+  public async fetch(): Promise<AccountsDelegationLegacyActiveEntity[]> {
     const epoch = await this.gatewayService.getEpoch();
 
     const [
@@ -38,7 +38,7 @@ export class AccountsDelegationLegacyActiveIngest implements Ingest {
     );
 
     const timestamp = moment().utc().toDate();
-    return AccountsDelegationLegacyActive.fromRecord(timestamp, {
+    return AccountsDelegationLegacyActiveEntity.fromRecord(timestamp, {
       count_gt_0,
       count_gt_0_1,
       count_gt_1,
