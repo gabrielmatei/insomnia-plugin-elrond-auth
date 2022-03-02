@@ -59,6 +59,17 @@ export class GatewayService {
     return erd_epoch_number;
   }
 
+  async getNetworkConfig(): Promise<{ roundsPerEpoch: number, roundDuration: number }> {
+    const {
+      config: { erd_round_duration, erd_rounds_per_epoch },
+    } = await this.get('network/config', GatewayComponentRequest.networkConfig);
+
+    const roundsPerEpoch = erd_rounds_per_epoch;
+    const roundDuration = erd_round_duration / 1000;
+
+    return { roundsPerEpoch, roundDuration };
+  }
+
   async vmQuery(contract: string, func: string, caller: string | undefined = undefined, args: string[] = []): Promise<string[]> {
     const payload = {
       scAddress: contract,

@@ -335,4 +335,13 @@ export class ApiConfigService {
     }
     return vsCurrencies;
   }
+
+  getInflationAmounts(): number[] {
+    const inflationAmounts = this.configService.get<number[]>('inflation');
+    if (!inflationAmounts) {
+      throw new Error('No inflation amounts present');
+    }
+
+    return inflationAmounts;
+  }
 }

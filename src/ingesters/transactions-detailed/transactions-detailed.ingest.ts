@@ -7,6 +7,7 @@ import { Ingest } from "src/crons/data-ingester/entities/ingest.interface";
 import { TransactionsDetailedEntity } from "./transactions-detailed.entity";
 import BigNumber from "bignumber.js";
 import { Injectable } from "@nestjs/common";
+import { GatewayService } from "src/common/gateway/gateway.service";
 
 @Injectable()
 export class TransactionsDetailedIngest implements Ingest {
@@ -15,10 +16,12 @@ export class TransactionsDetailedIngest implements Ingest {
 
   private readonly apiConfigService: ApiConfigService;
   private readonly elasticService: ElasticService;
+  private readonly gatewayService: GatewayService;
 
-  constructor(apiConfigService: ApiConfigService, elasticService: ElasticService) {
+  constructor(apiConfigService: ApiConfigService, elasticService: ElasticService, gatewayService: GatewayService) {
     this.apiConfigService = apiConfigService;
     this.elasticService = elasticService;
+    this.gatewayService = gatewayService;
   }
 
   public async fetch(): Promise<TransactionsDetailedEntity[]> {
@@ -51,12 +54,39 @@ export class TransactionsDetailedIngest implements Ingest {
       count = transactions.length;
     } while (count >= size);
 
+
+    const rewardsPerEpoch = await this.getCurrentRewardsPerEpoch();
+    const newEmission = new BigNumber(rewardsPerEpoch).shiftedBy(18).minus(new BigNumber(totalFees));
+
     const valueMovedFormatted = valueMoved.shiftedBy(-18).toNumber();
     const totalFeesFormatted = totalFees.shiftedBy(-18).toNumber();
+    const newEmissionFormatted = newEmission.shiftedBy(-18).toNumber();
 
     return TransactionsDetailedEntity.fromRecord(timestamp.toDate(), {
       value_moved: valueMovedFormatted,
       total_fees: totalFeesFormatted,
+      new_emission: newEmissionFormatted,
     });
+  }
+
+  private async getCurrentRewardsPerEpoch(): Promise<number> {
+    const epoch = await this.gatewayService.getEpoch();
+    const config = await this.gatewayService.getNetworkConfig();
+
+    const epochDuration = (config.roundDuration / 1000) * config.roundsPerEpoch;
+    const secondsInYear = 365 * 24 * 3600;
+    const epochsInYear = secondsInYear / epochDuration;
+    const yearIndex = Math.floor(epoch / epochsInYear);
+    const inflationAmounts = this.apiConfigService.getInflationAmounts();
+
+    if (yearIndex >= inflationAmounts.length) {
+      throw new Error(
+        `There is no inflation information for year with index ${yearIndex}`,
+      );
+    }
+
+    const inflation = inflationAmounts[yearIndex];
+    const rewardsPerEpoch = Math.max(inflation / epochsInYear, 0);
+    return rewardsPerEpoch;
   }
 }
