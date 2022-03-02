@@ -1,3 +1,4 @@
+import { Injectable } from "@nestjs/common";
 import moment from "moment";
 import { ApiConfigService } from "src/common/api-config/api.config.service";
 import { ElasticService } from "src/common/elastic/elastic.service";
@@ -5,6 +6,7 @@ import { GatewayService } from "src/common/gateway/gateway.service";
 import { Ingest } from "src/crons/data-ingester/entities/ingest.interface";
 import { AccountsDelegationEntity } from "./accounts-delegation.entity";
 
+@Injectable()
 export class AccountsDelegationIngest implements Ingest {
   public readonly name = AccountsDelegationIngest.name;
   public readonly entityTarget = AccountsDelegationEntity;

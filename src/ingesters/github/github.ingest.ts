@@ -1,10 +1,11 @@
-import { Logger } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import moment from "moment";
 import { ApiConfigService } from "src/common/api-config/api.config.service";
 import { ApiService } from "src/common/network/api.service";
 import { Ingest } from "src/crons/data-ingester/entities/ingest.interface";
 import { GithubEntity } from "./github.entity";
 
+@Injectable()
 export class GithubIngest implements Ingest {
   public readonly name = GithubIngest.name;
   public readonly entityTarget = GithubEntity;

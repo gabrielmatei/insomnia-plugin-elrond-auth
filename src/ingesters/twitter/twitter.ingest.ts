@@ -1,8 +1,10 @@
+import { Injectable } from "@nestjs/common";
 import moment from "moment";
 import { ApiService } from "src/common/network/api.service";
 import { Ingest } from "src/crons/data-ingester/entities/ingest.interface";
 import { TwitterEntity } from "./twitter.entity";
 
+@Injectable()
 export class TwitterIngest implements Ingest {
   public readonly name = TwitterIngest.name;
   public readonly entityTarget = TwitterEntity;

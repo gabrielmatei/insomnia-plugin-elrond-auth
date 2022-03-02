@@ -1,9 +1,11 @@
+import { Injectable } from "@nestjs/common";
 import moment from "moment";
 import { ApiConfigService } from "src/common/api-config/api.config.service";
 import { ApiService } from "src/common/network/api.service";
 import { Ingest } from "src/crons/data-ingester/entities/ingest.interface";
 import { QuotesEntity } from "./quotes.entity";
 
+@Injectable()
 export class QuotesIngest implements Ingest {
   public readonly name = QuotesIngest.name;
   public readonly entityTarget = QuotesEntity;

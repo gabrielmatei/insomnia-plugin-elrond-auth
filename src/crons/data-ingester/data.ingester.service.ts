@@ -1,10 +1,5 @@
 import { Injectable } from "@nestjs/common";
 import { CronExpression } from "@nestjs/schedule";
-import { ApiConfigService } from "src/common/api-config/api.config.service";
-import { ElasticService } from "src/common/elastic/elastic.service";
-import { GatewayService } from "src/common/gateway/gateway.service";
-import { ApiService } from "src/common/network/api.service";
-import { TimescaleService } from "src/common/timescale/timescale.service";
 import { AccountsCountIngest } from "src/ingesters/accounts-count/accounts-count.ingest";
 import { AccountsBalanceIngest } from "src/ingesters/accounts-balance/accounts-balance.ingest";
 import { EconomicsIngest } from "src/ingesters/economics/economics.ingest";
@@ -25,7 +20,6 @@ import { PricesIngest } from "src/ingesters/prices/prices.ingest";
 import { TransactionsDetailedIngest } from "src/ingesters/transactions-detailed/transactions-detailed.ingest";
 import { ExchangesDetailedIngest } from "src/ingesters/exchanges-detailed/exchanges-detailed.ingest";
 import { ActiveUsersIngest } from "src/ingesters/active-users/active-users.ingest";
-import { CachingService } from "src/common/caching/caching.service";
 import { Ingester } from "./ingester";
 import { IngestItem } from "./entities/ingest.item";
 
@@ -33,93 +27,107 @@ import { IngestItem } from "./entities/ingest.item";
 export class DataIngesterService {
   constructor(
     private readonly ingester: Ingester,
-    private readonly timescaleService: TimescaleService,
-    private readonly elasticService: ElasticService,
-    private readonly apiConfigService: ApiConfigService,
-    private readonly apiService: ApiService,
-    private readonly gatewayService: GatewayService,
-    private readonly cachingService: CachingService,
+    private readonly accountsCountIngest: AccountsCountIngest,
+    private readonly accountsBalanceIngest: AccountsBalanceIngest,
+    private readonly accountsDelegationIngest: AccountsDelegationIngest,
+    private readonly accountsDelegationLegacyActiveIngest: AccountsDelegationLegacyActiveIngest,
+    private readonly accountsTotalBalanceWithStakeIngest: AccountsTotalBalanceWithStakeIngest,
+    private readonly accountsTotalStakeIngest: AccountsTotalStakeIngest,
+    private readonly activeUsersIngest: ActiveUsersIngest,
+    private readonly economicsIngest: EconomicsIngest,
+    private readonly exchangesIngest: ExchangesIngest,
+    private readonly exchangesDetailedIngest: ExchangesDetailedIngest,
+    private readonly githubIngest: GithubIngest,
+    private readonly googleIngest: GoogleIngest,
+    private readonly googleTrendsIngest: GoogleTrendsIngest,
+    private readonly quotesIngest: QuotesIngest,
+    private readonly stakingIngest: StakingIngest,
+    private readonly stakingDetailedIngest: StakingDetailedIngest,
+    private readonly transactionsIngest: TransactionsIngest,
+    private readonly transactionsDetailedIngest: TransactionsDetailedIngest,
+    private readonly twitterIngest: TwitterIngest,
+    private readonly pricesIngest: PricesIngest,
   ) {
     const items: IngestItem[] = [
       {
         refreshInterval: CronExpression.EVERY_HOUR,
-        fetcher: new AccountsCountIngest(this.apiConfigService, this.elasticService, this.timescaleService),
+        fetcher: this.accountsCountIngest,
       },
       {
         refreshInterval: CronExpression.EVERY_HOUR,
-        fetcher: new AccountsBalanceIngest(this.apiConfigService, this.elasticService),
+        fetcher: this.accountsBalanceIngest,
       },
       {
         refreshInterval: CronExpression.EVERY_HOUR,
-        fetcher: new AccountsDelegationIngest(this.apiConfigService, this.elasticService, this.gatewayService),
+        fetcher: this.accountsDelegationIngest,
       },
       {
         refreshInterval: CronExpression.EVERY_HOUR,
-        fetcher: new AccountsDelegationLegacyActiveIngest(this.apiConfigService, this.elasticService, this.gatewayService),
+        fetcher: this.accountsDelegationLegacyActiveIngest,
       },
       {
         refreshInterval: CronExpression.EVERY_HOUR,
-        fetcher: new AccountsTotalBalanceWithStakeIngest(this.apiConfigService, this.elasticService, this.gatewayService),
+        fetcher: this.accountsTotalBalanceWithStakeIngest,
       },
       {
         refreshInterval: CronExpression.EVERY_HOUR,
-        fetcher: new AccountsTotalStakeIngest(this.apiConfigService, this.elasticService, this.gatewayService),
-      },
-      {
-        refreshInterval: CronExpression.EVERY_10_SECONDS,
-        fetcher: new ActiveUsersIngest(this.apiConfigService, this.elasticService, this.cachingService),
+        fetcher: this.accountsTotalStakeIngest,
       },
       {
         refreshInterval: CronExpression.EVERY_HOUR,
-        fetcher: new EconomicsIngest(this.apiConfigService, this.apiService, this.elasticService),
+        fetcher: this.activeUsersIngest,
       },
       {
         refreshInterval: CronExpression.EVERY_HOUR,
-        fetcher: new ExchangesIngest(this.apiConfigService, this.apiService),
+        fetcher: this.economicsIngest,
       },
       {
         refreshInterval: CronExpression.EVERY_HOUR,
-        fetcher: new ExchangesDetailedIngest(this.apiConfigService, this.elasticService),
+        fetcher: this.exchangesIngest,
       },
       {
         refreshInterval: CronExpression.EVERY_HOUR,
-        fetcher: new GithubIngest(this.apiConfigService, this.apiService),
+        fetcher: this.exchangesDetailedIngest,
       },
       {
         refreshInterval: CronExpression.EVERY_HOUR,
-        fetcher: new GoogleIngest(),
+        fetcher: this.githubIngest,
       },
       {
         refreshInterval: CronExpression.EVERY_HOUR,
-        fetcher: new GoogleTrendsIngest(),
+        fetcher: this.googleIngest,
       },
       {
         refreshInterval: CronExpression.EVERY_HOUR,
-        fetcher: new QuotesIngest(this.apiConfigService, this.apiService),
+        fetcher: this.googleTrendsIngest,
       },
       {
         refreshInterval: CronExpression.EVERY_HOUR,
-        fetcher: new StakingIngest(this.apiConfigService, this.apiService, this.gatewayService),
+        fetcher: this.quotesIngest,
       },
       {
         refreshInterval: CronExpression.EVERY_HOUR,
-        fetcher: new StakingDetailedIngest(this.apiConfigService, this.apiService, this.gatewayService, this.elasticService),
+        fetcher: this.stakingIngest,
       },
       {
         refreshInterval: CronExpression.EVERY_HOUR,
-        fetcher: new TransactionsIngest(this.apiConfigService, this.elasticService),
+        fetcher: this.stakingDetailedIngest,
       },
       {
         refreshInterval: CronExpression.EVERY_HOUR,
-        fetcher: new TransactionsDetailedIngest(this.apiConfigService, this.elasticService),
+        fetcher: this.transactionsIngest,
       },
       {
         refreshInterval: CronExpression.EVERY_HOUR,
-        fetcher: new TwitterIngest(this.apiService),
+        fetcher: this.transactionsDetailedIngest,
       },
       {
         refreshInterval: CronExpression.EVERY_HOUR,
-        fetcher: new PricesIngest(this.apiConfigService, this.apiService),
+        fetcher: this.twitterIngest,
+      },
+      {
+        refreshInterval: CronExpression.EVERY_HOUR,
+        fetcher: this.pricesIngest,
       },
     ];
     this.ingester.start(items);

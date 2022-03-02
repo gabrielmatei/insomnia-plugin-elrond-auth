@@ -6,7 +6,9 @@ import { RangeQuery } from "src/common/elastic/entities/range.query";
 import { Ingest } from "src/crons/data-ingester/entities/ingest.interface";
 import { TransactionsDetailedEntity } from "./transactions-detailed.entity";
 import BigNumber from "bignumber.js";
+import { Injectable } from "@nestjs/common";
 
+@Injectable()
 export class TransactionsDetailedIngest implements Ingest {
   public readonly name = TransactionsDetailedIngest.name;
   public readonly entityTarget = TransactionsDetailedEntity;

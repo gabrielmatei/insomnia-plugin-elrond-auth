@@ -1,3 +1,4 @@
+import { Injectable } from "@nestjs/common";
 import moment from "moment";
 import { ApiConfigService } from "src/common/api-config/api.config.service";
 import { CachingService } from "src/common/caching/caching.service";
@@ -6,7 +7,7 @@ import { ElasticQuery } from "src/common/elastic/entities/elastic.query";
 import { RangeQuery } from "src/common/elastic/entities/range.query";
 import { Ingest } from "src/crons/data-ingester/entities/ingest.interface";
 import { ActiveUsersEntity } from "./active-users.entity";
-
+@Injectable()
 export class ActiveUsersIngest implements Ingest {
   public readonly name = ActiveUsersIngest.name;
   public readonly entityTarget = ActiveUsersEntity;

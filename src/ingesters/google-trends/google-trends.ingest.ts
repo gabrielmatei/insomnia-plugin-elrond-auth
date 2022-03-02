@@ -1,8 +1,11 @@
+import { Injectable } from "@nestjs/common";
 import moment from "moment";
 import { Ingest } from "src/crons/data-ingester/entities/ingest.interface";
 import { GoogleTrendsEntity } from "./google-trends.entity";
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const googleTrends = require('google-trends-api');
 
+@Injectable()
 export class GoogleTrendsIngest implements Ingest {
   public readonly name = GoogleTrendsIngest.name;
   public readonly entityTarget = GoogleTrendsEntity;

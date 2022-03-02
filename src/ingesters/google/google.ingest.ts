@@ -2,7 +2,9 @@ import moment from "moment";
 import { google, webmasters_v3 } from "googleapis";
 import { Ingest } from "src/crons/data-ingester/entities/ingest.interface";
 import { GoogleEntity } from "./google.entity";
+import { Injectable } from "@nestjs/common";
 
+@Injectable()
 export class GoogleIngest implements Ingest {
   public readonly name = GoogleIngest.name;
   public readonly entityTarget = GoogleEntity;

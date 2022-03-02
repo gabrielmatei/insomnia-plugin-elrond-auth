@@ -1,3 +1,4 @@
+import { Injectable } from "@nestjs/common";
 import moment from "moment";
 import { ApiConfigService } from "src/common/api-config/api.config.service";
 import { GatewayService } from "src/common/gateway/gateway.service";
@@ -9,6 +10,7 @@ import { StakingEntity } from "./staking.entity";
 
 import { stakingActiveList } from "./temp_stakingWallets.json";
 
+@Injectable()
 export class StakingIngest implements Ingest {
   public readonly name = StakingIngest.name;
   public readonly entityTarget = StakingEntity;
