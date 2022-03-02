@@ -26,6 +26,7 @@ import { PricesIngest } from "src/ingesters/prices/prices.ingest";
 import { TransactionsDetailedIngest } from "src/ingesters/transactions-detailed/transactions-detailed.ingest";
 import { ExchangesDetailedIngest } from "src/ingesters/exchanges-detailed/exchanges-detailed.ingest";
 import { ActiveUsersIngest } from "src/ingesters/active-users/active-users.ingest";
+import { CachingService } from "src/common/caching/caching.service";
 
 @Injectable()
 export class DataIngesterService {
@@ -38,6 +39,7 @@ export class DataIngesterService {
     private readonly apiConfigService: ApiConfigService,
     private readonly apiService: ApiService,
     private readonly gatewayService: GatewayService,
+    private readonly cachingService: CachingService,
   ) {
     const items: IngestItem[] = [
       {
@@ -66,7 +68,7 @@ export class DataIngesterService {
       },
       {
         refreshInterval: CronExpression.EVERY_10_SECONDS,
-        fetcher: new ActiveUsersIngest(this.apiConfigService, this.elasticService),
+        fetcher: new ActiveUsersIngest(this.apiConfigService, this.elasticService, this.cachingService),
       },
       {
         refreshInterval: CronExpression.EVERY_HOUR,

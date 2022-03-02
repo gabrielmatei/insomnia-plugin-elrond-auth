@@ -14,9 +14,10 @@ export class CachingService {
   private asyncGet = promisify(this.client.get).bind(this.client);
   private asyncMGet = promisify(this.client.mget).bind(this.client);
   private asyncIncr = promisify(this.client.incr).bind(this.client);
-
   private asyncDel = promisify(this.client.del).bind(this.client);
   private asyncKeys = promisify(this.client.keys).bind(this.client);
+  private asyncSetAdd = promisify(this.client.sadd).bind(this.client);
+  private asyncSetCount = promisify(this.client.scard).bind(this.client);
 
   private static cache: Cache;
 
@@ -167,6 +168,16 @@ export class CachingService {
     }
 
     return result;
+  }
+
+  public async addInSet<T>(key: string, value: T): Promise<T> {
+    await this.asyncSetAdd(key, value);
+    return value;
+  }
+
+  public async getSetMembersCount(key: string): Promise<number> {
+    const count = await this.asyncSetCount(key);
+    return count;
   }
 
   private async getGenesisTimestamp(): Promise<number> {
