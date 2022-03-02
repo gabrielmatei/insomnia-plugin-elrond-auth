@@ -59,8 +59,8 @@ export class ElasticService {
     return { ...item, ..._source };
   }
 
-  async getList(elasticUrl: string, collection: string, key: string, elasticQuery: ElasticQuery, overrideUrl?: string): Promise<any[]> {
-    const url = `${overrideUrl ?? elasticUrl}/${collection}/_search`;
+  async getList(elasticUrl: string, collection: string, key: string, elasticQuery: ElasticQuery): Promise<any[]> {
+    const url = `${elasticUrl}/${collection}/_search`;
 
     const profiler = new PerformanceProfiler();
 
@@ -70,7 +70,7 @@ export class ElasticService {
 
     this.metricsService.setElasticDuration(collection, ElasticMetricType.list, profiler.duration);
 
-    const documents = result.data.hits.hits;
+    const documents = result.hits.hits;
     return documents.map((document: any) => this.formatItem(document, key));
   }
 

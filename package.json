@@ -44,6 +44,7 @@
     "@nestjs/swagger": "^5.1.5",
     "@nestjs/typeorm": "^8.0.2",
     "@nestjs/websockets": "^8.2.5",
+    "bignumber.js": "^9.0.2",
     "bull": "^4.2.0",
     "cache-manager": "^3.6.0",
     "google-trends-api": "^4.9.2",
