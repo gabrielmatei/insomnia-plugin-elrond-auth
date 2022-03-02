@@ -2,7 +2,7 @@ import moment from "moment";
 import { ApiConfigService } from "src/common/api-config/api.config.service";
 import { ElasticService } from "src/common/elastic/elastic.service";
 import { GatewayService } from "src/common/gateway/gateway.service";
-import { Ingest } from "src/crons/data-ingester/ingester";
+import { Ingest } from "src/crons/data-ingester/entities/ingest.interface";
 import { AccountsTotalBalanceWithStakeEntity } from "./accounts-total-balance-with-stake.entity";
 
 export class AccountsTotalBalanceWithStakeIngest implements Ingest {

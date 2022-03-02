@@ -2,7 +2,7 @@ import moment from "moment";
 import { ApiConfigService } from "src/common/api-config/api.config.service";
 import { ElasticService } from "src/common/elastic/elastic.service";
 import { TimescaleService } from "src/common/timescale/timescale.service";
-import { Ingest } from "src/crons/data-ingester/ingester";
+import { Ingest } from "src/crons/data-ingester/entities/ingest.interface";
 import { AccountsCountEntity } from "./accounts-count.entity";
 
 export class AccountsCountIngest implements Ingest {

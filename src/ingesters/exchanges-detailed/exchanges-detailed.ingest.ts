@@ -5,7 +5,7 @@ import { ElasticService } from "src/common/elastic/elastic.service";
 import { ElasticQuery } from "src/common/elastic/entities/elastic.query";
 import { RangeQuery, RangeQueryOptions } from "src/common/elastic/entities/range.query";
 import { TermsQuery } from "src/common/elastic/entities/terms.query";
-import { Ingest } from "src/crons/data-ingester/ingester";
+import { Ingest } from "src/crons/data-ingester/entities/ingest.interface";
 import { ExchangesDetailedEntity } from "./exchanges-detailed.entity";
 
 export class ExchangesDetailedIngest implements Ingest {

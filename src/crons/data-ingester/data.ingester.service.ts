@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { CronExpression, SchedulerRegistry } from "@nestjs/schedule";
+import { CronExpression } from "@nestjs/schedule";
 import { ApiConfigService } from "src/common/api-config/api.config.service";
 import { ElasticService } from "src/common/elastic/elastic.service";
 import { GatewayService } from "src/common/gateway/gateway.service";
@@ -8,7 +8,6 @@ import { TimescaleService } from "src/common/timescale/timescale.service";
 import { AccountsCountIngest } from "src/ingesters/accounts-count/accounts-count.ingest";
 import { AccountsBalanceIngest } from "src/ingesters/accounts-balance/accounts-balance.ingest";
 import { EconomicsIngest } from "src/ingesters/economics/economics.ingest";
-import { Ingester, IngestItem } from "./ingester";
 import { TransactionsIngest } from "src/ingesters/transactions/transactions.ingest";
 import { AccountsDelegationIngest } from "src/ingesters/accounts-delegation/accounts-delegation.ingest";
 import { AccountsTotalStakeIngest } from "src/ingesters/accounts-total-stake/accounts-total-stake.ingest";
@@ -27,13 +26,13 @@ import { TransactionsDetailedIngest } from "src/ingesters/transactions-detailed/
 import { ExchangesDetailedIngest } from "src/ingesters/exchanges-detailed/exchanges-detailed.ingest";
 import { ActiveUsersIngest } from "src/ingesters/active-users/active-users.ingest";
 import { CachingService } from "src/common/caching/caching.service";
+import { Ingester } from "./ingester";
+import { IngestItem } from "./entities/ingest.item";
 
 @Injectable()
 export class DataIngesterService {
-  private readonly ingester: Ingester;
-
   constructor(
-    private readonly schedulerRegistry: SchedulerRegistry,
+    private readonly ingester: Ingester,
     private readonly timescaleService: TimescaleService,
     private readonly elasticService: ElasticService,
     private readonly apiConfigService: ApiConfigService,
@@ -123,7 +122,6 @@ export class DataIngesterService {
         fetcher: new PricesIngest(this.apiConfigService, this.apiService),
       },
     ];
-    this.ingester = new Ingester(items, this.schedulerRegistry, this.timescaleService);
-    this.ingester.start();
+    this.ingester.start(items);
   }
 }

@@ -1,42 +1,29 @@
-import { Logger } from "@nestjs/common";
-import { CronExpression, SchedulerRegistry } from "@nestjs/schedule";
+import { Injectable, Logger } from "@nestjs/common";
+import { SchedulerRegistry } from "@nestjs/schedule";
 import { CronJob } from "cron";
+import { MetricsService } from "src/common/metrics/metrics.service";
 import { TimescaleService } from "src/common/timescale/timescale.service";
-import { GenericIngestEntity } from "src/ingesters/generic/generic-ingest.entity";
 import { Locker, LockResult } from "src/utils/locker";
-import { EntityTarget } from "typeorm";
+import { IngestItem } from "./entities/ingest.item";
 
-export interface Ingest {
-  name: string;
-  entityTarget: EntityTarget<unknown>;
-  fetch(): Promise<GenericIngestEntity[]>
-}
-
-export class IngestItem {
-  refreshInterval!: CronExpression;
-  fetcher!: Ingest;
-}
-
+@Injectable()
 export class Ingester {
   public static readonly MAX_RETRIES = 3;
 
   private readonly logger: Logger;
-  private readonly items: IngestItem[];
-  private readonly schedulerRegistry: SchedulerRegistry;
-  private readonly timescaleService: TimescaleService;
 
-  constructor(items: IngestItem[], schedulerRegistry: SchedulerRegistry, timescaleService: TimescaleService) {
+  constructor(
+    private readonly schedulerRegistry: SchedulerRegistry,
+    private readonly timescaleService: TimescaleService,
+    private readonly metricsService: MetricsService,
+  ) {
     this.logger = new Logger(Ingester.name);
-
-    this.items = items;
-    this.schedulerRegistry = schedulerRegistry;
-    this.timescaleService = timescaleService;
   }
 
-  public async start() {
+  public async start(items: IngestItem[]) {
     this.logger.log('Start data ingester');
 
-    const jobs = this.items.map(item => this.scheduleIngestItem(item));
+    const jobs = items.map(item => this.scheduleIngestItem(item));
     for (const job of jobs) {
       job.start();
     }
@@ -48,6 +35,8 @@ export class Ingester {
     });
 
     this.schedulerRegistry.addCronJob(item.fetcher.name, job);
+
+    this.logger.log(`Created job for '${item.fetcher.name}' with cron '${item.refreshInterval}'`);
 
     return job;
   }
@@ -68,6 +57,10 @@ export class Ingester {
       }, true);
 
       retries++;
+    }
+
+    if (result === LockResult.error) {
+      this.metricsService.setFetcherAlert(item.fetcher.name);
     }
   }
 }

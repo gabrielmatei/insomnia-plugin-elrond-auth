@@ -1,6 +1,6 @@
 import moment from "moment";
 import { google, webmasters_v3 } from "googleapis";
-import { Ingest } from "src/crons/data-ingester/ingester";
+import { Ingest } from "src/crons/data-ingester/entities/ingest.interface";
 import { GoogleEntity } from "./google.entity";
 
 export class GoogleIngest implements Ingest {

@@ -3,7 +3,7 @@ import { ApiConfigService } from "src/common/api-config/api.config.service";
 import { ElasticService } from "src/common/elastic/elastic.service";
 import { ElasticQuery } from "src/common/elastic/entities/elastic.query";
 import { RangeQuery } from "src/common/elastic/entities/range.query";
-import { Ingest } from "src/crons/data-ingester/ingester";
+import { Ingest } from "src/crons/data-ingester/entities/ingest.interface";
 import { TransactionsDetailedEntity } from "./transactions-detailed.entity";
 import BigNumber from "bignumber.js";
 

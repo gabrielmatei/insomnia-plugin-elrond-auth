@@ -1,5 +1,5 @@
 import moment from "moment";
-import { Ingest } from "src/crons/data-ingester/ingester";
+import { Ingest } from "src/crons/data-ingester/entities/ingest.interface";
 import { GoogleTrendsEntity } from "./google-trends.entity";
 const googleTrends = require('google-trends-api');
 

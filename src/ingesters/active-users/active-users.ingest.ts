@@ -4,7 +4,7 @@ import { CachingService } from "src/common/caching/caching.service";
 import { ElasticService } from "src/common/elastic/elastic.service";
 import { ElasticQuery } from "src/common/elastic/entities/elastic.query";
 import { RangeQuery } from "src/common/elastic/entities/range.query";
-import { Ingest } from "src/crons/data-ingester/ingester";
+import { Ingest } from "src/crons/data-ingester/entities/ingest.interface";
 import { ActiveUsersEntity } from "./active-users.entity";
 
 export class ActiveUsersIngest implements Ingest {
@@ -48,7 +48,6 @@ export class ActiveUsersIngest implements Ingest {
 
     const activeUsers = await this.cachingService.getSetMembersCount(ActiveUsersIngest.SET_KEY);
     await this.cachingService.delCache(ActiveUsersIngest.SET_KEY);
-
 
     return ActiveUsersEntity.fromRecord(timestamp.toDate(), {
       count: activeUsers,

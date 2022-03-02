@@ -1,7 +1,7 @@
 import moment from "moment";
 import { ApiConfigService } from "src/common/api-config/api.config.service";
 import { ApiService } from "src/common/network/api.service";
-import { Ingest } from "src/crons/data-ingester/ingester";
+import { Ingest } from "src/crons/data-ingester/entities/ingest.interface";
 import { PricesEntity } from "./prices.entity";
 
 export class PricesIngest implements Ingest {

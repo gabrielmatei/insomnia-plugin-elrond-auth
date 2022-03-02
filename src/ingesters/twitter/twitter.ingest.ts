@@ -1,6 +1,6 @@
 import moment from "moment";
 import { ApiService } from "src/common/network/api.service";
-import { Ingest } from "src/crons/data-ingester/ingester";
+import { Ingest } from "src/crons/data-ingester/entities/ingest.interface";
 import { TwitterEntity } from "./twitter.entity";
 
 export class TwitterIngest implements Ingest {

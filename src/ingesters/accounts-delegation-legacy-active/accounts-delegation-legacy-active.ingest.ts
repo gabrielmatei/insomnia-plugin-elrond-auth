@@ -2,7 +2,7 @@ import moment from "moment";
 import { ApiConfigService } from "src/common/api-config/api.config.service";
 import { ElasticService } from "src/common/elastic/elastic.service";
 import { GatewayService } from "src/common/gateway/gateway.service";
-import { Ingest } from "src/crons/data-ingester/ingester";
+import { Ingest } from "src/crons/data-ingester/entities/ingest.interface";
 import { AccountsDelegationLegacyActiveEntity } from "./accounts-delegation-legacy-active.entity";
 
 export class AccountsDelegationLegacyActiveIngest implements Ingest {
