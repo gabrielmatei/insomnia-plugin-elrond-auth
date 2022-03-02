@@ -25,6 +25,7 @@ import { TwitterIngest } from "src/ingesters/twitter/twitter.ingest";
 import { PricesIngest } from "src/ingesters/prices/prices.ingest";
 import { TransactionsDetailedIngest } from "src/ingesters/transactions-detailed/transactions-detailed.ingest";
 import { ExchangesDetailedIngest } from "src/ingesters/exchanges-detailed/exchanges-detailed.ingest";
+import { ActiveUsersIngest } from "src/ingesters/active-users/active-users.ingest";
 
 @Injectable()
 export class DataIngesterService {
@@ -62,6 +63,10 @@ export class DataIngesterService {
       {
         refreshInterval: CronExpression.EVERY_HOUR,
         fetcher: new AccountsTotalStakeIngest(this.apiConfigService, this.elasticService, this.gatewayService),
+      },
+      {
+        refreshInterval: CronExpression.EVERY_10_SECONDS,
+        fetcher: new ActiveUsersIngest(this.apiConfigService, this.elasticService),
       },
       {
         refreshInterval: CronExpression.EVERY_HOUR,
