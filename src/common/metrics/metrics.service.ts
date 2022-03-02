@@ -4,6 +4,7 @@ import { ElasticMetricType } from "./entities/elastic.metric.type";
 
 @Injectable()
 export class MetricsService {
+  private static fetcherAlertsHistogram: Histogram<string>;
   private static apiCallsHistogram: Histogram<string>;
   private static externalCallsHistogram: Histogram<string>;
   private static pendingRequestsHistogram: Gauge<string>;
@@ -16,6 +17,15 @@ export class MetricsService {
   private static isDefaultMetricsRegistered: boolean = false;
 
   constructor() {
+    if (!MetricsService.fetcherAlertsHistogram) {
+      MetricsService.fetcherAlertsHistogram = new Histogram({
+        name: 'fetcher_alerts',
+        help: 'Fetcher Alerts',
+        labelNames: ['code'],
+        buckets: [],
+      });
+    }
+
     if (!MetricsService.apiCallsHistogram) {
       MetricsService.apiCallsHistogram = new Histogram({
         name: 'api',
@@ -89,6 +99,10 @@ export class MetricsService {
       MetricsService.isDefaultMetricsRegistered = true;
       collectDefaultMetrics();
     }
+  }
+
+  setFetcherAlert(fetcherName: string) {
+    MetricsService.fetcherAlertsHistogram.labels(fetcherName).observe(1);
   }
 
   setApiCall(endpoint: string, status: number, duration: number, responseSize: number) {
