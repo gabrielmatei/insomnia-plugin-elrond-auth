@@ -1,28 +1,27 @@
 import { AbstractQuery } from "./abstract.query";
+
+export class RangeQueryOptions {
+  lt?: number;
+  lte?: number;
+  gt?: number;
+  gte?: number;
+}
+
 export class RangeQuery extends AbstractQuery {
   private readonly key: string;
-  private readonly lt: number | undefined;
-  private readonly lte: number | undefined;
-  private readonly gt: number | undefined;
-  private readonly gte: number | undefined;
+  private readonly options: RangeQueryOptions;
 
-  constructor(key: string, options: { lt?: number, lte?: number, gt?: number, gte?: number }) {
+  constructor(key: string, options: RangeQueryOptions) {
     super();
     this.key = key;
-    this.lt = options.lt;
-    this.lte = options.lte;
-    this.gt = options.gt;
-    this.gte = options.gte;
+    this.options = options;
   }
 
   getQuery(): any {
     return {
       range: {
         [this.key]: {
-          lt: this.lt,
-          lte: this.lte,
-          gt: this.gt,
-          gte: this.gte,
+          ...this.options,
         },
       },
     };

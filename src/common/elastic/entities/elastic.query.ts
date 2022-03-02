@@ -4,7 +4,6 @@ import { ElasticPagination } from "./elastic.pagination";
 import { ElasticSortProperty } from "./elastic.sort.property";
 import { QueryCondition } from "./query.condition";
 import { QueryConditionOptions } from "./query.condition.options";
-import { RangeQuery } from "./range.query";
 import { TermsQuery } from "./terms.query";
 
 function buildElasticIndexerSort(sorts: ElasticSortProperty[]): any[] {
@@ -50,7 +49,7 @@ export class ElasticQuery {
     return this;
   }
 
-  withFilter(filter: RangeQuery[]): ElasticQuery {
+  withFilter(filter: AbstractQuery[]): ElasticQuery {
     this.filter = filter;
 
     return this;
@@ -70,17 +69,19 @@ export class ElasticQuery {
           must_not: this.condition.must_not.map(query => query.getQuery()),
           minimum_should_match: this.condition.should.length !== 0 ? 1 : undefined,
         },
-        terms: this.terms?.getQuery(),
+        // terms: this.terms?.getQuery(),
       },
     };
 
     ApiUtils.cleanupApiValueRecursively(elasticQuery);
 
     if (Object.keys(elasticQuery.query.bool).length === 0) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       //@ts-ignore
       delete elasticQuery.query.bool;
 
       if (!this.terms) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         //@ts-ignore
         elasticQuery.query['match_all'] = {};
       }

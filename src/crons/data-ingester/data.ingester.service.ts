@@ -24,6 +24,7 @@ import { QuotesIngest } from "src/ingesters/quotes/quotes.ingest";
 import { TwitterIngest } from "src/ingesters/twitter/twitter.ingest";
 import { PricesIngest } from "src/ingesters/prices/prices.ingest";
 import { TransactionsDetailedIngest } from "src/ingesters/transactions-detailed/transactions-detailed.ingest";
+import { ExchangesDetailedIngest } from "src/ingesters/exchanges-detailed/exchanges-detailed.ingest";
 
 @Injectable()
 export class DataIngesterService {
@@ -69,6 +70,10 @@ export class DataIngesterService {
       {
         refreshInterval: CronExpression.EVERY_HOUR,
         fetcher: new ExchangesIngest(this.apiConfigService, this.apiService),
+      },
+      {
+        refreshInterval: CronExpression.EVERY_HOUR,
+        fetcher: new ExchangesDetailedIngest(this.apiConfigService, this.elasticService),
       },
       {
         refreshInterval: CronExpression.EVERY_HOUR,
