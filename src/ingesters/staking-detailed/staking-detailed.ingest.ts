@@ -3,6 +3,7 @@ import moment from "moment";
 import { ApiConfigService } from "src/common/api-config/api.config.service";
 import { ElasticService } from "src/common/elastic/elastic.service";
 import { ElasticQuery } from "src/common/elastic/entities/elastic.query";
+import { QueryConditionOptions } from "src/common/elastic/entities/query.condition.options";
 import { RangeQuery } from "src/common/elastic/entities/range.query";
 import { GatewayService } from "src/common/gateway/gateway.service";
 import { ApiService } from "src/common/network/api.service";
@@ -73,102 +74,44 @@ export class StakingDetailedIngest implements Ingest {
     ]);
 
     const [
-      {
-        count: stakingUsers,
-      },
-      {
-        count: delegationLegacyUsers,
-      },
+      stakingUsers,
+      delegationLegacyUsers,
       {
         aggregations: {
           delegationTotal: { value: totalDelegated },
         },
       },
     ] = await Promise.all([
-      this.apiService.post<any, any>(`${this.apiConfigService.getInternalElasticUrl()}/accounts-000001_${epoch}/_count`, {
-        query: {
-          bool: {
-            should: [
-              {
-                range: {
-                  delegationNum: {
-                    gt: 0,
-                  },
-                },
-              },
-              {
-                range: {
-                  delegationLegacyActiveNum: {
-                    gt: 0,
-                  },
-                },
-              },
-            ],
-          },
-        },
-      }),
-      this.apiService.post<any, any>(`${this.apiConfigService.getInternalElasticUrl()}/accounts-000001_${epoch}/_count`, {
-        query: {
-          bool: {
-            should: [
-              {
-                range: {
-                  delegationLegacyWaitingNum: {
-                    gt: 0,
-                  },
-                },
-              },
-              {
-                range: {
-                  delegationLegacyActiveNum: {
-                    gt: 0,
-                  },
-                },
-              },
-            ],
-          },
-        },
-      }),
+      this.elasticService.getCount(
+        this.apiConfigService.getInternalElasticUrl(),
+        `accounts-000001_${epoch}`,
+        ElasticQuery.create().withCondition(QueryConditionOptions.should, [
+          new RangeQuery('delegationNum', { gt: 0 }),
+          new RangeQuery('delegationLegacyActiveNum', { gt: 0 }),
+        ])),
+      this.elasticService.getCount(
+        this.apiConfigService.getInternalElasticUrl(),
+        `accounts-000001_${epoch}`,
+        ElasticQuery.create().withCondition(QueryConditionOptions.should, [
+          new RangeQuery('delegationLegacyWaitingNum', { gt: 0 }),
+          new RangeQuery('delegationLegacyActiveNum', { gt: 0 }),
+        ])),
       this.apiService.post<any, any>(`${this.apiConfigService.getInternalElasticUrl()}/accounts-000001_${epoch}/_search`, {
         aggs: {
           delegationTotal: { sum: { field: 'delegationNum' } },
         },
       }),
     ]);
-    const legacyDelegationUserAverage = Math.floor(
-      isNaN(delegationLegacyTotal / delegationLegacyUsers) || delegationLegacyUsers === 0
-        ? 0
-        : delegationLegacyTotal / delegationLegacyUsers
-    );
-    const legacyDelegationActiveUserAverage = Math.floor(
-      isNaN(delegationLegacyActive / delegationLegacyActiveUsers) ||
-        delegationLegacyActiveUsers === 0
-        ? 0
-        : delegationLegacyActive / delegationLegacyActiveUsers
-    );
-    const legacyDelegationWaitingUserAverage = Math.floor(
-      isNaN(delegationLegacyWaiting / delegationLegacyWaitingUsers) ||
-        delegationLegacyWaitingUsers === 0
-        ? 0
-        : delegationLegacyWaiting / delegationLegacyWaitingUsers
-    );
-    const delegationUserAverage = Math.floor(
-      isNaN(totalDelegated / delegationUsers) || delegationUsers === 0
-        ? 0
-        : totalDelegated / delegationUsers
-    );
-    const stakingUserAverage = Math.floor(
-      isNaN(delegationLocked / stakingUsers) || stakingUsers === 0
-        ? 0
-        : delegationLocked / stakingUsers
-    );
-    const userAverage = Math.floor(
-      isNaN(totalStaked / totalUniqueUsers) || totalUniqueUsers === 0
-        ? 0
-        : totalStaked / totalUniqueUsers
-    );
 
-    const data = {
+    const legacyDelegationUserAverage = this.tryIntegerDivision(delegationLegacyTotal, delegationLegacyUsers);
+    const legacyDelegationActiveUserAverage = this.tryIntegerDivision(delegationLegacyActive, delegationLegacyActiveUsers);
+    const legacyDelegationWaitingUserAverage = this.tryIntegerDivision(delegationLegacyWaiting, delegationLegacyWaitingUsers);
+    const delegationUserAverage = this.tryIntegerDivision(totalDelegated, delegationUsers);
+    const stakingUserAverage = this.tryIntegerDivision(delegationLocked, stakingUsers);
+    const userAverage = this.tryIntegerDivision(totalStaked, totalUniqueUsers);
+
+    const timestamp = moment.utc().subtract(1, 'days').toDate();
+    return StakingDetailedEntity.fromObject(timestamp, {
       legacydelegation: {
         value: delegationLegacyTotal,
         users: delegationLegacyUsers,
@@ -201,10 +144,7 @@ export class StakingDetailedIngest implements Ingest {
         users: totalUniqueUsers,
         user_average: userAverage,
       },
-    };
-
-    const timestamp = moment.utc().subtract(1, 'days').toDate();
-    return StakingDetailedEntity.fromObject(timestamp, data);
+    });
   }
 
   private async getDelegationLegacyTotal(): Promise<number[]> {
@@ -233,5 +173,9 @@ export class StakingDetailedIngest implements Ingest {
     const delegationLocked = parseInt(locked.length > 1 ? locked.slice(0, -18) : 0);
 
     return [delegationStake, delegationTopup, delegationLocked];
+  }
+
+  private tryIntegerDivision(a: number, b: number) {
+    return Math.floor(isNaN(a / b) || b === 0 ? 0 : a / b);
   }
 }
