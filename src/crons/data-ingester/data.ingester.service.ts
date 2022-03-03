@@ -18,7 +18,6 @@ import { TwitterIngest } from "src/ingesters/twitter/twitter.ingest";
 import { PricesIngest } from "src/ingesters/prices/prices.ingest";
 import { TransactionsDetailedIngest } from "src/ingesters/transactions-detailed/transactions-detailed.ingest";
 import { ExchangesDetailedIngest } from "src/ingesters/exchanges-detailed/exchanges-detailed.ingest";
-import { ActiveUsersIngest } from "src/ingesters/active-users/active-users.ingest";
 import { Ingester } from "./ingester";
 import { IngestItem } from "./entities/ingest.item";
 import { TrendsIngest } from "src/ingesters/trends/trends.ingest";
@@ -33,7 +32,6 @@ export class DataIngesterService {
     private readonly accountsDelegationLegacyActiveIngest: AccountsDelegationLegacyActiveIngest,
     private readonly accountsTotalBalanceWithStakeIngest: AccountsTotalBalanceWithStakeIngest,
     private readonly accountsTotalStakeIngest: AccountsTotalStakeIngest,
-    private readonly activeUsersIngest: ActiveUsersIngest,
     private readonly economicsIngest: EconomicsIngest,
     private readonly exchangesIngest: ExchangesIngest,
     private readonly exchangesDetailedIngest: ExchangesDetailedIngest,
@@ -72,10 +70,6 @@ export class DataIngesterService {
       {
         refreshInterval: CronExpression.EVERY_HOUR,
         fetcher: this.accountsTotalStakeIngest,
-      },
-      {
-        refreshInterval: CronExpression.EVERY_HOUR,
-        fetcher: this.activeUsersIngest,
       },
       {
         refreshInterval: CronExpression.EVERY_HOUR,

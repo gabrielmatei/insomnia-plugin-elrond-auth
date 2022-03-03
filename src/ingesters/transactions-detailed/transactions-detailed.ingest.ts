@@ -8,9 +8,12 @@ import { TransactionsDetailedEntity } from "./transactions-detailed.entity";
 import BigNumber from "bignumber.js";
 import { Injectable } from "@nestjs/common";
 import { GatewayService } from "src/common/gateway/gateway.service";
+import { CachingService } from "src/common/caching/caching.service";
 
 @Injectable()
 export class TransactionsDetailedIngest implements Ingest {
+  public static readonly ACTIVE_USERS_KEY = "activeUserSet";
+
   public readonly name = TransactionsDetailedIngest.name;
   public readonly entityTarget = TransactionsDetailedEntity;
 
@@ -18,6 +21,7 @@ export class TransactionsDetailedIngest implements Ingest {
     private readonly apiConfigService: ApiConfigService,
     private readonly elasticService: ElasticService,
     private readonly gatewayService: GatewayService,
+    private readonly cachingService: CachingService,
   ) { }
 
   public async fetch(): Promise<TransactionsDetailedEntity[]> {
@@ -28,6 +32,8 @@ export class TransactionsDetailedIngest implements Ingest {
     let totalFees = new BigNumber(0);
     const computeTransactionsPage = async (transactions: any[]) => {
       for (const transaction of transactions) {
+        await this.cachingService.addInSet(TransactionsDetailedIngest.ACTIVE_USERS_KEY, transaction.sender);
+
         valueMoved = valueMoved.plus(new BigNumber(transaction.value?.length > 0 ? transaction.value : '0'));
         totalFees = totalFees.plus(new BigNumber(transaction.fee?.length > 0 ? transaction.fee : '0'));
       }
@@ -41,6 +47,8 @@ export class TransactionsDetailedIngest implements Ingest {
           lt: timestamp.unix(),
         }),
       ]);
+
+    await this.cachingService.delCache(TransactionsDetailedIngest.ACTIVE_USERS_KEY);
     await this.elasticService.computeAllItems(this.apiConfigService.getElasticUrl(), 'transactions', 'hash', elasticQuery, computeTransactionsPage);
 
     const rewardsPerEpoch = await this.getCurrentRewardsPerEpoch();
@@ -50,7 +58,11 @@ export class TransactionsDetailedIngest implements Ingest {
     const totalFeesFormatted = totalFees.shiftedBy(-18).toNumber();
     const newEmissionFormatted = newEmission.shiftedBy(-18).toNumber();
 
+    const activeUsers = await this.cachingService.getSetMembersCount(TransactionsDetailedIngest.ACTIVE_USERS_KEY);
+    await this.cachingService.delCache(TransactionsDetailedIngest.ACTIVE_USERS_KEY);
+
     return TransactionsDetailedEntity.fromRecord(timestamp.toDate(), {
+      active_users: activeUsers,
       value_moved: valueMovedFormatted,
       total_fees: totalFeesFormatted,
       new_emission: newEmissionFormatted,
