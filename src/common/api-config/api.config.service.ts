@@ -344,4 +344,20 @@ export class ApiConfigService {
 
     return inflationAmounts;
   }
+
+  getTwitterUrl(): string[] {
+    const authorizationBearers = this.configService.get<string[]>('twitter.url');
+    if (!authorizationBearers) {
+      throw new Error('No Twitter url value present');
+    }
+    return authorizationBearers;
+  }
+
+  getTwitterAuthorizationBearers(): string[] {
+    const authorizationBearers = this.configService.get<string[]>('twitter.authorizationBearers');
+    if (!authorizationBearers) {
+      throw new Error('No Twitter authorization bearers value present');
+    }
+    return authorizationBearers;
+  }
 }

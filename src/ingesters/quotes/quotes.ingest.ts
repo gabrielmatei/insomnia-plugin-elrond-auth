@@ -10,13 +10,10 @@ export class QuotesIngest implements Ingest {
   public readonly name = QuotesIngest.name;
   public readonly entityTarget = QuotesEntity;
 
-  private readonly apiConfigService: ApiConfigService;
-  private readonly apiService: ApiService;
-
-  constructor(apiConfigService: ApiConfigService, apiService: ApiService) {
-    this.apiConfigService = apiConfigService;
-    this.apiService = apiService;
-  }
+  constructor(
+    private readonly apiConfigService: ApiConfigService,
+    private readonly apiService: ApiService,
+  ) { }
 
   public async fetch(): Promise<QuotesEntity[]> {
     const { data: quotesRaw } = await this.apiService.get<any>(
