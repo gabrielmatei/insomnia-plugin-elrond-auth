@@ -1,4 +1,4 @@
-import { GenericIngestEntity } from "src/ingesters/generic/generic-ingest.entity";
+import { GenericIngestEntity } from "src/common/timescale/entities/generic-ingest.entity";
 import { EntityTarget } from "typeorm";
 
 export interface Ingest {

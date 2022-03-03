@@ -2,8 +2,8 @@ import { Injectable } from "@nestjs/common";
 import moment from "moment";
 import { ApiConfigService } from "src/common/api-config/api.config.service";
 import { GithubService } from "src/common/github/github.service";
+import { GithubActivityEntity } from "src/common/timescale/entities/github-activity.entity";
 import { Ingest } from "src/crons/data-ingester/entities/ingest.interface";
-import { GithubActivityEntity } from "./entities/github-activity.entity";
 
 @Injectable()
 export class GithubActivityIngest implements Ingest {

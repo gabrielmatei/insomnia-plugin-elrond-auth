@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import moment from 'moment';
-import { GenericIngestEntity } from 'src/ingesters/generic/generic-ingest.entity';
 import { EntityTarget, getRepository } from 'typeorm';
+import { GenericIngestEntity } from './entities/generic-ingest.entity';
 
 @Injectable()
 export class TimescaleService {
