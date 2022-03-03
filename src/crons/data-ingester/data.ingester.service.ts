@@ -21,11 +21,13 @@ import { ExchangesDetailedIngest } from "src/ingesters/exchanges-detailed/exchan
 import { Ingester } from "./ingester";
 import { IngestItem } from "./entities/ingest.item";
 import { TrendsIngest } from "src/ingesters/trends/trends.ingest";
+import { AccountsIngest } from "src/ingesters/accounts/accounts.ingest";
 
 @Injectable()
 export class DataIngesterService {
   constructor(
     private readonly ingester: Ingester,
+    private readonly accountsIngest: AccountsIngest,
     private readonly accountsCountIngest: AccountsCountIngest,
     private readonly accountsBalanceIngest: AccountsBalanceIngest,
     private readonly accountsDelegationIngest: AccountsDelegationIngest,
@@ -47,6 +49,10 @@ export class DataIngesterService {
     private readonly pricesIngest: PricesIngest,
   ) {
     const items: IngestItem[] = [
+      {
+        refreshInterval: CronExpression.EVERY_HOUR,
+        fetcher: this.accountsIngest,
+      },
       {
         refreshInterval: CronExpression.EVERY_HOUR,
         fetcher: this.accountsCountIngest,
@@ -87,6 +93,7 @@ export class DataIngesterService {
         refreshInterval: CronExpression.EVERY_HOUR,
         fetcher: this.githubIngest,
       },
+      // TODO github
       {
         refreshInterval: CronExpression.EVERY_HOUR,
         fetcher: this.googleIngest,

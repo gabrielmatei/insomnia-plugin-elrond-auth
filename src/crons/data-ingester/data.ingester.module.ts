@@ -9,6 +9,7 @@ import { AccountsDelegationLegacyActiveIngest } from 'src/ingesters/accounts-del
 import { AccountsDelegationIngest } from 'src/ingesters/accounts-delegation/accounts-delegation.ingest';
 import { AccountsTotalBalanceWithStakeIngest } from 'src/ingesters/accounts-total-balance-with-stake/accounts-total-balance-with-stake.ingest';
 import { AccountsTotalStakeIngest } from 'src/ingesters/accounts-total-stake/accounts-total-stake.ingest';
+import { AccountsIngest } from 'src/ingesters/accounts/accounts.ingest';
 import { EconomicsIngest } from 'src/ingesters/economics/economics.ingest';
 import { ExchangesDetailedIngest } from 'src/ingesters/exchanges-detailed/exchanges-detailed.ingest';
 import { ExchangesIngest } from 'src/ingesters/exchanges/exchanges.ingest';
@@ -35,6 +36,7 @@ import { Ingester } from './ingester';
   providers: [
     DataIngesterService,
     Ingester,
+    AccountsIngest,
     AccountsCountIngest,
     AccountsBalanceIngest,
     AccountsDelegationIngest,
