@@ -14,15 +14,11 @@ export class TransactionsDetailedIngest implements Ingest {
   public readonly name = TransactionsDetailedIngest.name;
   public readonly entityTarget = TransactionsDetailedEntity;
 
-  private readonly apiConfigService: ApiConfigService;
-  private readonly elasticService: ElasticService;
-  private readonly gatewayService: GatewayService;
-
-  constructor(apiConfigService: ApiConfigService, elasticService: ElasticService, gatewayService: GatewayService) {
-    this.apiConfigService = apiConfigService;
-    this.elasticService = elasticService;
-    this.gatewayService = gatewayService;
-  }
+  constructor(
+    private readonly apiConfigService: ApiConfigService,
+    private readonly elasticService: ElasticService,
+    private readonly gatewayService: GatewayService,
+  ) { }
 
   public async fetch(): Promise<TransactionsDetailedEntity[]> {
     const timestamp = moment().utc();

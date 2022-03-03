@@ -12,17 +12,14 @@ export class TransactionsIngest implements Ingest {
   public readonly name = TransactionsIngest.name;
   public readonly entityTarget = TransactionsEntity;
 
-  private readonly apiConfigService: ApiConfigService;
-  private readonly elasticService: ElasticService;
-
-  constructor(apiConfigService: ApiConfigService, elasticService: ElasticService) {
-    this.apiConfigService = apiConfigService;
-    this.elasticService = elasticService;
-  }
+  constructor(
+    private readonly apiConfigService: ApiConfigService,
+    private readonly elasticService: ElasticService,
+  ) { }
 
   public async fetch(): Promise<TransactionsEntity[]> {
-    const gte = moment().startOf('day').subtract(1, 'day').unix();
-    const lt = moment().startOf('day').unix();
+    const startDate = moment().startOf('day').subtract(1, 'day');
+    const endDate = moment().startOf('day');
 
     const [
       count,
@@ -33,12 +30,14 @@ export class TransactionsIngest implements Ingest {
         this.apiConfigService.getElasticUrl(),
         'transactions',
         ElasticQuery.create().withFilter([
-          new RangeQuery('timestamp', { gte, lt }),
+          new RangeQuery('timestamp', {
+            gte: startDate.unix(),
+            lt: endDate.unix(),
+          }),
         ])),
     ]);
 
-    const timestamp = moment().utc().toDate();
-    return TransactionsEntity.fromRecord(timestamp, {
+    return TransactionsEntity.fromRecord(endDate.toDate(), {
       count,
       count_24h,
     });
