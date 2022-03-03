@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import moment from 'moment';
+import { GenericIngestEntity } from 'src/ingesters/generic/generic-ingest.entity';
 import { EntityTarget, getRepository } from 'typeorm';
 
 @Injectable()
@@ -23,7 +24,7 @@ export class TimescaleService {
     }
   }
 
-  public async getPreviousValue24h<T>(entityTarget: EntityTarget<T>, currentTimestamp: Date, key: string): Promise<T | undefined> {
+  public async getPreviousValue24h<T extends GenericIngestEntity>(entityTarget: EntityTarget<T>, currentTimestamp: Date, key: string): Promise<number | undefined> {
     const repository = getRepository(entityTarget);
     const entity = await repository
       .createQueryBuilder()
@@ -31,11 +32,16 @@ export class TimescaleService {
       .andWhere('timestamp >= :ago24h')
       .setParameters({
         key,
+        now: currentTimestamp.toISOString(),
         ago24h: moment.utc(currentTimestamp).add(-1, 'days').toISOString(),
       })
       .orderBy('timestamp', 'ASC')
       .limit(1)
       .getOne();
-    return entity;
+
+    if (!entity) {
+      return undefined;
+    }
+    return entity.value;
   }
 }
