@@ -40,6 +40,7 @@ export class ExchangesDetailedIngest implements Ingest {
         .map(async ([exchange, wallets]) => {
           const inflows = await this.getExchangeFlows(wallets, timestampFilter, 'in');
           const outflows = await this.getExchangeFlows(wallets, timestampFilter, 'out');
+
           exchanges[exchange] = {
             total: inflows + outflows,
             inflows,

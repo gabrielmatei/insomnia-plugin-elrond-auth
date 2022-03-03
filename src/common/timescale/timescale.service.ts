@@ -24,21 +24,27 @@ export class TimescaleService {
     }
   }
 
-  public async getPreviousValue24h<T extends GenericIngestEntity>(entityTarget: EntityTarget<T>, currentTimestamp: Date, key: string): Promise<number | undefined> {
+  public async getPreviousValue24h<T extends GenericIngestEntity>(entityTarget: EntityTarget<T>, currentTimestamp: Date, key: string, series?: string): Promise<number | undefined> {
     const repository = getRepository(entityTarget);
-    const entity = await repository
+
+    let query = repository
       .createQueryBuilder()
       .where('key = :key')
       .andWhere('timestamp >= :ago24h')
       .setParameters({
         key,
+        series,
         now: currentTimestamp.toISOString(),
         ago24h: moment.utc(currentTimestamp).add(-1, 'days').toISOString(),
       })
       .orderBy('timestamp', 'ASC')
-      .limit(1)
-      .getOne();
+      .limit(1);
 
+    if (series) {
+      query = query.andWhere('series = :series');
+    }
+
+    const entity = await query.getOne();
     if (!entity) {
       return undefined;
     }

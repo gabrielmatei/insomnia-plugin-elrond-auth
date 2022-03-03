@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import moment from "moment";
 import { ApiConfigService } from "src/common/api-config/api.config.service";
 import { ApiService } from "src/common/network/api.service";
+import { TimescaleService } from "src/common/timescale/timescale.service";
 import { Ingest } from "src/crons/data-ingester/entities/ingest.interface";
 import { ExchangesEntity } from "./exchanges.entity";
 
@@ -10,37 +11,44 @@ export class ExchangesIngest implements Ingest {
   public readonly name = ExchangesIngest.name;
   public readonly entityTarget = ExchangesEntity;
 
-  private readonly apiConfigService: ApiConfigService;
-  private readonly apiService: ApiService;
-
-  constructor(apiConfigService: ApiConfigService, apiService: ApiService) {
-    this.apiConfigService = apiConfigService;
-    this.apiService = apiService;
-  }
+  constructor(
+    private readonly apiConfigService: ApiConfigService,
+    private readonly apiService: ApiService,
+    private readonly timescaleService: TimescaleService,
+  ) { }
 
   public async fetch(): Promise<ExchangesEntity[]> {
+    const timestamp = moment().utc().toDate();
     const exchangeWallets = this.apiConfigService.getExchangeWallets();
 
-    const balances = await Promise.all(
-      Object
-        .entries(exchangeWallets)
-        .map(async ([key, value]) => ({
-          exchange: key.replace(/\./g, '_').toLowerCase(),
-          balance: await this.getExchangeBalance(value),
-        }))
-    );
-    const totalBalance = balances.reduce((sum, { balance }) => sum + balance, 0);
+    const exchangeDetails: any = {};
 
-    const balanceKeys = balances.reduce((record, { exchange, balance }) => {
-      record[exchange] = balance;
-      return record;
-    }, {} as Record<string, number>);
+    let totalBalance = 0;
+    let totalInflow24h = 0;
+    let totalOutflow24h = 0;
 
-    const timestamp = moment().utc().toDate();
-    return ExchangesEntity.fromRecord(timestamp, {
-      ...balanceKeys,
-      total: totalBalance,
-    });
+    await Promise.all(Object.entries(exchangeWallets).map(async ([exchange, wallets]) => {
+      const balance = await this.getExchangeBalance(wallets);
+      const [inflow24h, outflow24h] = await this.getExchange24hFlows(exchange, timestamp, balance);
+
+      exchangeDetails[exchange] = {
+        balance,
+        inflow_24h: inflow24h,
+        outflow_24h: outflow24h,
+      };
+
+      totalBalance += balance;
+      totalInflow24h += inflow24h;
+      totalOutflow24h += outflow24h;
+    }));
+
+    exchangeDetails['total'] = {
+      balance: totalBalance,
+      inflow_24h: totalInflow24h,
+      outflow_24h: totalOutflow24h,
+    };
+
+    return ExchangesEntity.fromObject(timestamp, exchangeDetails);
   }
 
   private async getExchangeBalance(wallets: string[]): Promise<number> {
@@ -53,5 +61,20 @@ export class ExchangesIngest implements Ingest {
 
     const totalBalance = balances.reduce((sum, balance) => sum + balance, 0);
     return totalBalance;
+  }
+
+  private async getExchange24hFlows(exchangeName: string, timestamp: Date, currentBalance: number): Promise<number[]> {
+    let inflow24h = 0;
+    let outflow24h = 0;
+
+    const previousResult24h = await this.timescaleService.getPreviousValue24h(ExchangesEntity, timestamp, 'balance', exchangeName);
+    const balance24h = previousResult24h && previousResult24h > 0 ? currentBalance - previousResult24h : 0;
+    if (balance24h >= 0) {
+      inflow24h = balance24h;
+    } else {
+      outflow24h = Math.abs(balance24h);
+    }
+
+    return [inflow24h, outflow24h];
   }
 }
