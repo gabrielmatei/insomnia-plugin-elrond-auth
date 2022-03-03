@@ -11,7 +11,6 @@ import { AccountsTotalBalanceWithStakeIngest } from "src/ingesters/accounts-tota
 import { ExchangesIngest } from "src/ingesters/exchanges/exchanges.ingest";
 import { GithubIngest } from "src/ingesters/github/github.ingest";
 import { GoogleIngest } from "src/ingesters/google/google.ingest";
-import { GoogleTrendsIngest } from "src/ingesters/google-trends/google-trends.ingest";
 import { StakingIngest } from "src/ingesters/staking/staking.ingest";
 import { StakingDetailedIngest } from "src/ingesters/staking-detailed/staking-detailed.ingest";
 import { QuotesIngest } from "src/ingesters/quotes/quotes.ingest";
@@ -22,6 +21,7 @@ import { ExchangesDetailedIngest } from "src/ingesters/exchanges-detailed/exchan
 import { ActiveUsersIngest } from "src/ingesters/active-users/active-users.ingest";
 import { Ingester } from "./ingester";
 import { IngestItem } from "./entities/ingest.item";
+import { TrendsIngest } from "src/ingesters/trends/trends.ingest";
 
 @Injectable()
 export class DataIngesterService {
@@ -39,7 +39,7 @@ export class DataIngesterService {
     private readonly exchangesDetailedIngest: ExchangesDetailedIngest,
     private readonly githubIngest: GithubIngest,
     private readonly googleIngest: GoogleIngest,
-    private readonly googleTrendsIngest: GoogleTrendsIngest,
+    private readonly trendsIngest: TrendsIngest,
     private readonly quotesIngest: QuotesIngest,
     private readonly stakingIngest: StakingIngest,
     private readonly stakingDetailedIngest: StakingDetailedIngest,
@@ -99,10 +99,6 @@ export class DataIngesterService {
       },
       {
         refreshInterval: CronExpression.EVERY_HOUR,
-        fetcher: this.googleTrendsIngest,
-      },
-      {
-        refreshInterval: CronExpression.EVERY_HOUR,
         fetcher: this.quotesIngest,
       },
       {
@@ -120,6 +116,10 @@ export class DataIngesterService {
       {
         refreshInterval: CronExpression.EVERY_HOUR,
         fetcher: this.transactionsDetailedIngest,
+      },
+      {
+        refreshInterval: CronExpression.EVERY_HOUR,
+        fetcher: this.trendsIngest,
       },
       {
         refreshInterval: CronExpression.EVERY_HOUR,
