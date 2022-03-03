@@ -1,4 +1,4 @@
-import { forwardRef, Inject, Injectable } from "@nestjs/common";
+import { forwardRef, Inject, Injectable, Logger } from "@nestjs/common";
 import { ApiService } from "../network/api.service";
 import { PerformanceProfiler } from "src/utils/performance.profiler";
 import { MetricsService } from "src/common/metrics/metrics.service";
@@ -8,12 +8,16 @@ import { RangeQuery } from "./entities/range.query";
 
 @Injectable()
 export class ElasticService {
+  private readonly logger: Logger;
+
   constructor(
     @Inject(forwardRef(() => ApiService))
     private readonly apiService: ApiService,
     @Inject(forwardRef(() => MetricsService))
     private readonly metricsService: MetricsService
-  ) { }
+  ) {
+    this.logger = new Logger(ElasticService.name);
+  }
 
   async getCount(elasticUrl: string, collection: string, elasticQuery: ElasticQuery | undefined = undefined) {
     const url = `${elasticUrl}/${collection}/_count`;
@@ -93,5 +97,60 @@ export class ElasticService {
       )
     );
     return result;
+  }
+
+  async getAllResults(elasticUrl: string, collection: string, key: string, elasticQuery: ElasticQuery, compute: (transaction: any) => void) {
+    const { scrollId, items: firstItems } = await this.getFirstPage(elasticUrl, collection, key, elasticQuery);
+
+    let index = 0;
+    let items = firstItems;
+    while (items.length > 0) {
+      index += items.length;
+
+      const filteredItems = items.filter((x: any) => !x.fee.startsWith('-'));
+      filteredItems.map(compute);
+
+      items = await this.scroll(elasticUrl, scrollId, key);
+
+      this.logger.log({
+        filteredItems: filteredItems.length,
+        totalItems: index,
+      });
+    }
+  }
+
+  private async getFirstPage(elasticUrl: string, collection: string, key: string, elasticQuery: ElasticQuery) {
+    try {
+      const url = `${elasticUrl}/${collection}/_search?scroll=10m`;
+      const result = await this.post(url, elasticQuery.toJson());
+
+      const scrollId = result._scroll_id;
+      const items = result.hits.hits;
+
+      return {
+        scrollId,
+        items: items.map((document: any) => this.formatItem(document, key)),
+      };
+    } catch (error) {
+      // do nothing
+      this.logger.error(error);
+      return { items: [] };
+    }
+  }
+
+  async scroll(elasticUrl: string, scrollId: string, key: string): Promise<any[]> {
+    try {
+      const result = await this.post(`${elasticUrl}/_search/scroll`, {
+        scroll: '20m',
+        scroll_id: scrollId,
+      });
+
+      await new Promise(resolve => setTimeout(resolve, 3000));
+
+      return result.hits.hits.map((document: any) => this.formatItem(document, key));
+    } catch (error) {
+      this.logger.error(error);
+      return [];
+    }
   }
 }

@@ -28,32 +28,22 @@ export class TransactionsDetailedIngest implements Ingest {
     const timestamp = moment().utc();
     const timestamp24hAgo = moment(timestamp).add(-1, 'days');
 
-    // TODO store ago
     let valueMoved = new BigNumber(0);
     let totalFees = new BigNumber(0);
+    const compute = (transaction: any) => {
+      valueMoved = valueMoved.plus(new BigNumber(transaction.value?.length > 0 ? transaction.value : '0'));
+      totalFees = totalFees.plus(new BigNumber(transaction.fee?.length > 0 ? transaction.fee : '0'));
+    };
 
-    let count = 0;
-    let from = 0;
-    const size = 500;
-    do {
-      const elasticQuery = ElasticQuery.create()
-        .withPagination({ from, size })
-        .withFilter([
-          new RangeQuery('timestamp', {
-            gte: timestamp24hAgo.unix(),
-            lt: timestamp.unix(),
-          }),
-        ]);
-      const transactions = await this.elasticService.getList(this.apiConfigService.getElasticUrl(), 'transactions', 'hash', elasticQuery);
-      for (const transaction of transactions) {
-        valueMoved = valueMoved.plus(new BigNumber(transaction.value));
-        totalFees = totalFees.plus(new BigNumber(transaction.fee));
-      }
-
-      from = from + size;
-      count = transactions.length;
-    } while (count >= size);
-
+    const elasticQuery = ElasticQuery.create()
+      .withPagination({ size: 10000 })
+      .withFilter([
+        new RangeQuery('timestamp', {
+          gte: timestamp24hAgo.unix(),
+          lt: timestamp.unix(),
+        }),
+      ]);
+    await this.elasticService.getAllResults(this.apiConfigService.getElasticUrl(), 'transactions', 'hash', elasticQuery, compute);
 
     const rewardsPerEpoch = await this.getCurrentRewardsPerEpoch();
     const newEmission = new BigNumber(rewardsPerEpoch).shiftedBy(18).minus(new BigNumber(totalFees));
@@ -73,7 +63,7 @@ export class TransactionsDetailedIngest implements Ingest {
     const epoch = await this.gatewayService.getEpoch();
     const config = await this.gatewayService.getNetworkConfig();
 
-    const epochDuration = (config.roundDuration / 1000) * config.roundsPerEpoch;
+    const epochDuration = config.roundDuration * config.roundsPerEpoch;
     const secondsInYear = 365 * 24 * 3600;
     const epochsInYear = secondsInYear / epochDuration;
     const yearIndex = Math.floor(epoch / epochsInYear);
