@@ -22,7 +22,7 @@ export class GithubIngest implements Ingest {
   }
 
   public async fetch(): Promise<GithubEntity[]> {
-    const featuredRepositories = this.apiConfigService.getFeaturedRepositories();
+    const featuredRepositories = this.apiConfigService.getFeaturedGithubRepositories();
 
     const repoDetails: any = {};
 

@@ -22,6 +22,7 @@ import { Ingester } from "./ingester";
 import { IngestItem } from "./entities/ingest.item";
 import { TrendsIngest } from "src/ingesters/trends/trends.ingest";
 import { AccountsIngest } from "src/ingesters/accounts/accounts.ingest";
+import { GithubActivityIngest } from "src/ingesters/github-activity.ingest";
 
 @Injectable()
 export class DataIngesterService {
@@ -38,6 +39,7 @@ export class DataIngesterService {
     private readonly exchangesIngest: ExchangesIngest,
     private readonly exchangesDetailedIngest: ExchangesDetailedIngest,
     private readonly githubIngest: GithubIngest,
+    private readonly githubActivityIngest: GithubActivityIngest,
     private readonly googleIngest: GoogleIngest,
     private readonly trendsIngest: TrendsIngest,
     private readonly quotesIngest: QuotesIngest,
@@ -93,7 +95,10 @@ export class DataIngesterService {
         refreshInterval: CronExpression.EVERY_HOUR,
         fetcher: this.githubIngest,
       },
-      // TODO github
+      {
+        refreshInterval: CronExpression.EVERY_10_SECONDS,
+        fetcher: this.githubActivityIngest,
+      },
       {
         refreshInterval: CronExpression.EVERY_HOUR,
         fetcher: this.googleIngest,

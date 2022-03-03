@@ -294,7 +294,7 @@ export class ApiConfigService {
     return githubAccessToken;
   }
 
-  getFeaturedRepositories(): string[] {
+  getFeaturedGithubRepositories(): string[] {
     const featuredRepositories = this.configService.get<string[]>('github.featuredRepositories');
     if (!featuredRepositories) {
       throw new Error('No featured repositories value present');
