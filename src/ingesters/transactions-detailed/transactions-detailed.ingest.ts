@@ -40,6 +40,7 @@ export class TransactionsDetailedIngest implements Ingest {
     };
 
     const elasticQuery = ElasticQuery.create()
+      .withFields(['sender', 'value', 'fee'])
       .withPagination({ size: 10000 })
       .withFilter([
         new RangeQuery('timestamp', {

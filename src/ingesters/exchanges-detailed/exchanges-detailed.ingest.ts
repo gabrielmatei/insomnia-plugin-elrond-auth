@@ -61,6 +61,7 @@ export class ExchangesDetailedIngest implements Ingest {
     };
 
     const elasticQuery = ElasticQuery.create()
+      .withFields(['value'])
       .withPagination({ size: 10000 })
       .withFilter([
         new RangeQuery('timestamp', range),

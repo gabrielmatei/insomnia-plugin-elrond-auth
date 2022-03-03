@@ -107,13 +107,11 @@ export class ElasticService {
     while (items.length > 0) {
       index += items.length;
 
-      const filteredItems = items.filter((x: any) => !x.fee.startsWith('-'));
-
-      await computePage(filteredItems);
+      await computePage(items);
 
       items = await this.getNextPageUsingScrollApi(elasticUrl, scrollId, key);
 
-      this.logger.log({ filteredItems: filteredItems.length, totalItems: index });
+      this.logger.log({ items: items.length, totalItems: index });
     }
   }
 
