@@ -26,9 +26,11 @@ export class TransactionsDetailedIngest implements Ingest {
 
     let valueMoved = new BigNumber(0);
     let totalFees = new BigNumber(0);
-    const compute = (transaction: any) => {
-      valueMoved = valueMoved.plus(new BigNumber(transaction.value?.length > 0 ? transaction.value : '0'));
-      totalFees = totalFees.plus(new BigNumber(transaction.fee?.length > 0 ? transaction.fee : '0'));
+    const computeTransactionsPage = async (transactions: any[]) => {
+      for (const transaction of transactions) {
+        valueMoved = valueMoved.plus(new BigNumber(transaction.value?.length > 0 ? transaction.value : '0'));
+        totalFees = totalFees.plus(new BigNumber(transaction.fee?.length > 0 ? transaction.fee : '0'));
+      }
     };
 
     const elasticQuery = ElasticQuery.create()
@@ -39,7 +41,7 @@ export class TransactionsDetailedIngest implements Ingest {
           lt: timestamp.unix(),
         }),
       ]);
-    await this.elasticService.getAllResults(this.apiConfigService.getElasticUrl(), 'transactions', 'hash', elasticQuery, compute);
+    await this.elasticService.computeAllItems(this.apiConfigService.getElasticUrl(), 'transactions', 'hash', elasticQuery, computeTransactionsPage);
 
     const rewardsPerEpoch = await this.getCurrentRewardsPerEpoch();
     const newEmission = new BigNumber(rewardsPerEpoch).shiftedBy(18).minus(new BigNumber(totalFees));

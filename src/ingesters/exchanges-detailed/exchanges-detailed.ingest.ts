@@ -54,22 +54,19 @@ export class ExchangesDetailedIngest implements Ingest {
 
   private async getExchangeFlows(wallets: string[], range: RangeQueryOptions, direction: 'in' | 'out'): Promise<number> {
     let totalValue = new BigNumber(0);
-
-    // TODO scroll
-    const from = 0;
-    const size = 500;
+    const computeTransactionsPage = async (transactions: any[]) => {
+      for (const transaction of transactions) {
+        totalValue = totalValue.plus(new BigNumber(transaction.value));
+      }
+    };
 
     const elasticQuery = ElasticQuery.create()
-      .withPagination({ from, size })
+      .withPagination({ size: 10000 })
       .withFilter([
         new RangeQuery('timestamp', range),
         new TermsQuery(direction === 'in' ? 'receiver' : 'sender', wallets),
       ]);
-
-    const transactions = await this.elasticService.getList(this.apiConfigService.getElasticUrl(), 'transactions', 'hash', elasticQuery);
-    for (const transaction of transactions) {
-      totalValue = totalValue.plus(new BigNumber(transaction.value));
-    }
+    await this.elasticService.computeAllItems(this.apiConfigService.getElasticUrl(), 'transactions', 'hash', elasticQuery, computeTransactionsPage);
 
     const totalValueFormatted = totalValue.shiftedBy(-18).toNumber();
     return totalValueFormatted;
