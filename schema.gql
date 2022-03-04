@@ -14,5 +14,10 @@ type HistoricalValue {
 type Query {
   hello: String!
   userAdoptionValue(key: String!): ScalarValue
-  userAdoptionHistorical: [HistoricalValue!]!
+  userAdoptionHistorical(key: String!, startDate: DateTime!, endDate: DateTime!, resolution: String!): [HistoricalValue!]!
 }
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime

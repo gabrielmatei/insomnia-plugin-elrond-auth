@@ -83,4 +83,30 @@ export class TimescaleService {
     }
     return entity.value;
   }
+
+  public async getValues<T extends GenericIngestEntity>(
+    entityTarget: EntityTarget<T>,
+    series: string,
+    key: string,
+    startDate: Date,
+    endDate: Date,
+    resolution: string
+  ): Promise<{ time: string, value: number }[]> {
+    const repository = getRepository(entityTarget);
+    const tableName = repository.metadata.tableName;
+
+    const results = await repository.query(
+      `SELECT
+        time_bucket('${resolution}', timestamp)::text AS time,
+        first(value, timestamp) AS value
+       FROM ${tableName} 
+       WHERE series = $1
+          AND key = $2
+          AND timestamp BETWEEN $3 AND $4
+       GROUP BY time
+       ORDER BY time ASC`,
+      [series, key, startDate.toISOString(), endDate.toISOString()]
+    );
+    return results;
+  }
 }
