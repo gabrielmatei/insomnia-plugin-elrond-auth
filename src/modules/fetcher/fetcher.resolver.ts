@@ -1,7 +1,7 @@
 import { Resolver, Query, Args, GraphQLISODateTime } from '@nestjs/graphql';
 import { AccountsEntity } from 'src/common/timescale/entities/accounts.entity';
 import { FetcherService } from './fetcher.service';
-import { HistoricalValue, ScalarValue } from './models/fetcher.model';
+import { HistoricalValue, ScalarValue, TimeResolutions } from './models/fetcher.model';
 
 @Resolver(() => String)
 export class FetcherResolver {
@@ -27,7 +27,7 @@ export class FetcherResolver {
     @Args('key', { type: () => String }) key: string = 'count',
     @Args('startDate', { type: () => GraphQLISODateTime }) startDate: Date,
     @Args('endDate', { type: () => GraphQLISODateTime }) endDate: Date,
-    @Args('resolution', { type: () => String }) resolution: string,
+    @Args('resolution', { type: () => TimeResolutions }) resolution: TimeResolutions,
   ): Promise<HistoricalValue[]> {
     const values = await this.fetcherService.getHistoricalValues(AccountsEntity, 'accounts', key, startDate, endDate, resolution);
     return HistoricalValue.fromValues(values);

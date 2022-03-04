@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { GenericIngestEntity } from 'src/common/timescale/entities/generic-ingest.entity';
 import { TimescaleService } from 'src/common/timescale/timescale.service';
 import { EntityTarget } from 'typeorm';
+import { TimeResolutions } from './models/fetcher.model';
 
 @Injectable()
 export class FetcherService {
@@ -25,7 +26,7 @@ export class FetcherService {
     return lastValue;
   }
 
-  public async getHistoricalValues<T extends GenericIngestEntity>(entityTarget: EntityTarget<T>, series: string, key: string, startDate: Date, endDate: Date, resolution: string) {
+  public async getHistoricalValues<T extends GenericIngestEntity>(entityTarget: EntityTarget<T>, series: string, key: string, startDate: Date, endDate: Date, resolution: TimeResolutions) {
     const a = await this.timescaleService.getValues(entityTarget, series, key, startDate, endDate, resolution);
     return a;
   }

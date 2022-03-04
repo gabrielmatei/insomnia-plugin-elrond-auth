@@ -1,4 +1,4 @@
-import { ObjectType, Field, Float } from '@nestjs/graphql';
+import { ObjectType, Field, Float, registerEnumType } from '@nestjs/graphql';
 import moment from 'moment';
 
 @ObjectType()
@@ -38,3 +38,10 @@ export class HistoricalValue {
       }));
   }
 }
+
+export enum TimeResolutions {
+  HOUR = "1 hour",
+  DAY = "1 day",
+}
+
+registerEnumType(TimeResolutions, { name: 'TimeResolutions' });
