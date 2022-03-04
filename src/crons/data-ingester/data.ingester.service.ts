@@ -11,6 +11,8 @@ import { EconomicsIngest } from "src/ingesters/economics.ingest";
 import { ExchangesDetailedIngest } from "src/ingesters/exchanges-detailed.ingest";
 import { ExchangesIngest } from "src/ingesters/exchanges.ingest";
 import { GithubActivityIngest } from "src/ingesters/github-activity.ingest";
+import { GithubCommitsIngest } from "src/ingesters/github-commits.ingest";
+import { GithubContributorsIngest } from "src/ingesters/github-contributors.ingest";
 import { GithubIngest } from "src/ingesters/github.ingest";
 import { GoogleIngest } from "src/ingesters/google.ingest";
 import { PricesIngest } from "src/ingesters/prices.ingest";
@@ -40,6 +42,8 @@ export class DataIngesterService {
     private readonly exchangesDetailedIngest: ExchangesDetailedIngest,
     private readonly githubIngest: GithubIngest,
     private readonly githubActivityIngest: GithubActivityIngest,
+    private readonly githubCommitsIngest: GithubCommitsIngest,
+    private readonly githubContributorsIngest: GithubContributorsIngest,
     private readonly googleIngest: GoogleIngest,
     private readonly trendsIngest: TrendsIngest,
     private readonly quotesIngest: QuotesIngest,
@@ -98,6 +102,14 @@ export class DataIngesterService {
       {
         refreshInterval: CronExpression.EVERY_HOUR,
         fetcher: this.githubActivityIngest,
+      },
+      {
+        refreshInterval: CronExpression.EVERY_HOUR,
+        fetcher: this.githubCommitsIngest,
+      },
+      {
+        refreshInterval: CronExpression.EVERY_HOUR,
+        fetcher: this.githubContributorsIngest,
       },
       {
         refreshInterval: CronExpression.EVERY_HOUR,

@@ -14,6 +14,8 @@ import { EconomicsIngest } from 'src/ingesters/economics.ingest';
 import { ExchangesDetailedIngest } from 'src/ingesters/exchanges-detailed.ingest';
 import { ExchangesIngest } from 'src/ingesters/exchanges.ingest';
 import { GithubActivityIngest } from 'src/ingesters/github-activity.ingest';
+import { GithubCommitsIngest } from 'src/ingesters/github-commits.ingest';
+import { GithubContributorsIngest } from 'src/ingesters/github-contributors.ingest';
 import { GithubIngest } from 'src/ingesters/github.ingest';
 import { GoogleIngest } from 'src/ingesters/google.ingest';
 import { PricesIngest } from 'src/ingesters/prices.ingest';
@@ -49,6 +51,8 @@ import { Ingester } from './ingester';
     ExchangesDetailedIngest,
     GithubIngest,
     GithubActivityIngest,
+    GithubCommitsIngest,
+    GithubContributorsIngest,
     GoogleIngest,
     QuotesIngest,
     StakingIngest,

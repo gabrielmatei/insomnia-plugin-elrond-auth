@@ -30,7 +30,6 @@ export class GithubService {
         },
       },
     });
-
   }
 
   public async getOrganizationRepositories(organization: string): Promise<string[]> {
@@ -43,6 +42,15 @@ export class GithubService {
       (response) => response.data.map((repository) => repository.name),
     );
     return repositories;
+  }
+
+  public async getCommits(organization: string, repository: string) {
+    const commits = await this.octokit.paginate('GET /repos/{owner}/{repo}/commits', {
+      owner: organization,
+      repo: repository,
+      per_page: 100,
+    });
+    return commits;
   }
 
   public async getLastCommits(organization: string, repository: string, startDate: moment.Moment): Promise<any> {
@@ -73,5 +81,33 @@ export class GithubService {
       .distinct();
 
     return distinctLastRepositoryCommits;
+  }
+
+  public async getRepositoryStars(organization: string, repository: string): Promise<number> {
+    const {
+      data: { stargazers_count },
+    } = await this.octokit.request('GET /repos/{owner}/{repo}', {
+      owner: organization,
+      repo: repository,
+    });
+    return stargazers_count;
+  }
+
+  public async getRepositoryContributors(organization: string, repository: string): Promise<{ author: string, commits: number }[]> {
+    const contributorsRaw = await this.octokit.paginate(
+      'GET /repos/{owner}/{repo}/contributors',
+      {
+        owner: organization,
+        repo: repository,
+      },
+      (response) => response.data.map((item) => ({
+        author: item.login,
+        commits: item.contributions,
+      }))
+    );
+
+    const contributors = contributorsRaw
+      .filter((contributor): contributor is { author: string, commits: number } => contributor !== null);
+    return contributors;
   }
 }

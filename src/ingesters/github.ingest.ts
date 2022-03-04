@@ -1,7 +1,7 @@
-import { Injectable, Logger } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import moment from "moment";
 import { ApiConfigService } from "src/common/api-config/api.config.service";
-import { ApiService } from "src/common/network/api.service";
+import { GithubService } from "src/common/github/github.service";
 import { GithubEntity } from "src/common/timescale/entities/github.entity";
 import { Ingest } from "src/crons/data-ingester/entities/ingest.interface";
 
@@ -10,19 +10,12 @@ export class GithubIngest implements Ingest {
   public readonly name = GithubIngest.name;
   public readonly entityTarget = GithubEntity;
 
-  private readonly logger: Logger;
-  private readonly apiConfigService: ApiConfigService;
-  private readonly apiService: ApiService;
-
-  constructor(apiConfigService: ApiConfigService, apiService: ApiService) {
-    this.apiConfigService = apiConfigService;
-    this.apiService = apiService;
-
-    this.logger = new Logger(GithubIngest.name);
-  }
+  constructor(
+    private readonly apiConfigService: ApiConfigService,
+    private readonly githubService: GithubService,
+  ) { }
 
   public async fetch(): Promise<GithubEntity[]> {
-    const featuredRepositories = this.apiConfigService.getFeaturedGithubRepositories();
 
     const repoDetails: any = {};
 
@@ -34,18 +27,21 @@ export class GithubIngest implements Ingest {
     let featuredCommits = 0;
     const featuredAuthors = new Set<string>();
 
-    const repositories = await this.getGithubRepositories();
+    const organization = 'ElrondNetwork';
+    const featuredRepositories = this.apiConfigService.getFeaturedGithubRepositories();
+
+    const repositories = await this.githubService.getOrganizationRepositories(organization);
 
     await Promise.all(
       repositories.map(async (repository) => {
-        const stars = await this.getRepositoryStars(repository);
+        const stars = await this.githubService.getRepositoryStars(organization, repository);
 
         totalStars += stars;
         if (featuredRepositories.includes(repository)) {
           featuredStars += stars;
         }
 
-        const contributors = await this.getRepositoryContributors(repository);
+        const contributors = await this.githubService.getRepositoryContributors(organization, repository);
         contributors.map((contributor) => {
           totalAuthors.add(contributor.author);
           totalCommits += contributor.commits;
@@ -82,57 +78,5 @@ export class GithubIngest implements Ingest {
 
     const timestamp = moment().utc().toDate();
     return GithubEntity.fromObject(timestamp, repoDetails);
-  }
-
-  private async getGithubRepositories(): Promise<string[]> {
-    const repositoriesRaw = await this.apiService.get<any[]>(
-      'https://api.github.com/orgs/ElrondNetwork/repos',
-      {
-        headers: {
-          Authorization: `token ${this.apiConfigService.getGithubAccessToken()}`,
-        },
-      });
-
-    const repositories = repositoriesRaw
-      .filter(repository => repository.name)
-      .map(repository => repository.name as string);
-    return repositories;
-  }
-
-  private async getRepositoryStars(repository: string): Promise<number> {
-    try {
-      const { stargazers_count } = await this.apiService.get(
-        `https://api.github.com/repos/ElrondNetwork/${repository}`,
-        {
-          headers: {
-            Authorization: `token ${this.apiConfigService.getGithubAccessToken()}`,
-          },
-        });
-      return stargazers_count;
-    } catch (error) {
-      this.logger.error(error);
-      return 0;
-    }
-  }
-
-  private async getRepositoryContributors(repository: string): Promise<{ author: string, commits: number }[]> {
-    try {
-      const contributorsRaw = await this.apiService.get<any[]>(
-        `https://api.github.com/repos/ElrondNetwork/${repository}/stats/contributors`,
-        {
-          headers: {
-            Authorization: `token ${this.apiConfigService.getGithubAccessToken()}`,
-          },
-        });
-
-      const contributors = contributorsRaw.map(contributor => ({
-        author: contributor.author.login,
-        commits: contributor.total,
-      }));
-      return contributors;
-    } catch (error) {
-      this.logger.error(error);
-      return [];
-    }
   }
 }
