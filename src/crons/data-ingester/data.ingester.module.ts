@@ -3,26 +3,30 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { CommonModule } from 'src/common/common.module';
 import { MicroserviceModule } from 'src/common/microservice/microservice.module';
 import { EndpointsServicesModule } from 'src/endpoints/endpoints.services.module';
-import { AccountsBalanceIngest } from 'src/ingesters/accounts-balance/accounts-balance.ingest';
-import { AccountsCountIngest } from 'src/ingesters/accounts-count/accounts-count.ingest';
-import { AccountsDelegationLegacyActiveIngest } from 'src/ingesters/accounts-delegation-legacy-active/accounts-delegation-legacy-active.ingest';
-import { AccountsDelegationIngest } from 'src/ingesters/accounts-delegation/accounts-delegation.ingest';
-import { AccountsTotalBalanceWithStakeIngest } from 'src/ingesters/accounts-total-balance-with-stake/accounts-total-balance-with-stake.ingest';
-import { AccountsTotalStakeIngest } from 'src/ingesters/accounts-total-stake/accounts-total-stake.ingest';
-import { ActiveUsersIngest } from 'src/ingesters/active-users/active-users.ingest';
-import { EconomicsIngest } from 'src/ingesters/economics/economics.ingest';
-import { ExchangesDetailedIngest } from 'src/ingesters/exchanges-detailed/exchanges-detailed.ingest';
-import { ExchangesIngest } from 'src/ingesters/exchanges/exchanges.ingest';
-import { GithubIngest } from 'src/ingesters/github/github.ingest';
-import { GoogleTrendsIngest } from 'src/ingesters/google-trends/google-trends.ingest';
-import { GoogleIngest } from 'src/ingesters/google/google.ingest';
-import { PricesIngest } from 'src/ingesters/prices/prices.ingest';
-import { QuotesIngest } from 'src/ingesters/quotes/quotes.ingest';
-import { StakingDetailedIngest } from 'src/ingesters/staking-detailed/staking-detailed.ingest';
-import { StakingIngest } from 'src/ingesters/staking/staking.ingest';
-import { TransactionsDetailedIngest } from 'src/ingesters/transactions-detailed/transactions-detailed.ingest';
-import { TransactionsIngest } from 'src/ingesters/transactions/transactions.ingest';
-import { TwitterIngest } from 'src/ingesters/twitter/twitter.ingest';
+import { AccountsBalanceIngest } from 'src/ingesters/accounts-balance.ingest';
+import { AccountsCountIngest } from 'src/ingesters/accounts-count.ingest';
+import { AccountsDelegationLegacyActiveIngest } from 'src/ingesters/accounts-delegation-legacy-active.ingest';
+import { AccountsDelegationIngest } from 'src/ingesters/accounts-delegation.ingest';
+import { AccountsTotalBalanceWithStakeIngest } from 'src/ingesters/accounts-total-balance-with-stake.ingest';
+import { AccountsTotalStakeIngest } from 'src/ingesters/accounts-total-stake.ingest';
+import { AccountsIngest } from 'src/ingesters/accounts.ingest';
+import { EconomicsIngest } from 'src/ingesters/economics.ingest';
+import { ExchangesDetailedIngest } from 'src/ingesters/exchanges-detailed.ingest';
+import { ExchangesIngest } from 'src/ingesters/exchanges.ingest';
+import { GithubActivityIngest } from 'src/ingesters/github-activity.ingest';
+import { GithubCommitsIngest } from 'src/ingesters/github-commits.ingest';
+import { GithubContributorsIngest } from 'src/ingesters/github-contributors.ingest';
+import { GithubIngest } from 'src/ingesters/github.ingest';
+import { GoogleIngest } from 'src/ingesters/google.ingest';
+import { PricesIngest } from 'src/ingesters/prices.ingest';
+import { QuotesIngest } from 'src/ingesters/quotes.ingest';
+import { StakingDetailedIngest } from 'src/ingesters/staking-detailed.ingest';
+import { StakingNewIngest } from 'src/ingesters/staking-new.ingest';
+import { StakingIngest } from 'src/ingesters/staking.ingest';
+import { TransactionsDetailedIngest } from 'src/ingesters/transactions-detailed.ingest';
+import { TransactionsIngest } from 'src/ingesters/transactions.ingest';
+import { TrendsIngest } from 'src/ingesters/trends.ingest';
+import { TwitterIngest } from 'src/ingesters/twitter.ingest';
 import { DataIngesterService } from './data.ingester.service';
 import { Ingester } from './ingester';
 
@@ -36,24 +40,28 @@ import { Ingester } from './ingester';
   providers: [
     DataIngesterService,
     Ingester,
+    AccountsIngest,
     AccountsCountIngest,
     AccountsBalanceIngest,
     AccountsDelegationIngest,
     AccountsDelegationLegacyActiveIngest,
     AccountsTotalBalanceWithStakeIngest,
     AccountsTotalStakeIngest,
-    ActiveUsersIngest,
     EconomicsIngest,
     ExchangesIngest,
     ExchangesDetailedIngest,
     GithubIngest,
+    GithubActivityIngest,
+    GithubCommitsIngest,
+    GithubContributorsIngest,
     GoogleIngest,
-    GoogleTrendsIngest,
     QuotesIngest,
     StakingIngest,
+    StakingNewIngest,
     StakingDetailedIngest,
     TransactionsIngest,
     TransactionsDetailedIngest,
+    TrendsIngest,
     TwitterIngest,
     PricesIngest,
   ],

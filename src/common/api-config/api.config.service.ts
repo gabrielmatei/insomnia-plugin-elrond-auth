@@ -294,7 +294,7 @@ export class ApiConfigService {
     return githubAccessToken;
   }
 
-  getFeaturedRepositories(): string[] {
+  getFeaturedGithubRepositories(): string[] {
     const featuredRepositories = this.configService.get<string[]>('github.featuredRepositories');
     if (!featuredRepositories) {
       throw new Error('No featured repositories value present');
@@ -343,5 +343,21 @@ export class ApiConfigService {
     }
 
     return inflationAmounts;
+  }
+
+  getTwitterUrl(): string[] {
+    const authorizationBearers = this.configService.get<string[]>('twitter.url');
+    if (!authorizationBearers) {
+      throw new Error('No Twitter url value present');
+    }
+    return authorizationBearers;
+  }
+
+  getTwitterAuthorizationBearers(): string[] {
+    const authorizationBearers = this.configService.get<string[]>('twitter.authorizationBearers');
+    if (!authorizationBearers) {
+      throw new Error('No Twitter authorization bearers value present');
+    }
+    return authorizationBearers;
   }
 }

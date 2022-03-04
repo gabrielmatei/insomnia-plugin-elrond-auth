@@ -99,27 +99,23 @@ export class ElasticService {
     return result;
   }
 
-  async getAllResults(elasticUrl: string, collection: string, key: string, elasticQuery: ElasticQuery, compute: (transaction: any) => void) {
-    const { scrollId, items: firstItems } = await this.getFirstPage(elasticUrl, collection, key, elasticQuery);
+  public async computeAllItems(elasticUrl: string, collection: string, key: string, elasticQuery: ElasticQuery, computePage: (transactions: any[]) => Promise<void>) {
+    const { scrollId, items: firstItems } = await this.getFirstPageUsingScrollApi(elasticUrl, collection, key, elasticQuery);
 
     let index = 0;
     let items = firstItems;
     while (items.length > 0) {
       index += items.length;
 
-      const filteredItems = items.filter((x: any) => !x.fee.startsWith('-'));
-      filteredItems.map(compute);
+      await computePage(items);
 
-      items = await this.scroll(elasticUrl, scrollId, key);
+      items = await this.getNextPageUsingScrollApi(elasticUrl, scrollId, key);
 
-      this.logger.log({
-        filteredItems: filteredItems.length,
-        totalItems: index,
-      });
+      this.logger.log({ items: items.length, totalItems: index });
     }
   }
 
-  private async getFirstPage(elasticUrl: string, collection: string, key: string, elasticQuery: ElasticQuery) {
+  private async getFirstPageUsingScrollApi(elasticUrl: string, collection: string, key: string, elasticQuery: ElasticQuery) {
     try {
       const url = `${elasticUrl}/${collection}/_search?scroll=10m`;
       const result = await this.post(url, elasticQuery.toJson());
@@ -132,13 +128,12 @@ export class ElasticService {
         items: items.map((document: any) => this.formatItem(document, key)),
       };
     } catch (error) {
-      // do nothing
       this.logger.error(error);
       return { items: [] };
     }
   }
 
-  async scroll(elasticUrl: string, scrollId: string, key: string): Promise<any[]> {
+  async getNextPageUsingScrollApi(elasticUrl: string, scrollId: string, key: string): Promise<any[]> {
     try {
       const result = await this.post(`${elasticUrl}/_search/scroll`, {
         scroll: '20m',

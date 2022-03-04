@@ -3,8 +3,10 @@ import { ApiConfigModule } from "./api-config/api.config.module";
 import { CachingModule } from "./caching/caching.module";
 import { ElasticModule } from "./elastic/elastic.module";
 import { GatewayModule } from "./gateway/gateway.module";
+import { GithubModule } from "./github/github.module";
 import { MetricsModule } from "./metrics/metrics.module";
 import { ApiModule } from "./network/api.module";
+import { StakingModule } from "./staking/staking.module";
 import { TimescaleModule } from "./timescale/timescale.module";
 
 @Module({
@@ -16,6 +18,8 @@ import { TimescaleModule } from "./timescale/timescale.module";
     forwardRef(() => TimescaleModule),
     forwardRef(() => ElasticModule),
     forwardRef(() => GatewayModule),
+    forwardRef(() => GithubModule),
+    forwardRef(() => StakingModule),
   ],
   exports: [
     ApiConfigModule,
@@ -25,6 +29,8 @@ import { TimescaleModule } from "./timescale/timescale.module";
     TimescaleModule,
     ElasticModule,
     GatewayModule,
+    GithubModule,
+    StakingModule,
   ],
 })
 export class CommonModule { }

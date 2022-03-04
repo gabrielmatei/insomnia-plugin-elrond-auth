@@ -21,4 +21,8 @@ export class NumberUtils {
     const hex = Buffer.from(encoded, 'base64').toString('hex');
     return new BigNumber(hex, 16).toString(10);
   }
+
+  static tryIntegerDivision(a: number, b: number) {
+    return Math.floor(isNaN(a / b) || b === 0 ? 0 : a / b);
+  }
 }
