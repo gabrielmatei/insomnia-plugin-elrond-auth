@@ -1,5 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import moment from 'moment';
+import { ScalarValue } from 'src/modules/values/models/values.model';
+import { DateUtils } from 'src/utils/date.utils';
 import { EntityTarget, getRepository } from 'typeorm';
 import { GenericIngestEntity } from './entities/generic-ingest.entity';
 
@@ -64,7 +66,11 @@ export class TimescaleService {
   //   return results;
   // }
 
-  public async getLastValue<T extends GenericIngestEntity>(entityTarget: EntityTarget<T>, series: string, key: string): Promise<number | undefined> {
+  public async getLastValue<T extends GenericIngestEntity>(
+    entityTarget: EntityTarget<T>,
+    series: string,
+    key: string
+  ): Promise<{ time: string, value: number } | undefined> {
     const repository = getRepository(entityTarget);
     const query = repository
       .createQueryBuilder()
@@ -81,7 +87,11 @@ export class TimescaleService {
     if (!entity) {
       return undefined;
     }
-    return entity.value;
+
+    return new ScalarValue({
+      value: entity.value,
+      time: DateUtils.timescaleToUtc(entity.timestamp),
+    });
   }
 
   public async getValues<T extends GenericIngestEntity>(
@@ -95,9 +105,9 @@ export class TimescaleService {
     const repository = getRepository(entityTarget);
     const tableName = repository.metadata.tableName;
 
-    const results = await repository.query(
+    const rows = await repository.query(
       `SELECT
-        time_bucket('${resolution}', timestamp)::text AS time,
+        time_bucket('${resolution}', timestamp) AS time,
         first(value, timestamp) AS value
        FROM ${tableName} 
        WHERE series = $1
@@ -107,6 +117,10 @@ export class TimescaleService {
        ORDER BY time ASC`,
       [series, key, startDate.toISOString(), endDate.toISOString()]
     );
-    return results;
+
+    return rows.map((row: any) => new ScalarValue({
+      value: row.value,
+      time: DateUtils.timescaleToUtc(row.time),
+    }));
   }
 }

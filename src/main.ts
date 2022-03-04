@@ -1,16 +1,12 @@
-import { HttpAdapterHost, NestFactory } from '@nestjs/core';
+import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { readFileSync } from 'fs';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { join } from 'path';
 import { ApiConfigService } from './common/api-config/api.config.service';
-import { CachingInterceptor } from './interceptors/caching.interceptor';
-import { MetricsService } from './common/metrics/metrics.service';
 import { PrivateAppModule } from './private.app.module';
 import { PublicAppModule } from './public.app.module';
 import * as bodyParser from 'body-parser';
-import { CachingService } from './common/caching/caching.service';
-import { LoggingInterceptor } from './interceptors/logging.interceptor';
 import { Logger } from '@nestjs/common';
 import { QueueWorkerModule } from './workers/queue.worker.module';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
@@ -19,28 +15,25 @@ import { SocketAdapter } from './websockets/socket.adapter';
 import { DataIngesterModule } from './crons/data-ingester/data.ingester.module';
 import { CacheWarmerModule } from './crons/cache-warmer/cache.warmer.module';
 import { TransactionProcessorModule } from './crons/transaction-processor/transaction.processor.module';
-import { GraphqlAppModule } from './graphql.app.module copy';
 
 async function bootstrap() {
-  const graphqlApp = await NestFactory.create(GraphqlAppModule);
-  graphqlApp.enableCors();
-  graphqlApp.useLogger(graphqlApp.get(WINSTON_MODULE_NEST_PROVIDER));
-  await graphqlApp.listen(3001);
-
   const publicApp = await NestFactory.create(PublicAppModule);
   publicApp.use(bodyParser.json({ limit: '1mb' }));
   publicApp.enableCors();
   publicApp.useLogger(publicApp.get(WINSTON_MODULE_NEST_PROVIDER));
 
   const apiConfigService = publicApp.get<ApiConfigService>(ApiConfigService);
-  const metricsService = publicApp.get<MetricsService>(MetricsService);
-  const cachingService = publicApp.get<CachingService>(CachingService);
-  const httpAdapterHostService = publicApp.get<HttpAdapterHost>(HttpAdapterHost);
 
-  publicApp.useGlobalInterceptors(
-    new LoggingInterceptor(metricsService),
-    new CachingInterceptor(cachingService, httpAdapterHostService, metricsService),
-  );
+  // TODO add interceptors
+
+  // const metricsService = publicApp.get<MetricsService>(MetricsService);
+  // const cachingService = publicApp.get<CachingService>(CachingService);
+  // const httpAdapterHostService = publicApp.get<HttpAdapterHost>(HttpAdapterHost);
+
+  // publicApp.useGlobalInterceptors(
+  //   new LoggingInterceptor(metricsService),
+  //   new CachingInterceptor(cachingService, httpAdapterHostService, metricsService),
+  // );
 
   const description = readFileSync(join(__dirname, '..', 'docs', 'swagger.md'), 'utf8');
 

@@ -3,18 +3,18 @@
 # ------------------------------------------------------
 
 type ScalarValue {
-  value: Float!
-}
-
-type HistoricalValue {
   value: Float
   time: String
 }
 
 type Query {
-  hello: String!
   userAdoptionValue(key: String!): ScalarValue
-  userAdoptionHistorical(key: String!, startDate: DateTime!, endDate: DateTime!, resolution: TimeResolutions!): [HistoricalValue!]!
+  userAdoptionHistorical(
+    key: String!
+    startDate: DateTime!
+    endDate: DateTime!
+    resolution: TimeResolutions!
+  ): [ScalarValue!]!
 }
 
 """

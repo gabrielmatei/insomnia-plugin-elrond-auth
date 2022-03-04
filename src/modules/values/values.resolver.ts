@@ -1,35 +1,28 @@
 import { Resolver, Query, Args, GraphQLISODateTime } from '@nestjs/graphql';
 import { AccountsEntity } from 'src/common/timescale/entities/accounts.entity';
-import { FetcherService } from './fetcher.service';
-import { HistoricalValue, ScalarValue, TimeResolutions } from './models/fetcher.model';
+import { TimescaleService } from 'src/common/timescale/timescale.service';
+import { ScalarValue, TimeResolutions } from './models/values.model';
 
 @Resolver(() => String)
-export class FetcherResolver {
+export class ValuesResolver {
   constructor(
-    private readonly fetcherService: FetcherService
+    private readonly timescaleService: TimescaleService
   ) { }
-
-  @Query(() => String)
-  async hello() {
-    return 'hello';
-  }
 
   @Query(() => ScalarValue, { nullable: true })
   async userAdoptionValue(
     @Args('key', { type: () => String }) key: string = 'count'
   ): Promise<ScalarValue | undefined> {
-    const value = await this.fetcherService.getLastValue(AccountsEntity, 'accounts', key);
-    return ScalarValue.fromValue(value);
+    return await this.timescaleService.getLastValue(AccountsEntity, 'accounts', key);
   }
 
-  @Query(() => [HistoricalValue])
+  @Query(() => [ScalarValue])
   async userAdoptionHistorical(
     @Args('key', { type: () => String }) key: string = 'count',
     @Args('startDate', { type: () => GraphQLISODateTime }) startDate: Date,
     @Args('endDate', { type: () => GraphQLISODateTime }) endDate: Date,
     @Args('resolution', { type: () => TimeResolutions }) resolution: TimeResolutions,
-  ): Promise<HistoricalValue[]> {
-    const values = await this.fetcherService.getHistoricalValues(AccountsEntity, 'accounts', key, startDate, endDate, resolution);
-    return HistoricalValue.fromValues(values);
+  ): Promise<ScalarValue[]> {
+    return await this.timescaleService.getValues(AccountsEntity, 'accounts', key, startDate, endDate, resolution);
   }
 }
