@@ -37,9 +37,11 @@ export class TransactionsIngest implements Ingest {
         ])),
     ]);
 
-    return TransactionsEntity.fromRecord(endDate.toDate(), {
-      count,
-      count_24h,
+    return TransactionsEntity.fromObject(endDate.toDate(), {
+      transactions: {
+        count,
+        count_24h,
+      },
     });
   }
 }

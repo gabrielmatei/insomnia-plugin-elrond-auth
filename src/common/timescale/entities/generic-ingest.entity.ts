@@ -29,15 +29,15 @@ export class GenericIngestEntity {
   })
   value: number = 0;
 
-  static fromObject(timestamp: Date, object: any): GenericIngestEntity[] {
+  static fromObject(timestamp: Date, object: Record<string, Record<string, number>>): GenericIngestEntity[] {
     const entities = Object
       .entries(object)
-      .map(([series, record]: [string, any]) => GenericIngestEntity.fromRecord(timestamp, record, series))
+      .map(([series, record]: [string, Record<string, number>]) => GenericIngestEntity.fromRecord(timestamp, record, series))
       .flat(1);
     return entities;
   }
 
-  static fromRecord(timestamp: Date, record: Record<string, number>, series?: string): GenericIngestEntity[] {
+  private static fromRecord(timestamp: Date, record: Record<string, number>, series?: string): GenericIngestEntity[] {
     const entities = Object.entries(record).map(([key, value]) => {
       const entity = new GenericIngestEntity();
       entity.timestamp = timestamp;

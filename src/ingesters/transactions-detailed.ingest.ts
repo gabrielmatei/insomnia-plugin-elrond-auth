@@ -62,11 +62,15 @@ export class TransactionsDetailedIngest implements Ingest {
     const activeUsers = await this.cachingService.getSetMembersCount(TransactionsDetailedIngest.ACTIVE_USERS_KEY);
     await this.cachingService.delCache(TransactionsDetailedIngest.ACTIVE_USERS_KEY);
 
-    return TransactionsDetailedEntity.fromRecord(timestamp.toDate(), {
-      active_users: activeUsers,
-      value_moved: valueMovedFormatted,
-      total_fees: totalFeesFormatted,
-      new_emission: newEmissionFormatted,
+    return TransactionsDetailedEntity.fromObject(timestamp.toDate(), {
+      users: {
+        active_users: activeUsers,
+      },
+      transactions: {
+        value_moved: valueMovedFormatted,
+        total_fees: totalFeesFormatted,
+        new_emission: newEmissionFormatted,
+      },
     });
   }
 

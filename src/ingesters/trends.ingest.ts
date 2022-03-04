@@ -26,8 +26,10 @@ export class TrendsIngest implements Ingest {
     const googleTrends = JSON.parse(googleTrendsRaw);
     const averages = googleTrends?.default?.averages || googleTrends?.averages;
 
-    return TrendsEntity.fromRecord(endTime, {
-      google: averages[0],
+    return TrendsEntity.fromObject(endTime, {
+      trends: {
+        google: averages[0],
+      },
     });
   }
 }

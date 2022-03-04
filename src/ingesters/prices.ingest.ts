@@ -36,10 +36,12 @@ export class PricesIngest implements Ingest {
     ] = await this.apiService.get(`${this.apiConfigService.getCoingeckoUrl()}/coins/markets?vs_currency=usd&ids=${elrondId}`);
 
     const timestamp = moment().utc().toDate();
-    return PricesEntity.fromRecord(timestamp, {
-      ...prices,
-      high_24h,
-      market_cap,
+    return PricesEntity.fromObject(timestamp, {
+      prices: {
+        ...prices,
+        high_24h,
+        market_cap,
+      },
     });
   }
 }

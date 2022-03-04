@@ -6,13 +6,13 @@ import { ElasticService } from "src/common/elastic/elastic.service";
 import { ElasticQuery } from "src/common/elastic/entities/elastic.query";
 import { RangeQuery, RangeQueryOptions } from "src/common/elastic/entities/range.query";
 import { TermsQuery } from "src/common/elastic/entities/terms.query";
-import { ExchangesDetailedEntity } from "src/common/timescale/entities/exchanges-detailed.entity";
+import { ExchangesHistoricalEntity } from "src/common/timescale/entities/exchanges-historical.entity";
 import { Ingest } from "src/crons/data-ingester/entities/ingest.interface";
 
 @Injectable()
 export class ExchangesDetailedIngest implements Ingest {
   public readonly name = ExchangesDetailedIngest.name;
-  public readonly entityTarget = ExchangesDetailedEntity;
+  public readonly entityTarget = ExchangesHistoricalEntity;
 
   private readonly apiConfigService: ApiConfigService;
   private readonly elasticService: ElasticService;
@@ -22,7 +22,7 @@ export class ExchangesDetailedIngest implements Ingest {
     this.elasticService = elasticService;
   }
 
-  public async fetch(): Promise<ExchangesDetailedEntity[]> {
+  public async fetch(): Promise<ExchangesHistoricalEntity[]> {
     const timestamp = moment().utc();
     const timestamp24hAgo = moment(timestamp).add(-1, 'days');
 
@@ -49,7 +49,7 @@ export class ExchangesDetailedIngest implements Ingest {
         })
     );
 
-    return ExchangesDetailedEntity.fromObject(timestamp.toDate(), exchanges);
+    return ExchangesHistoricalEntity.fromObject(timestamp.toDate(), exchanges);
   }
 
   private async getExchangeFlows(wallets: string[], range: RangeQueryOptions, direction: 'in' | 'out'): Promise<number> {

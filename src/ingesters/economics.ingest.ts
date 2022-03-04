@@ -34,13 +34,14 @@ export class EconomicsIngest implements Ingest {
     const leftPerUser = floatingSupply / numAccounts;
 
     const timestamp = moment().utc().toDate();
-    return EconomicsEntity.fromRecord(timestamp, {
-      total_supply: totalSupply,
-      circulating_supply: circulatingSupply,
-      floating_supply: floatingSupply,
-      staked,
-      left_per_user: leftPerUser,
+    return EconomicsEntity.fromObject(timestamp, {
+      economics: {
+        total_supply: totalSupply,
+        circulating_supply: circulatingSupply,
+        floating_supply: floatingSupply,
+        staked,
+        left_per_user: leftPerUser,
+      },
     });
-
   }
 }

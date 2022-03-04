@@ -27,9 +27,11 @@ export class TwitterIngest implements Ingest {
     const mentions = await this.getTwitterMentions(TwitterIngest.KEYWORDS, startTime, endTime);
     const followers = await this.getTwitterFollowers(TwitterIngest.USERNAME);
 
-    return TwitterEntity.fromRecord(endTime.toDate(), {
-      mentions,
-      followers,
+    return TwitterEntity.fromObject(endTime.toDate(), {
+      twitter: {
+        mentions,
+        followers,
+      },
     });
   }
 
