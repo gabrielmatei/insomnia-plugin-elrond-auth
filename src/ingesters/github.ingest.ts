@@ -30,7 +30,7 @@ export class GithubIngest implements Ingest {
     const organization = 'ElrondNetwork';
     const featuredRepositories = this.apiConfigService.getFeaturedGithubRepositories();
 
-    const repositories = await this.githubService.getOrganizationRepositories(organization);
+    const repositories = await this.githubService.getRepositories(organization);
 
     await Promise.all(
       repositories.map(async (repository) => {

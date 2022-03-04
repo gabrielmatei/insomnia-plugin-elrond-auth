@@ -2,6 +2,8 @@ import { Injectable } from "@nestjs/common";
 import { ApiConfigService } from "../api-config/api.config.service";
 import { Octokit } from "@octokit/rest";
 import { throttling } from "@octokit/plugin-throttling";
+import { CacheInfo } from "../caching/entities/cache.info";
+import { CachingService } from "../caching/caching.service";
 
 @Injectable()
 export class GithubService {
@@ -9,6 +11,7 @@ export class GithubService {
 
   constructor(
     private readonly apiConfigService: ApiConfigService,
+    private readonly cachingService: CachingService,
   ) {
     const MyOctokit = Octokit.plugin(throttling);
     this.octokit = new MyOctokit({
@@ -32,7 +35,15 @@ export class GithubService {
     });
   }
 
-  public async getOrganizationRepositories(organization: string): Promise<string[]> {
+  async getRepositories(organization: string): Promise<string[]> {
+    return this.cachingService.getOrSetCache(
+      CacheInfo.Repositories(organization).key,
+      async () => await this.getRepositoriesRaw(organization),
+      CacheInfo.Repositories(organization).ttl,
+    );
+  }
+
+  public async getRepositoriesRaw(organization: string): Promise<string[]> {
     const repositories = await this.octokit.paginate(
       'GET /orgs/{org}/repos',
       {

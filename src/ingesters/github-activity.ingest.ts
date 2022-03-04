@@ -26,7 +26,7 @@ export class GithubActivityIngest implements Ingest {
     let lastTotalCommits: string[] = [];
     let lastFeaturedCommits: string[] = [];
 
-    const repositories = await this.githubService.getOrganizationRepositories(organization);
+    const repositories = await this.githubService.getRepositories(organization);
 
     await Promise.all(repositories.map(async (repository) => {
       const lastCommits = await this.githubService.getLastCommits(organization, repository, startDate);

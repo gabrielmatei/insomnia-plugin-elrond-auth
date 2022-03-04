@@ -1,24 +1,30 @@
 import { Inject, Injectable } from "@nestjs/common";
-import { Cron } from "@nestjs/schedule";
+import { Cron, CronExpression } from "@nestjs/schedule";
 import { ClientProxy } from "@nestjs/microservices";
-import { ExampleService } from "src/endpoints/example/example.service";
 import { Locker } from "src/utils/locker";
-import { Constants } from "src/utils/constants";
 import { CachingService } from "src/common/caching/caching.service";
+import { GithubService } from "src/common/github/github.service";
+import { CacheInfo } from "src/common/caching/entities/cache.info";
 
 @Injectable()
 export class CacheWarmerService {
   constructor(
     private readonly cachingService: CachingService,
     @Inject('PUBSUB_SERVICE') private clientProxy: ClientProxy,
-    private readonly exampleService: ExampleService,
+    private readonly githubService: GithubService,
   ) { }
 
-  @Cron('* * * * *')
-  async handleExampleInvalidations() {
-    await Locker.lock('Example invalidations', async () => {
-      const examples = await this.exampleService.getAllExamplesRaw();
-      await this.invalidateKey('examples', examples, Constants.oneHour());
+  @Cron(CronExpression.EVERY_HOUR)
+  async handleRepositoriesInvalidations() {
+    await Locker.lock('Repositories invalidations', async () => {
+      const organization = 'ElrondNetwork';
+      const repositories = await this.githubService.getRepositoriesRaw(organization);
+
+      await this.invalidateKey(
+        CacheInfo.Repositories(organization).key,
+        repositories,
+        CacheInfo.Repositories(organization).ttl
+      );
     }, true);
   }
 

@@ -25,7 +25,7 @@ export class GithubCommitsIngest implements Ingest {
     let totalCommits = 0;
     let featuredCommits = 0;
 
-    const repositories = await this.githubService.getOrganizationRepositories(organization);
+    const repositories = await this.githubService.getRepositories(organization);
     await Promise.all(repositories.map(async (repository) => {
       const commits = await this.githubService.getCommits(organization, repository);
 
