@@ -1,14 +1,27 @@
 import { Injectable } from '@nestjs/common';
-import { ApiConfigService } from 'src/common/api-config/api.config.service';
-
+import { GenericIngestEntity } from 'src/common/timescale/entities/generic-ingest.entity';
+import { TimescaleService } from 'src/common/timescale/timescale.service';
+import { EntityTarget } from 'typeorm';
 
 @Injectable()
 export class FetcherService {
     constructor(
-        private apiConfigService: ApiConfigService,
+        private readonly timescaleService: TimescaleService,
     ) { }
 
-    public test(): string {
-        return this.apiConfigService.getApiUrl();
+    public async getLastValue<T extends GenericIngestEntity>(entityTarget: EntityTarget<T>, series: string, key: string): Promise<number | undefined> {
+        // const lastValues = await this.timescaleService.getLastValue(entityTarget, series);
+        // if (lastValues.length === 0) {
+        //     return undefined;
+        // }
+
+        // const object: any = {};
+        // for (const value of lastValues) {
+        //     object[value.key] = value.value;
+        // }
+        // return object;
+
+        const lastValue = await this.timescaleService.getLastValue(entityTarget, series, key);
+        return lastValue;
     }
 }

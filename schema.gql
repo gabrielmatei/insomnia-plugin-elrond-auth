@@ -2,6 +2,17 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type ScalarValue {
+  value: Float!
+}
+
+type HistoricalValue {
+  value: Float
+  time: String
+}
+
 type Query {
   hello: String!
+  userAdoptionValue(key: String!): ScalarValue
+  userAdoptionHistorical: [HistoricalValue!]!
 }

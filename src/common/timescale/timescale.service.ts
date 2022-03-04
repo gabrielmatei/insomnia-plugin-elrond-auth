@@ -50,4 +50,37 @@ export class TimescaleService {
     }
     return entity.value;
   }
+
+  // public async getLastValue<T extends GenericIngestEntity>(entityTarget: EntityTarget<T>, series: string): Promise<T[]> {
+  //   // TODO filter keys
+  //   const repository = getRepository(entityTarget);
+  //   const tableName = repository.metadata.tableName;
+
+  //   const results = await repository.query(
+  //     `SELECT * FROM ${tableName} 
+  //      WHERE series = $1 AND timestamp = (SELECT MAX(timestamp) FROM ${tableName} WHERE series = $1)`,
+  //     [series]);
+
+  //   return results;
+  // }
+
+  public async getLastValue<T extends GenericIngestEntity>(entityTarget: EntityTarget<T>, series: string, key: string): Promise<number | undefined> {
+    const repository = getRepository(entityTarget);
+    const query = repository
+      .createQueryBuilder()
+      .where('key = :key')
+      .andWhere('series = :series')
+      .setParameters({
+        key,
+        series,
+      })
+      .orderBy('timestamp', 'DESC')
+      .limit(1);
+
+    const entity = await query.getOne();
+    if (!entity) {
+      return undefined;
+    }
+    return entity.value;
+  }
 }

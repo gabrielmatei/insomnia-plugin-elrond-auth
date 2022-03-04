@@ -58,99 +58,99 @@ export class DataIngesterService {
   ) {
     const items: IngestItem[] = [
       {
-        refreshInterval: CronExpression.EVERY_HOUR,
+        refreshInterval: CronExpression.EVERY_DAY_AT_MIDNIGHT,
         fetcher: this.accountsIngest,
       },
       {
-        refreshInterval: CronExpression.EVERY_HOUR,
+        refreshInterval: CronExpression.EVERY_DAY_AT_MIDNIGHT,
         fetcher: this.accountsCountIngest,
       },
       {
-        refreshInterval: CronExpression.EVERY_HOUR,
+        refreshInterval: CronExpression.EVERY_DAY_AT_MIDNIGHT,
         fetcher: this.accountsBalanceIngest,
       },
       {
-        refreshInterval: CronExpression.EVERY_HOUR,
+        refreshInterval: CronExpression.EVERY_DAY_AT_MIDNIGHT,
         fetcher: this.accountsDelegationIngest,
       },
       {
-        refreshInterval: CronExpression.EVERY_HOUR,
+        refreshInterval: CronExpression.EVERY_DAY_AT_MIDNIGHT,
         fetcher: this.accountsDelegationLegacyActiveIngest,
       },
       {
-        refreshInterval: CronExpression.EVERY_HOUR,
+        refreshInterval: CronExpression.EVERY_DAY_AT_MIDNIGHT,
         fetcher: this.accountsTotalBalanceWithStakeIngest,
       },
       {
-        refreshInterval: CronExpression.EVERY_HOUR,
+        refreshInterval: CronExpression.EVERY_DAY_AT_MIDNIGHT,
         fetcher: this.accountsTotalStakeIngest,
       },
       {
-        refreshInterval: CronExpression.EVERY_HOUR,
+        refreshInterval: CronExpression.EVERY_DAY_AT_MIDNIGHT,
         fetcher: this.economicsIngest,
       },
       {
-        refreshInterval: CronExpression.EVERY_HOUR,
+        refreshInterval: CronExpression.EVERY_DAY_AT_MIDNIGHT,
         fetcher: this.exchangesIngest,
       },
       {
-        refreshInterval: CronExpression.EVERY_HOUR,
+        refreshInterval: CronExpression.EVERY_DAY_AT_MIDNIGHT,
         fetcher: this.exchangesDetailedIngest,
       },
       {
-        refreshInterval: CronExpression.EVERY_HOUR,
+        refreshInterval: CronExpression.EVERY_DAY_AT_MIDNIGHT,
         fetcher: this.githubIngest,
       },
       {
-        refreshInterval: CronExpression.EVERY_HOUR,
+        refreshInterval: CronExpression.EVERY_DAY_AT_MIDNIGHT,
         fetcher: this.githubActivityIngest,
       },
       {
-        refreshInterval: CronExpression.EVERY_HOUR,
+        refreshInterval: CronExpression.EVERY_DAY_AT_MIDNIGHT,
         fetcher: this.githubCommitsIngest,
       },
       {
-        refreshInterval: CronExpression.EVERY_HOUR,
+        refreshInterval: CronExpression.EVERY_DAY_AT_MIDNIGHT,
         fetcher: this.githubContributorsIngest,
       },
       {
-        refreshInterval: CronExpression.EVERY_HOUR,
+        refreshInterval: CronExpression.EVERY_DAY_AT_MIDNIGHT,
         fetcher: this.googleIngest,
       },
       {
-        refreshInterval: CronExpression.EVERY_HOUR,
+        refreshInterval: CronExpression.EVERY_DAY_AT_MIDNIGHT,
         fetcher: this.quotesIngest,
       },
       {
-        refreshInterval: CronExpression.EVERY_HOUR,
+        refreshInterval: CronExpression.EVERY_DAY_AT_MIDNIGHT,
         fetcher: this.stakingIngest,
       },
       {
-        refreshInterval: CronExpression.EVERY_HOUR,
+        refreshInterval: CronExpression.EVERY_DAY_AT_MIDNIGHT,
         fetcher: this.stakingNewIngest,
       },
       {
-        refreshInterval: CronExpression.EVERY_HOUR,
+        refreshInterval: CronExpression.EVERY_DAY_AT_MIDNIGHT,
         fetcher: this.stakingDetailedIngest,
       },
       {
-        refreshInterval: CronExpression.EVERY_HOUR,
+        refreshInterval: CronExpression.EVERY_DAY_AT_MIDNIGHT,
         fetcher: this.transactionsIngest,
       },
       {
-        refreshInterval: CronExpression.EVERY_HOUR,
+        refreshInterval: CronExpression.EVERY_DAY_AT_MIDNIGHT,
         fetcher: this.transactionsDetailedIngest,
       },
       {
-        refreshInterval: CronExpression.EVERY_HOUR,
+        refreshInterval: CronExpression.EVERY_DAY_AT_MIDNIGHT,
         fetcher: this.trendsIngest,
       },
       {
-        refreshInterval: CronExpression.EVERY_HOUR,
+        refreshInterval: CronExpression.EVERY_DAY_AT_MIDNIGHT,
         fetcher: this.twitterIngest,
       },
       {
-        refreshInterval: CronExpression.EVERY_HOUR,
+        refreshInterval: CronExpression.EVERY_DAY_AT_MIDNIGHT,
         fetcher: this.pricesIngest,
       },
     ];
