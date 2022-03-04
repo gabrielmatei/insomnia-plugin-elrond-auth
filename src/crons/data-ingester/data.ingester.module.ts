@@ -21,6 +21,7 @@ import { GoogleIngest } from 'src/ingesters/google.ingest';
 import { PricesIngest } from 'src/ingesters/prices.ingest';
 import { QuotesIngest } from 'src/ingesters/quotes.ingest';
 import { StakingDetailedIngest } from 'src/ingesters/staking-detailed.ingest';
+import { StakingNewIngest } from 'src/ingesters/staking-new.ingest';
 import { StakingIngest } from 'src/ingesters/staking.ingest';
 import { TransactionsDetailedIngest } from 'src/ingesters/transactions-detailed.ingest';
 import { TransactionsIngest } from 'src/ingesters/transactions.ingest';
@@ -56,6 +57,7 @@ import { Ingester } from './ingester';
     GoogleIngest,
     QuotesIngest,
     StakingIngest,
+    StakingNewIngest,
     StakingDetailedIngest,
     TransactionsIngest,
     TransactionsDetailedIngest,

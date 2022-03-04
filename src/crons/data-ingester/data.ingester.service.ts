@@ -18,6 +18,7 @@ import { GoogleIngest } from "src/ingesters/google.ingest";
 import { PricesIngest } from "src/ingesters/prices.ingest";
 import { QuotesIngest } from "src/ingesters/quotes.ingest";
 import { StakingDetailedIngest } from "src/ingesters/staking-detailed.ingest";
+import { StakingNewIngest } from "src/ingesters/staking-new.ingest";
 import { StakingIngest } from "src/ingesters/staking.ingest";
 import { TransactionsDetailedIngest } from "src/ingesters/transactions-detailed.ingest";
 import { TransactionsIngest } from "src/ingesters/transactions.ingest";
@@ -48,6 +49,7 @@ export class DataIngesterService {
     private readonly trendsIngest: TrendsIngest,
     private readonly quotesIngest: QuotesIngest,
     private readonly stakingIngest: StakingIngest,
+    private readonly stakingNewIngest: StakingNewIngest,
     private readonly stakingDetailedIngest: StakingDetailedIngest,
     private readonly transactionsIngest: TransactionsIngest,
     private readonly transactionsDetailedIngest: TransactionsDetailedIngest,
@@ -122,6 +124,10 @@ export class DataIngesterService {
       {
         refreshInterval: CronExpression.EVERY_HOUR,
         fetcher: this.stakingIngest,
+      },
+      {
+        refreshInterval: CronExpression.EVERY_HOUR,
+        fetcher: this.stakingNewIngest,
       },
       {
         refreshInterval: CronExpression.EVERY_HOUR,

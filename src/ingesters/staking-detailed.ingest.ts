@@ -7,27 +7,23 @@ import { QueryConditionOptions } from "src/common/elastic/entities/query.conditi
 import { RangeQuery } from "src/common/elastic/entities/range.query";
 import { GatewayService } from "src/common/gateway/gateway.service";
 import { ApiService } from "src/common/network/api.service";
-import { StakingDetailedEntity } from "src/common/timescale/entities/staking-detailed.entity";
+import { StakingHistoricalEntity } from "src/common/timescale/entities/staking-historical.entity";
 import { Ingest } from "src/crons/data-ingester/entities/ingest.interface";
+import { NumberUtils } from "src/utils/number.utils";
 
 @Injectable()
 export class StakingDetailedIngest implements Ingest {
   public readonly name = StakingDetailedIngest.name;
-  public readonly entityTarget = StakingDetailedEntity;
+  public readonly entityTarget = StakingHistoricalEntity;
 
-  private readonly apiConfigService: ApiConfigService;
-  private readonly apiService: ApiService;
-  private readonly gatewayService: GatewayService;
-  private readonly elasticService: ElasticService;
+  constructor(
+    private readonly apiConfigService: ApiConfigService,
+    private readonly apiService: ApiService,
+    private readonly gatewayService: GatewayService,
+    private readonly elasticService: ElasticService,
+  ) { }
 
-  constructor(apiConfigService: ApiConfigService, apiService: ApiService, gatewayService: GatewayService, elasticService: ElasticService) {
-    this.apiConfigService = apiConfigService;
-    this.apiService = apiService;
-    this.gatewayService = gatewayService;
-    this.elasticService = elasticService;
-  }
-
-  public async fetch(): Promise<StakingDetailedEntity[]> {
+  public async fetch(): Promise<StakingHistoricalEntity[]> {
     const epoch = await this.gatewayService.getEpoch();
 
     const { staked: totalStaked } = await this.apiService.get(`${this.apiConfigService.getApiUrl()}/economics`);
@@ -103,15 +99,15 @@ export class StakingDetailedIngest implements Ingest {
       }),
     ]);
 
-    const legacyDelegationUserAverage = this.tryIntegerDivision(delegationLegacyTotal, delegationLegacyUsers);
-    const legacyDelegationActiveUserAverage = this.tryIntegerDivision(delegationLegacyActive, delegationLegacyActiveUsers);
-    const legacyDelegationWaitingUserAverage = this.tryIntegerDivision(delegationLegacyWaiting, delegationLegacyWaitingUsers);
-    const delegationUserAverage = this.tryIntegerDivision(totalDelegated, delegationUsers);
-    const stakingUserAverage = this.tryIntegerDivision(delegationLocked, stakingUsers);
-    const userAverage = this.tryIntegerDivision(totalStaked, totalUniqueUsers);
+    const legacyDelegationUserAverage = NumberUtils.tryIntegerDivision(delegationLegacyTotal, delegationLegacyUsers);
+    const legacyDelegationActiveUserAverage = NumberUtils.tryIntegerDivision(delegationLegacyActive, delegationLegacyActiveUsers);
+    const legacyDelegationWaitingUserAverage = NumberUtils.tryIntegerDivision(delegationLegacyWaiting, delegationLegacyWaitingUsers);
+    const delegationUserAverage = NumberUtils.tryIntegerDivision(totalDelegated, delegationUsers);
+    const stakingUserAverage = NumberUtils.tryIntegerDivision(delegationLocked, stakingUsers);
+    const userAverage = NumberUtils.tryIntegerDivision(totalStaked, totalUniqueUsers);
 
     const timestamp = moment.utc().subtract(1, 'days').toDate();
-    return StakingDetailedEntity.fromObject(timestamp, {
+    return StakingHistoricalEntity.fromObject(timestamp, {
       legacydelegation: {
         value: delegationLegacyTotal,
         users: delegationLegacyUsers,
@@ -173,9 +169,5 @@ export class StakingDetailedIngest implements Ingest {
     const delegationLocked = parseInt(locked.length > 1 ? locked.slice(0, -18) : 0);
 
     return [delegationStake, delegationTopup, delegationLocked];
-  }
-
-  private tryIntegerDivision(a: number, b: number) {
-    return Math.floor(isNaN(a / b) || b === 0 ? 0 : a / b);
   }
 }

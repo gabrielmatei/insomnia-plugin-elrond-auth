@@ -1,11 +1,8 @@
 import { Injectable } from "@nestjs/common";
 import moment from "moment";
-import { ApiConfigService } from "src/common/api-config/api.config.service";
-import { GatewayService } from "src/common/gateway/gateway.service";
-import { ApiService } from "src/common/network/api.service";
+import { StakingService } from "src/common/staking/staking.service";
 import { StakingEntity } from "src/common/timescale/entities/staking.entity";
 import { Ingest } from "src/crons/data-ingester/entities/ingest.interface";
-import { AddressUtils } from "src/utils/address.utils";
 import { NumberUtils } from "src/utils/number.utils";
 
 import { stakingActiveList } from "config/temp_stakingWallets.json";
@@ -15,153 +12,64 @@ export class StakingIngest implements Ingest {
   public readonly name = StakingIngest.name;
   public readonly entityTarget = StakingEntity;
 
-  private readonly apiConfigService: ApiConfigService;
-  private readonly apiService: ApiService;
-  private readonly gatewayService: GatewayService;
-
-  constructor(apiConfigService: ApiConfigService, apiService: ApiService, gatewayService: GatewayService) {
-    this.apiConfigService = apiConfigService;
-    this.apiService = apiService;
-    this.gatewayService = gatewayService;
-  }
+  constructor(
+    private readonly stakingService: StakingService,
+  ) { }
 
   public async fetch(): Promise<StakingEntity[]> {
-    const { staked } = await this.apiService.get(`${this.apiConfigService.getApiUrl()}/economics`);
-
-    const delegationWaitingList = await this.getDelegationWaitingList();
-    const delegationActiveList = await this.getDelegationActiveList();
+    const delegationWaitingList = await this.stakingService.getDelegationWaitingList();
+    const delegationActiveList = await this.stakingService.getDelegationActiveList();
     const delegationTotal = [...delegationWaitingList, ...delegationActiveList].distinct();
 
-    const totalValue = await this.getTotalDelegated();
+    const { totalValue, activeValue, waitingListValue } = await this.stakingService.getTotalDelegated();
 
-    const stakingWaitingList = await this.getStakingWaitingList();
-
+    const stakingWaitingList = await this.stakingService.getStakingWaitingList();
     const stakingTotal = stakingActiveList.length + stakingWaitingList.length;
     const stakingUnique = [...new Set([...stakingWaitingList, ...stakingActiveList])];
 
     const totalList = [...delegationTotal, ...stakingUnique].distinct();
+    const totalActiveList = [...delegationActiveList, ...stakingActiveList].distinct();
+    const totalWaitingList = [...delegationWaitingList, ...stakingWaitingList].distinct();
 
-    const legacyDelegation = {
-      value: totalValue,
-      users: delegationTotal.length,
-      user_average: Math.floor(totalValue / delegationTotal.length),
+    const delegation = {
+      active: delegationActiveList.length,
+      waiting_list: delegationWaitingList.length,
+      count: delegationTotal.length,
+      active_value: activeValue,
+      waiting_list_value: waitingListValue,
+      total_value: totalValue,
+      active_user_average: NumberUtils.tryIntegerDivision(activeValue, delegationActiveList.length),
+      waiting_list_user_average: NumberUtils.tryIntegerDivision(waitingListValue, delegationWaitingList.length),
+      user_average: NumberUtils.tryIntegerDivision(totalValue, delegationTotal.length),
     };
     const staking = {
-      value: staked,
-      users: stakingTotal,
-      user_average: staked / stakingTotal,
+      active: [...new Set(stakingActiveList)].length,
+      waiting_list: [...new Set(stakingWaitingList)].length,
+      count: stakingTotal,
+      active_value: stakingActiveList.length * 2500,
+      waiting_list_value: stakingWaitingList.length * 2500,
+      total_value: stakingTotal * 2500,
+      active_user_average: NumberUtils.tryIntegerDivision(stakingActiveList.length * 2500, stakingActiveList.length),
+      waiting_list_user_average: NumberUtils.tryIntegerDivision(stakingWaitingList.length * 2500, stakingWaitingList.length),
+      user_average: NumberUtils.tryIntegerDivision(stakingTotal * 2500, stakingTotal),
     };
-
     const total = {
-      value: staking.value,
-      users: totalList.length,
-      user_average: Math.floor(staking.value / totalList.length),
+      active: totalActiveList.length,
+      waiting_list: totalWaitingList.length,
+      count: totalList.length,
+      active_value: delegation.active_value + staking.active_value,
+      waiting_list_value: delegation.waiting_list_value + staking.waiting_list_value,
+      total_value: delegation.waiting_list_value + staking.total_value,
+      active_user_average: NumberUtils.tryIntegerDivision(delegation.active_value + staking.active_value, totalActiveList.length),
+      waiting_list_user_average: NumberUtils.tryIntegerDivision(delegation.waiting_list_value + staking.waiting_list_value, totalWaitingList.length),
+      user_average: NumberUtils.tryIntegerDivision(delegation.waiting_list_value + staking.total_value, totalList.length),
     };
 
     const timestamp = moment().utc().toDate();
     return StakingEntity.fromObject(timestamp, {
+      delegation,
       staking,
-      legacyDelegation,
       total,
     });
-  }
-
-  private async getStakingWaitingList() {
-    // TODO
-    const stakingWaitingListEncoded = await this.gatewayService.vmQuery(
-      this.apiConfigService.getStakingContract(),
-      'getQueueRegisterNonceAndRewardAddress',
-      this.apiConfigService.getAuctionContract()
-    );
-
-    const stakingWaitingList = stakingWaitingListEncoded.reduce(
-      (result, _value, index, array) => {
-        if (index % 3 === 0) {
-          try {
-            const [_value, publicKeyEncoded] = array.slice(index, index + 3);
-
-            const publicKey = Buffer.from(publicKeyEncoded, 'base64').toString();
-            const address = AddressUtils.bech32Encode(publicKey);
-
-            result.push(address);
-          } catch { }
-        }
-
-        return result;
-      },
-      [] as string[]
-    );
-    return stakingWaitingList;
-  }
-
-  private async getTotalDelegated(): Promise<number> {
-    const totalDelegatedEncoded = await this.gatewayService.vmQuery(
-      this.apiConfigService.getDelegationContract(),
-      'getTotalStakeByType',
-    );
-
-    const [
-      _totalWithdrawOnlyDelegate,
-      totalWaitingDelegate,
-      totalActiveDelegate,
-      _totalUnDelegatedDelegate,
-      _totalDeferredPaymentDelegate,
-    ] = totalDelegatedEncoded.map((encoded) => NumberUtils.numberDecode(encoded));
-
-    const activeValue = parseInt(totalActiveDelegate.slice(0, -18));
-    const waitingListValue = parseInt(totalWaitingDelegate.slice(0, -18));
-
-    const totalValue = activeValue + waitingListValue;
-    return totalValue;
-  }
-
-  private async getDelegationActiveList(): Promise<string[]> {
-    const delegationActiveListEncoded = await this.gatewayService.vmQuery(
-      this.apiConfigService.getDelegationContract(),
-      'getFullActiveList',
-    );
-
-    const delegationActiveList = delegationActiveListEncoded.reduce(
-      (result, _value, index, array) => {
-        if (index % 2 === 0) {
-          const [publicKeyEncoded] = array.slice(index, index + 2);
-
-          const publicKey = Buffer.from(publicKeyEncoded, 'base64').toString('hex');
-          const address = AddressUtils.bech32Encode(publicKey);
-
-          result.push(address);
-        }
-        return result;
-      },
-      [] as string[]
-    );
-
-    const distinctDelegationActiveList = delegationActiveList.distinct();
-    return distinctDelegationActiveList;
-  }
-
-  private async getDelegationWaitingList(): Promise<string[]> {
-    const delegationWaitingListEncoded = await this.gatewayService.vmQuery(
-      this.apiConfigService.getDelegationContract(),
-      'getFullWaitingList',
-    );
-
-    const delegationWaitingList = delegationWaitingListEncoded.reduce(
-      (result, _value, index, array) => {
-        if (index % 3 === 0) {
-          const [publicKeyEncoded] = array.slice(index, index + 3);
-
-          const publicKey = Buffer.from(publicKeyEncoded, 'base64').toString('hex');
-          const address = AddressUtils.bech32Encode(publicKey);
-
-          result.push(address);
-        }
-        return result;
-      },
-      [] as string[]
-    );
-
-    const distinctDelegationWaitingList = delegationWaitingList.distinct();
-    return distinctDelegationWaitingList;
   }
 }
