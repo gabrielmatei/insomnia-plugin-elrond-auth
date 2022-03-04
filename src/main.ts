@@ -19,8 +19,14 @@ import { SocketAdapter } from './websockets/socket.adapter';
 import { DataIngesterModule } from './crons/data-ingester/data.ingester.module';
 import { CacheWarmerModule } from './crons/cache-warmer/cache.warmer.module';
 import { TransactionProcessorModule } from './crons/transaction-processor/transaction.processor.module';
+import { GraphqlAppModule } from './graphql.app.module copy';
 
 async function bootstrap() {
+  const graphqlApp = await NestFactory.create(GraphqlAppModule);
+  graphqlApp.enableCors();
+  graphqlApp.useLogger(graphqlApp.get(WINSTON_MODULE_NEST_PROVIDER));
+  await graphqlApp.listen(3001);
+
   const publicApp = await NestFactory.create(PublicAppModule);
   publicApp.use(bodyParser.json({ limit: '1mb' }));
   publicApp.enableCors();
