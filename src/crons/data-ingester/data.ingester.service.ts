@@ -94,7 +94,7 @@ export class DataIngesterService {
         fetcher: this.exchangesIngest,
       },
       {
-        refreshInterval: CronExpressionExtended.EVERY_HOUR, // TODO
+        refreshInterval: CronExpressionExtended.EVERY_DAY_AT_12_10AM,
         fetcher: this.exchangesDetailedIngest,
       },
       {
@@ -138,7 +138,7 @@ export class DataIngesterService {
         fetcher: this.transactionsIngest,
       },
       {
-        refreshInterval: CronExpressionExtended.EVERY_HOUR, // TODO
+        refreshInterval: CronExpressionExtended.EVERY_DAY_AT_12_10AM,
         fetcher: this.transactionsDetailedIngest,
       },
       {
