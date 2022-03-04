@@ -31,6 +31,7 @@ export class PricesIngest implements Ingest {
       prices[currency] = current_price;
     }));
 
+    // TODO foreach
     const [
       { market_cap, high_24h },
     ] = await this.apiService.get(`${this.apiConfigService.getCoingeckoUrl()}/coins/markets?vs_currency=usd&ids=${elrondId}`);
