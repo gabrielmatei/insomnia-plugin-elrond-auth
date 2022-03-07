@@ -8,8 +8,15 @@ type ScalarValue {
 }
 
 type Query {
-  userAdoptionValue(key: String!): ScalarValue
-  userAdoptionHistorical(key: String!, startDate: DateTime!, endDate: DateTime!, resolution: TimeResolutions!): [ScalarValue!]!
+  userAdoptionValue(key: String): ScalarValue
+  userAdoptionHistorical(options: HistoricalInput!): [ScalarValue!]!
+}
+
+input HistoricalInput {
+  key: String!
+  startDate: DateTime!
+  endDate: DateTime!
+  resolution: TimeResolutions!
 }
 
 """

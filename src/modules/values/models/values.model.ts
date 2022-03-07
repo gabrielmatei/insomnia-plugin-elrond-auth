@@ -1,4 +1,4 @@
-import { ObjectType, Field, Float, registerEnumType } from '@nestjs/graphql';
+import { ObjectType, Field, Float, registerEnumType, InputType, GraphQLISODateTime } from '@nestjs/graphql';
 
 export enum TimeResolutions {
   HOUR = "1 hour",
@@ -18,4 +18,19 @@ export class ScalarValue {
   constructor(init?: Partial<ScalarValue>) {
     Object.assign(this, init);
   }
+}
+
+@InputType()
+export class HistoricalInput {
+  @Field(() => String)
+  key!: string;
+
+  @Field(() => GraphQLISODateTime)
+  startDate!: Date;
+
+  @Field(() => GraphQLISODateTime)
+  endDate!: Date;
+
+  @Field(() => TimeResolutions)
+  resolution!: TimeResolutions;
 }
