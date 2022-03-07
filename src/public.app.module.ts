@@ -8,13 +8,13 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { GraphQLModule } from '@nestjs/graphql';
 import { EndpointsServicesModule } from './endpoints/endpoints.services.module';
 import { EndpointsControllersModule } from './endpoints/endpoints.controller';
-import { ValuesModule } from './modules/values/values.module';
+import { AccountsModule } from './modules/accounts/accounts.module';
 
 @Module({
   imports: [
     LoggingModule,
     CommonModule,
-    ValuesModule,
+    AccountsModule,
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       autoSchemaFile: 'schema.gql',

@@ -1,12 +1,12 @@
 import { forwardRef, Module } from '@nestjs/common';
 import { CommonModule } from 'src/common/common.module';
-import { ValuesResolver } from './values.resolver';
+import { AccountsResolver } from './accounts.resolver';
 
 @Module({
   imports: [
     forwardRef(() => CommonModule),
   ],
-  providers: [ValuesResolver],
+  providers: [AccountsResolver],
   exports: [],
 })
-export class ValuesModule { }
+export class AccountsModule { }

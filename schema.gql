@@ -9,7 +9,7 @@ type ScalarValue {
 
 type Query {
   userAdoptionValue(key: String): ScalarValue
-  userAdoptionHistorical(options: HistoricalInput!): [ScalarValue!]!
+  userAdoptionHistorical(input: HistoricalInput!): [ScalarValue!]!
 }
 
 input HistoricalInput {

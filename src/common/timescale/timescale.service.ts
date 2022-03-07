@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import moment from 'moment';
-import { ScalarValue } from 'src/modules/values/models/values.model';
 import { EntityTarget, getRepository } from 'typeorm';
+import { ScalarValue } from '../entities/scalar-value.object';
 import { GenericIngestEntity } from './entities/generic-ingest.entity';
 
 @Injectable()

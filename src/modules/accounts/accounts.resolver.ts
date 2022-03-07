@@ -1,11 +1,12 @@
 import { Resolver, Query, Args } from '@nestjs/graphql';
+import { HistoricalInput } from 'src/common/entities/historical.input';
+import { ScalarValue } from 'src/common/entities/scalar-value.object';
 import { AccountsHistoricalEntity } from 'src/common/timescale/entities/accounts-historical.entity';
 import { AccountsEntity } from 'src/common/timescale/entities/accounts.entity';
 import { TimescaleService } from 'src/common/timescale/timescale.service';
-import { HistoricalInput, ScalarValue } from './models/values.model';
 
 @Resolver(() => String)
-export class ValuesResolver {
+export class AccountsResolver {
   constructor(
     private readonly timescaleService: TimescaleService
   ) { }
@@ -16,13 +17,14 @@ export class ValuesResolver {
   }
 
   @Query(() => [ScalarValue])
-  async userAdoptionHistorical(@Args('options') options: HistoricalInput): Promise<ScalarValue[]> {
+  async userAdoptionHistorical(@Args('input') input: HistoricalInput): Promise<ScalarValue[]> {
     return await this.timescaleService.getValues(
-      AccountsHistoricalEntity, 'accounts',
-      options.key,
-      options.startDate,
-      options.endDate,
-      options.resolution
+      AccountsHistoricalEntity,
+      'accounts',
+      input.key,
+      input.startDate,
+      input.endDate,
+      input.resolution
     );
   }
 }
