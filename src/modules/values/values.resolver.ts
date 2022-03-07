@@ -1,4 +1,5 @@
 import { Resolver, Query, Args, GraphQLISODateTime } from '@nestjs/graphql';
+import { AccountsHistoricalEntity } from 'src/common/timescale/entities/accounts-historical.entity';
 import { AccountsEntity } from 'src/common/timescale/entities/accounts.entity';
 import { TimescaleService } from 'src/common/timescale/timescale.service';
 import { ScalarValue, TimeResolutions } from './models/values.model';
@@ -23,6 +24,6 @@ export class ValuesResolver {
     @Args('endDate', { type: () => GraphQLISODateTime }) endDate: Date,
     @Args('resolution', { type: () => TimeResolutions }) resolution: TimeResolutions,
   ): Promise<ScalarValue[]> {
-    return await this.timescaleService.getValues(AccountsEntity, 'accounts', key, startDate, endDate, resolution);
+    return await this.timescaleService.getValues(AccountsHistoricalEntity, 'accounts', key, startDate, endDate, resolution);
   }
 }

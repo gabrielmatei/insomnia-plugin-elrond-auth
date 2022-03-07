@@ -1,7 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import moment from 'moment';
 import { ScalarValue } from 'src/modules/values/models/values.model';
-import { DateUtils } from 'src/utils/date.utils';
 import { EntityTarget, getRepository } from 'typeorm';
 import { GenericIngestEntity } from './entities/generic-ingest.entity';
 
@@ -92,7 +91,7 @@ export class TimescaleService {
 
     return new ScalarValue({
       value: entity.value,
-      time: DateUtils.timescaleToUtc(entity.timestamp),
+      time: moment(entity.timestamp).toISOString(),
     });
   }
 
@@ -122,7 +121,7 @@ export class TimescaleService {
 
     return rows.map((row: any) => new ScalarValue({
       value: row.value,
-      time: DateUtils.timescaleToUtc(row.time),
+      time: moment(row.time).toISOString(),
     }));
   }
 }
