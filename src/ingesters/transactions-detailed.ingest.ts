@@ -25,8 +25,8 @@ export class TransactionsDetailedIngest implements Ingest {
   ) { }
 
   public async fetch(): Promise<TransactionsDetailedEntity[]> {
-    const timestamp = moment().utc();
-    const timestamp24hAgo = moment(timestamp).add(-1, 'days');
+    const startDate = moment.utc().startOf('day').subtract(1, 'day');
+    const endDate = moment.utc().startOf('day');
 
     let valueMoved = new BigNumber(0);
     let totalFees = new BigNumber(0);
@@ -44,8 +44,8 @@ export class TransactionsDetailedIngest implements Ingest {
       .withPagination({ size: 10000 })
       .withFilter([
         new RangeQuery('timestamp', {
-          gte: timestamp24hAgo.unix(),
-          lt: timestamp.unix(),
+          gte: startDate.unix(),
+          lt: endDate.unix(),
         }),
       ]);
 
@@ -62,7 +62,7 @@ export class TransactionsDetailedIngest implements Ingest {
     const activeUsers = await this.cachingService.getSetMembersCount(TransactionsDetailedIngest.ACTIVE_USERS_KEY);
     await this.cachingService.delCache(TransactionsDetailedIngest.ACTIVE_USERS_KEY);
 
-    return TransactionsDetailedEntity.fromObject(timestamp.toDate(), {
+    return TransactionsDetailedEntity.fromObject(startDate.toDate(), {
       users: {
         active_users: activeUsers,
       },

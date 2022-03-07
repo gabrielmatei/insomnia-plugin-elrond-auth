@@ -13,8 +13,8 @@ export class TrendsIngest implements Ingest {
   public readonly entityTarget = TrendsEntity;
 
   public async fetch(): Promise<TrendsEntity[]> {
-    const startTime = moment().startOf('day').subtract(1, 'day').toDate();
-    const endTime = moment().startOf('day').toDate();
+    const startTime = moment.utc().startOf('day').subtract(1, 'day').toDate();
+    const endTime = moment.utc().startOf('day').toDate();
 
     const googleTrendsRaw = await googleTrendsApi.interestOverTime({
       keyword: TrendsIngest.KEYWORDS,
@@ -26,7 +26,7 @@ export class TrendsIngest implements Ingest {
     const googleTrends = JSON.parse(googleTrendsRaw);
     const averages = googleTrends?.default?.averages || googleTrends?.averages;
 
-    return TrendsEntity.fromObject(endTime, {
+    return TrendsEntity.fromObject(startTime, {
       trends: {
         google: averages[0],
       },

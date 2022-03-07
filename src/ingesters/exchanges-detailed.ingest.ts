@@ -23,7 +23,7 @@ export class ExchangesDetailedIngest implements Ingest {
   }
 
   public async fetch(): Promise<ExchangesHistoricalEntity[]> {
-    const timestamp = moment().utc();
+    const timestamp = moment.utc().startOf('day');
     const timestamp24hAgo = moment(timestamp).add(-1, 'days');
 
     const timestampFilter = {

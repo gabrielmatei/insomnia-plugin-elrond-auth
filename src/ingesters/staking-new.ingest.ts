@@ -20,6 +20,8 @@ export class StakingNewIngest implements Ingest {
   ) { }
 
   public async fetch(): Promise<StakingHistoricalBackupEntity[]> {
+    const timestamp = moment.utc().toDate();
+
     const { staked } = await this.apiService.get(`${this.apiConfigService.getApiUrl()}/economics`);
 
     const delegationWaitingList = await this.stakingService.getDelegationWaitingList();
@@ -52,7 +54,6 @@ export class StakingNewIngest implements Ingest {
       user_average: Math.floor(staking.value / totalList.length),
     };
 
-    const timestamp = moment().utc().toDate();
     return StakingHistoricalBackupEntity.fromObject(timestamp, {
       staking,
       legacydelegation,

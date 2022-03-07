@@ -1,0 +1,23 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type ScalarValue {
+  value: Float
+  time: String
+}
+
+type Query {
+  userAdoptionValue(key: String!): ScalarValue
+  userAdoptionHistorical(key: String!, startDate: DateTime!, endDate: DateTime!, resolution: TimeResolutions!): [ScalarValue!]!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+enum TimeResolutions {
+  HOUR
+  DAY
+}

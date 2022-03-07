@@ -19,29 +19,24 @@ export class PricesIngest implements Ingest {
   }
 
   public async fetch(): Promise<PricesEntity[]> {
+    const timestamp = moment.utc().toDate();
+
     const elrondId = this.apiConfigService.getCoingeckoElrondId();
     const vsCurrencies = this.apiConfigService.getCoingeckoVsCurrencies();
 
-    const prices: Record<string, number> = {};
+    const prices: any = {};
     await Promise.all(vsCurrencies.map(async (currency) => {
       const [
-        { current_price },
+        { current_price, market_cap, high_24h },
       ] = await this.apiService.get(`${this.apiConfigService.getCoingeckoUrl()}/coins/markets?vs_currency=${currency}&ids=${elrondId}`);
 
-      prices[currency] = current_price;
+      prices[currency] = {
+        current_price,
+        market_cap,
+        high_24h,
+      };
     }));
 
-    const [
-      { market_cap, high_24h },
-    ] = await this.apiService.get(`${this.apiConfigService.getCoingeckoUrl()}/coins/markets?vs_currency=usd&ids=${elrondId}`);
-
-    const timestamp = moment().utc().toDate();
-    return PricesEntity.fromObject(timestamp, {
-      prices: {
-        ...prices,
-        high_24h,
-        market_cap,
-      },
-    });
+    return PricesEntity.fromObject(timestamp, prices);
   }
 }

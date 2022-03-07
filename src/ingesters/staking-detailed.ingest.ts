@@ -25,6 +25,7 @@ export class StakingDetailedIngest implements Ingest {
 
   public async fetch(): Promise<StakingHistoricalEntity[]> {
     const epoch = await this.gatewayService.getEpoch();
+    const timestamp = moment.utc().startOf('day').subtract(1, 'days').toDate();
 
     const { staked: totalStaked } = await this.apiService.get(`${this.apiConfigService.getApiUrl()}/economics`);
 
@@ -106,7 +107,6 @@ export class StakingDetailedIngest implements Ingest {
     const stakingUserAverage = NumberUtils.tryIntegerDivision(delegationLocked, stakingUsers);
     const userAverage = NumberUtils.tryIntegerDivision(totalStaked, totalUniqueUsers);
 
-    const timestamp = moment.utc().subtract(1, 'days').toDate();
     return StakingHistoricalEntity.fromObject(timestamp, {
       legacydelegation: {
         value: delegationLegacyTotal,

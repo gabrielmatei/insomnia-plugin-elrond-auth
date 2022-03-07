@@ -16,6 +16,7 @@ export class GithubIngest implements Ingest {
   ) { }
 
   public async fetch(): Promise<GithubEntity[]> {
+    const timestamp = moment.utc().toDate();
 
     const repoDetails: any = {};
 
@@ -30,7 +31,7 @@ export class GithubIngest implements Ingest {
     const organization = 'ElrondNetwork';
     const featuredRepositories = this.apiConfigService.getFeaturedGithubRepositories();
 
-    const repositories = await this.githubService.getOrganizationRepositories(organization);
+    const repositories = await this.githubService.getRepositories(organization);
 
     await Promise.all(
       repositories.map(async (repository) => {
@@ -66,17 +67,18 @@ export class GithubIngest implements Ingest {
       })
     );
 
-    repoDetails['total'] = {};
-    repoDetails['total']['commits'] = totalCommits;
-    repoDetails['total']['stars'] = totalStars;
-    repoDetails['total']['contributors'] = totalAuthors.size;
+    repoDetails['total'] = {
+      commits: totalCommits,
+      stars: totalStars,
+      contributors: totalAuthors.size,
+    };
 
-    repoDetails['featured'] = {};
-    repoDetails['featured']['commits'] = featuredCommits;
-    repoDetails['featured']['stars'] = featuredStars;
-    repoDetails['featured']['contributors'] = featuredAuthors.size;
+    repoDetails['featured'] = {
+      commits: featuredCommits,
+      stars: featuredStars,
+      contributors: featuredAuthors.size,
+    };
 
-    const timestamp = moment().utc().toDate();
     return GithubEntity.fromObject(timestamp, repoDetails);
   }
 }

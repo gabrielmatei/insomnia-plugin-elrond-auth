@@ -21,7 +21,7 @@ export class AccountsCountIngest implements Ingest {
 
   public async fetch(): Promise<AccountsHistoricalEntity[]> {
     const epoch = await this.gatewayService.getEpoch();
-    const timestamp = moment().utc().toDate();
+    const timestamp = moment.utc().startOf('day').subtract(1, 'days').toDate();
 
     const count = await this.elasticService.getCount(this.apiConfigService.getInternalElasticUrl(), `accounts-000001_${epoch}`);
 

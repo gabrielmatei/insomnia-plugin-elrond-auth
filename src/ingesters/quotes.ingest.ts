@@ -16,6 +16,8 @@ export class QuotesIngest implements Ingest {
   ) { }
 
   public async fetch(): Promise<QuotesEntity[]> {
+    const timestamp = moment.utc().toDate();
+
     const { data: quotesRaw } = await this.apiService.get<any>(
       'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest',
       {
@@ -39,7 +41,6 @@ export class QuotesIngest implements Ingest {
       };
     });
 
-    const timestamp = moment().utc().toDate();
     return QuotesEntity.fromObject(timestamp, data);
   }
 }

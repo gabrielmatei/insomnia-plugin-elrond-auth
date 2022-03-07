@@ -16,7 +16,7 @@ export class GithubContributorsIngest implements Ingest {
   ) { }
 
   public async fetch(): Promise<GithubActivityEntity[]> {
-    const timestamp = moment().utc().toDate();
+    const timestamp = moment.utc().toDate();
 
     const repoDetails: any = {};
 
@@ -28,7 +28,7 @@ export class GithubContributorsIngest implements Ingest {
     const organization = 'ElrondNetwork';
     const featuredRepositories = this.apiConfigService.getFeaturedGithubRepositories();
 
-    const repositories = await this.githubService.getOrganizationRepositories(organization);
+    const repositories = await this.githubService.getRepositories(organization);
     await Promise.all(repositories.map(async (repository) => {
       const stars = await this.githubService.getRepositoryStars(organization, repository);
       const contributors = await this.githubService.getRepositoryContributors(organization, repository);

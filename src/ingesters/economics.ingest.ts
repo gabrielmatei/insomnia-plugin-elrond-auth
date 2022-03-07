@@ -22,6 +22,8 @@ export class EconomicsIngest implements Ingest {
   }
 
   public async fetch(): Promise<EconomicsEntity[]> {
+    const timestamp = moment.utc().startOf('day').subtract(1, 'days').toDate();
+
     const {
       totalSupply,
       circulatingSupply,
@@ -33,7 +35,6 @@ export class EconomicsIngest implements Ingest {
     const floatingSupply = circulatingSupply - staked;
     const leftPerUser = floatingSupply / numAccounts;
 
-    const timestamp = moment().utc().toDate();
     return EconomicsEntity.fromObject(timestamp, {
       economics: {
         total_supply: totalSupply,

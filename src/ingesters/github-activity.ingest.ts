@@ -16,8 +16,8 @@ export class GithubActivityIngest implements Ingest {
   ) { }
 
   public async fetch(): Promise<GithubActivityEntity[]> {
-    const timestamp = moment().utc().toDate();
-    const startDate = moment().startOf('day');
+    const endDate = moment.utc().startOf('day');
+    const startDate = moment(endDate).add(-1, 'days');
 
     const organization = 'ElrondNetwork';
     const featuredRepositories = this.apiConfigService.getFeaturedGithubRepositories();
@@ -26,10 +26,10 @@ export class GithubActivityIngest implements Ingest {
     let lastTotalCommits: string[] = [];
     let lastFeaturedCommits: string[] = [];
 
-    const repositories = await this.githubService.getOrganizationRepositories(organization);
+    const repositories = await this.githubService.getRepositories(organization);
 
     await Promise.all(repositories.map(async (repository) => {
-      const lastCommits = await this.githubService.getLastCommits(organization, repository, startDate);
+      const lastCommits = await this.githubService.getLastCommits(organization, repository, startDate, endDate);
 
       lastTotalCommits.push(...lastCommits);
       lastTotalCommits = lastTotalCommits.distinct();
@@ -50,6 +50,6 @@ export class GithubActivityIngest implements Ingest {
     repoDetails['featured'] = {
       commits_24h: lastFeaturedCommits.length,
     };
-    return GithubActivityEntity.fromObject(timestamp, repoDetails);
+    return GithubActivityEntity.fromObject(startDate.toDate(), repoDetails);
   }
 }
