@@ -23,8 +23,10 @@ export class GoogleIngest implements Ingest {
   }
 
   public async fetch(): Promise<GoogleEntity[]> {
-    const startDate = moment().startOf('day').subtract(3, 'days').format('YYYY-MM-DD');
-    const endDate = moment().startOf('day').subtract(2, 'days').format('YYYY-MM-DD');
+    const timestamp = moment.utc().toDate();
+
+    const startDate = moment.utc().startOf('day').subtract(3, 'days').format('YYYY-MM-DD');
+    const endDate = moment.utc().startOf('day').subtract(2, 'days').format('YYYY-MM-DD');
     const highlightedWords = ['elrond', 'egld', 'egold'];
 
     const queryData: any = {};
@@ -70,7 +72,6 @@ export class GoogleIngest implements Ingest {
       })
     );
 
-    const timestamp = moment().utc().toDate();
     return GoogleEntity.fromObject(timestamp, queryData);
   }
 }

@@ -21,13 +21,13 @@ export class TwitterIngest implements Ingest {
   ) { }
 
   public async fetch(): Promise<TwitterEntity[]> {
-    const startTime = moment().startOf('day').subtract(1, 'day');
-    const endTime = moment().startOf('day');
+    const startTime = moment.utc().startOf('day').subtract(1, 'day');
+    const endTime = moment.utc().startOf('day');
 
     const mentions = await this.getTwitterMentions(TwitterIngest.KEYWORDS, startTime, endTime);
     const followers = await this.getTwitterFollowers(TwitterIngest.USERNAME);
 
-    return TwitterEntity.fromObject(endTime.toDate(), {
+    return TwitterEntity.fromObject(startTime.toDate(), {
       twitter: {
         mentions,
         followers,

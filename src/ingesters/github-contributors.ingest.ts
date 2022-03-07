@@ -16,7 +16,7 @@ export class GithubContributorsIngest implements Ingest {
   ) { }
 
   public async fetch(): Promise<GithubActivityEntity[]> {
-    const timestamp = moment().utc().toDate();
+    const timestamp = moment.utc().toDate();
 
     const repoDetails: any = {};
 

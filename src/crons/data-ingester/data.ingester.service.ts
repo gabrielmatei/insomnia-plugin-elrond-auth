@@ -134,7 +134,7 @@ export class DataIngesterService {
         fetcher: this.stakingDetailedIngest,
       },
       {
-        refreshInterval: CronExpressionExtended.EVERY_HOUR,
+        refreshInterval: CronExpressionExtended.EVERY_DAY_AT_12_10AM,
         fetcher: this.transactionsIngest,
       },
       {

@@ -18,8 +18,8 @@ export class TransactionsIngest implements Ingest {
   ) { }
 
   public async fetch(): Promise<TransactionsEntity[]> {
-    const startDate = moment().startOf('day').subtract(1, 'day');
-    const endDate = moment().startOf('day');
+    const startDate = moment.utc().startOf('day').subtract(1, 'day');
+    const endDate = moment.utc().startOf('day');
 
     const [
       count,
@@ -37,7 +37,7 @@ export class TransactionsIngest implements Ingest {
         ])),
     ]);
 
-    return TransactionsEntity.fromObject(endDate.toDate(), {
+    return TransactionsEntity.fromObject(startDate.toDate(), {
       transactions: {
         count,
         count_24h,

@@ -19,7 +19,7 @@ export class PricesIngest implements Ingest {
   }
 
   public async fetch(): Promise<PricesEntity[]> {
-    const timestamp = moment().utc().toDate();
+    const timestamp = moment.utc().toDate();
 
     const elrondId = this.apiConfigService.getCoingeckoElrondId();
     const vsCurrencies = this.apiConfigService.getCoingeckoVsCurrencies();
@@ -37,8 +37,6 @@ export class PricesIngest implements Ingest {
       };
     }));
 
-    return PricesEntity.fromObject(timestamp, {
-      prices,
-    });
+    return PricesEntity.fromObject(timestamp, prices);
   }
 }

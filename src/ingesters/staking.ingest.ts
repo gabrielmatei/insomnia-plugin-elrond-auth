@@ -17,6 +17,8 @@ export class StakingIngest implements Ingest {
   ) { }
 
   public async fetch(): Promise<StakingEntity[]> {
+    const timestamp = moment.utc().toDate();
+
     const delegationWaitingList = await this.stakingService.getDelegationWaitingList();
     const delegationActiveList = await this.stakingService.getDelegationActiveList();
     const delegationTotal = [...delegationWaitingList, ...delegationActiveList].distinct();
@@ -65,7 +67,6 @@ export class StakingIngest implements Ingest {
       user_average: NumberUtils.tryIntegerDivision(delegation.waiting_list_value + staking.total_value, totalList.length),
     };
 
-    const timestamp = moment().utc().toDate();
     return StakingEntity.fromObject(timestamp, {
       delegation,
       staking,

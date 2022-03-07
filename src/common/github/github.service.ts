@@ -64,7 +64,7 @@ export class GithubService {
     return commits;
   }
 
-  public async getLastCommits(organization: string, repository: string, startDate: moment.Moment): Promise<any> {
+  public async getLastCommits(organization: string, repository: string, startDate: moment.Moment, endDate: moment.Moment): Promise<any> {
     const branches = await this.octokit.paginate('GET /repos/{owner}/{repo}/branches?per_page=100', {
       owner: organization,
       repo: repository,
@@ -76,6 +76,7 @@ export class GithubService {
           owner: organization,
           repo: repository,
           since: startDate.format(),
+          until: endDate.format(),
           sha: branch.name,
           per_page: 100,
         },

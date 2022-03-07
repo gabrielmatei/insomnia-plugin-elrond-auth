@@ -16,7 +16,7 @@ export class GithubCommitsIngest implements Ingest {
   ) { }
 
   public async fetch(): Promise<GithubActivityEntity[]> {
-    const timestamp = moment().utc().toDate();
+    const timestamp = moment.utc().toDate();
 
     const organization = 'ElrondNetwork';
     const featuredRepositories = this.apiConfigService.getFeaturedGithubRepositories();

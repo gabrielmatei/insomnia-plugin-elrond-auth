@@ -18,7 +18,7 @@ export class ExchangesIngest implements Ingest {
   ) { }
 
   public async fetch(): Promise<ExchangesEntity[]> {
-    const timestamp = moment().utc().toDate();
+    const timestamp = moment.utc().toDate();
     const exchangeWallets = this.apiConfigService.getExchangeWallets();
 
     const exchangeDetails: any = {};
