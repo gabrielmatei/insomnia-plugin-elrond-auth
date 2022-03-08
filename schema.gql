@@ -8,9 +8,18 @@ type ScalarValue {
 }
 
 type CoinModel {
-  current_price: [ScalarValue!]!
-  market_cap: [ScalarValue!]!
-  high_24h: [ScalarValue!]!
+  current_price(aggregate: Aggregate!): [ScalarValue!]!
+  market_cap(aggregate: Aggregate!): [ScalarValue!]!
+  high_24h(aggregate: Aggregate!): [ScalarValue!]!
+}
+
+enum Aggregate {
+  LAST
+  MIN
+  MAX
+  COUNT
+  SUM
+  AVG
 }
 
 type PricesModel {
