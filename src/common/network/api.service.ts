@@ -1,24 +1,81 @@
-import { Injectable, Logger } from "@nestjs/common";
-import axios from "axios";
+import { forwardRef, Inject, Injectable, Logger } from "@nestjs/common";
+import axios, { AxiosRequestConfig } from "axios";
+import { Agent } from "http";
 import { MetricsService } from "src/common/metrics/metrics.service";
 import { PerformanceProfiler } from "../../utils/performance.profiler";
+import { ApiConfigService } from "../api-config/api.config.service";
+import { ApiSettings } from "./entities/api.settings";
 
 @Injectable()
 export class ApiService {
   private readonly logger: Logger;
+  private readonly defaultTimeout: number = 30000;
+  private keepaliveAgent: Agent | undefined | null = null;
 
   constructor(
-    private readonly metricsService: MetricsService
+    private readonly apiConfigService: ApiConfigService,
+    @Inject(forwardRef(() => MetricsService))
+    private readonly metricsService: MetricsService,
   ) {
     this.logger = new Logger(ApiService.name);
   }
 
-  async get<T>(url: string, config?: any): Promise<T> {
+  private getKeepAliveAgent(): Agent | undefined {
+    if (this.keepaliveAgent === null) {
+      if (this.apiConfigService.getUseKeepAliveAgentFlag()) {
+        this.keepaliveAgent = new Agent({
+          keepAlive: true,
+          maxSockets: Infinity,
+          maxFreeSockets: 10,
+          timeout: this.apiConfigService.getAxiosTimeout(), // active socket keepalive
+          // freeSocketTimeout: 30000, // free socket keepalive for 30 seconds // TODO
+        });
+      } else {
+        this.keepaliveAgent = undefined;
+      }
+    }
+
+    return this.keepaliveAgent;
+  }
+
+  private getConfig(settings: ApiSettings): AxiosRequestConfig {
+    const timeout = settings.timeout || this.defaultTimeout;
+    const maxRedirects = settings.skipRedirects === true ? 0 : undefined;
+
+    const headers = settings.headers;
+
+    const rateLimiterSecret = this.apiConfigService.getRateLimiterSecret();
+    if (rateLimiterSecret) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      headers['x-rate-limiter-secret'] = rateLimiterSecret;
+    }
+
+    return {
+      timeout,
+      maxRedirects,
+      httpAgent: this.getKeepAliveAgent(),
+      responseType: settings.responseType,
+      headers,
+      params: settings.params,
+      transformResponse: [
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (data: any) => {
+          try {
+            return JSON.parse(data);
+          } catch (error) {
+            return data;
+          }
+        },
+      ],
+    };
+  }
+
+  async get<T>(url: string, settings: ApiSettings = new ApiSettings()): Promise<T> {
     const profiler = new PerformanceProfiler();
 
     try {
-      const result = await axios.get<T>(url, config);
-
+      const result = await axios.get<T>(url, this.getConfig(settings));
       return result.data;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
@@ -36,12 +93,11 @@ export class ApiService {
     }
   }
 
-  async post<TInput, TOutput>(url: string, data: TInput): Promise<TOutput> {
+  async post<TInput, TOutput>(url: string, data: TInput, settings: ApiSettings = new ApiSettings()): Promise<TOutput> {
     const profiler = new PerformanceProfiler();
+
     try {
-
-      const result = await axios.post(url, data);
-
+      const result = await axios.post(url, data, this.getConfig(settings));
       return result.data;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
@@ -59,11 +115,11 @@ export class ApiService {
     }
   }
 
-  async head(url: string): Promise<{ headers: { [key: string]: string }, status: number }> {
+  async head(url: string, settings: ApiSettings = new ApiSettings()): Promise<{ headers: { [key: string]: string }, status: number }> {
     const profiler = new PerformanceProfiler();
 
     try {
-      return await axios.head(url);
+      return await axios.head(url, this.getConfig(settings));
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       this.logger.error({
