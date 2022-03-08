@@ -11,6 +11,11 @@ database:
   username: 'root'
   password: 'password'
   name: 'example'
+flags:
+  useKeepAliveAgent: true
+keepAliveTimeout:
+  downstream: 61000
+  upstream: 60000
 features:
   publicApi:
     enabled: true
