@@ -7,9 +7,23 @@ type ScalarValue {
   time: String
 }
 
+type CoinModel {
+  current_price: [ScalarValue!]!
+  market_cap: [ScalarValue!]!
+  high_24h: [ScalarValue!]!
+}
+
+type PricesModel {
+  egld_usd: CoinModel
+  egld_eur: CoinModel
+  egld_btc: CoinModel
+  egld_eth: CoinModel
+}
+
 type Query {
   userAdoptionValue(key: String): ScalarValue
   userAdoptionHistorical(input: HistoricalInput!): [ScalarValue!]!
+  prices: PricesModel!
 }
 
 input HistoricalInput {
