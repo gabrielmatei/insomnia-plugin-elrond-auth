@@ -231,6 +231,26 @@ export class ApiConfigService {
     return featurePort;
   }
 
+  getRateLimiterSecret(): string | undefined {
+    return this.configService.get<string>('rateLimiterSecret');
+  }
+
+  getUseKeepAliveAgentFlag(): boolean {
+    return this.configService.get<boolean>('flags.useKeepAliveAgent') ?? true;
+  }
+
+  getAxiosTimeout(): number {
+    return this.configService.get<number>('keepAliveTimeout.downstream') ?? 61000;
+  }
+
+  getServerTimeout(): number {
+    return this.configService.get<number>('keepAliveTimeout.upstream') ?? 60000;
+  }
+
+  getHeadersTimeout(): number {
+    return this.getServerTimeout() + 1000;
+  }
+
   getJwtSecret(): string {
     const jwtSecret = this.configService.get<string>('security.jwtSecret');
     if (!jwtSecret) {

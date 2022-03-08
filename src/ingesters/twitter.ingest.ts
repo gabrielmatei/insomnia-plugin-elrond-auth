@@ -76,10 +76,12 @@ export class TwitterIngest implements Ingest {
         max_results: 100,
         next_token: previousToken,
       };
-      const { meta } = await this.apiService.get<any>(`${this.apiConfigService.getTwitterUrl()}/tweets/search/recent`, {
-        params,
-        headers: this.getTwitterAuthorizationHeaders(),
-      });
+      const { meta } = await this.apiService.get<any>(
+        `${this.apiConfigService.getTwitterUrl()}/tweets/search/recent`,
+        {
+          params,
+          headers: this.getTwitterAuthorizationHeaders(),
+        });
 
       let mentions = 0;
       if (meta.next_token && meta.next_token !== previousToken && callsMade < maxCalls) {

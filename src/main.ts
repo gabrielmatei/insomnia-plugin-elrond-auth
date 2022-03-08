@@ -1,4 +1,4 @@
-import { NestFactory } from '@nestjs/core';
+import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { readFileSync } from 'fs';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
@@ -23,6 +23,11 @@ async function bootstrap() {
   publicApp.useLogger(publicApp.get(WINSTON_MODULE_NEST_PROVIDER));
 
   const apiConfigService = publicApp.get<ApiConfigService>(ApiConfigService);
+  const httpAdapterHostService = publicApp.get<HttpAdapterHost>(HttpAdapterHost);
+
+  const httpServer = httpAdapterHostService.httpAdapter.getHttpServer();
+  httpServer.keepAliveTimeout = apiConfigService.getServerTimeout();
+  httpServer.headersTimeout = apiConfigService.getHeadersTimeout(); //`keepAliveTimeout + server's expected response time`
 
   // TODO add interceptors
 
