@@ -1,5 +1,5 @@
 import { Field, GraphQLISODateTime, InputType } from "@nestjs/graphql";
-import { TimeResolutions } from "./time-resolutions.enum";
+import { TimeResolutionsEnum } from "./time-resolutions.enum";
 
 @InputType()
 export class HistoricalInput {
@@ -12,6 +12,6 @@ export class HistoricalInput {
   @Field(() => GraphQLISODateTime)
   endDate!: Date;
 
-  @Field(() => TimeResolutions)
-  resolution!: TimeResolutions;
+  @Field(() => TimeResolutionsEnum)
+  resolution!: TimeResolutionsEnum;
 }

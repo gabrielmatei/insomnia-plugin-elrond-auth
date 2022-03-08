@@ -5,27 +5,27 @@ import { PricesModel } from './models/prices.model';
 @Resolver(() => PricesModel)
 export class PricesResolver {
   @Query(() => PricesModel, { name: 'prices' })
-  async prices(): Promise<PricesModel> {
+  async getPrices(): Promise<PricesModel> {
     return new PricesModel();
   }
 
   @ResolveField(() => CoinModel, { name: 'egld_usd' })
-  async usd(): Promise<CoinModel> {
+  async getUsdPair(): Promise<CoinModel> {
     return new CoinModel('usd');
   }
 
   @ResolveField(() => CoinModel, { name: 'egld_eur' })
-  async eur(): Promise<CoinModel> {
+  async getEurPair(): Promise<CoinModel> {
     return new CoinModel('eur');
   }
 
   @ResolveField(() => CoinModel, { name: 'egld_btc' })
-  async btc(): Promise<CoinModel> {
+  async getBtcPair(): Promise<CoinModel> {
     return new CoinModel('btc');
   }
 
   @ResolveField(() => CoinModel, { name: 'egld_eth' })
-  async eth(): Promise<CoinModel> {
+  async getEthPair(): Promise<CoinModel> {
     return new CoinModel('eth');
   }
 }

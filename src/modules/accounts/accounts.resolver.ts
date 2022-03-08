@@ -4,6 +4,7 @@ import { ScalarValue } from 'src/common/entities/scalar-value.object';
 import { AccountsHistoricalEntity } from 'src/common/timescale/entities/accounts-historical.entity';
 import { AccountsEntity } from 'src/common/timescale/entities/accounts.entity';
 import { TimescaleService } from 'src/common/timescale/timescale.service';
+import { AggregateEnum } from '../models/aggregate.enum';
 
 @Resolver(() => String)
 export class AccountsResolver {
@@ -24,7 +25,8 @@ export class AccountsResolver {
       input.key,
       input.startDate,
       input.endDate,
-      input.resolution
+      input.resolution,
+      AggregateEnum.LAST,
     );
   }
 }

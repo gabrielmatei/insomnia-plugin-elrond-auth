@@ -8,12 +8,21 @@ type ScalarValue {
 }
 
 type CoinModel {
-  current_price(aggregate: Aggregate!): [ScalarValue!]!
-  market_cap(aggregate: Aggregate!): [ScalarValue!]!
-  high_24h(aggregate: Aggregate!): [ScalarValue!]!
+  current_price(input: QueryInput!): [ScalarValue!]!
+  market_cap(input: QueryInput!): [ScalarValue!]!
+  high_24h(input: QueryInput!): [ScalarValue!]!
+}
+
+input QueryInput {
+  aggregate: Aggregate!
+  resolution: TimeResolutions
+  range: TimeRange
+  startDate: DateTime
+  endDate: DateTime
 }
 
 enum Aggregate {
+  FIRST
   LAST
   MIN
   MAX
@@ -22,11 +31,29 @@ enum Aggregate {
   AVG
 }
 
+enum TimeResolutions {
+  HOUR
+  DAY
+}
+
+enum TimeRange {
+  HOUR
+  DAY
+  WEEK
+  MONTH
+  YEAR
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
 type PricesModel {
-  egld_usd: CoinModel
-  egld_eur: CoinModel
-  egld_btc: CoinModel
-  egld_eth: CoinModel
+  egld_usd: CoinModel!
+  egld_eur: CoinModel!
+  egld_btc: CoinModel!
+  egld_eth: CoinModel!
 }
 
 type Query {
@@ -40,14 +67,4 @@ input HistoricalInput {
   startDate: DateTime!
   endDate: DateTime!
   resolution: TimeResolutions!
-}
-
-"""
-A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
-"""
-scalar DateTime
-
-enum TimeResolutions {
-  HOUR
-  DAY
 }

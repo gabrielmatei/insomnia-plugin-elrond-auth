@@ -1,8 +1,8 @@
 import { registerEnumType } from "@nestjs/graphql";
 
-export enum TimeResolutions {
+export enum TimeResolutionsEnum {
   HOUR = "1 hour",
   DAY = "1 day",
 }
 
-registerEnumType(TimeResolutions, { name: 'TimeResolutions' });
+registerEnumType(TimeResolutionsEnum, { name: 'TimeResolutions' });

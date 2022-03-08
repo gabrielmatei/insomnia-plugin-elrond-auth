@@ -1,6 +1,7 @@
 import { registerEnumType } from "@nestjs/graphql";
 
 export enum AggregateEnum {
+  FIRST = "FIRST",
   LAST = "LAST",
   MIN = "MIN",
   MAX = "MAX",
