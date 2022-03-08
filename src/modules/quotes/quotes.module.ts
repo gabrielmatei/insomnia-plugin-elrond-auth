@@ -1,13 +1,13 @@
 import { forwardRef, Module } from '@nestjs/common';
 import { CommonModule } from 'src/common/common.module';
-import { CoinPriceResolver } from './coin-price.resolver';
-import { PricesResolver } from './prices.resolver';
+import { CoinQuoteResolver } from './coin-quote.resolver';
+import { QuotesResolver } from './quotes.resolver';
 
 @Module({
   imports: [
     forwardRef(() => CommonModule),
   ],
-  providers: [PricesResolver, CoinPriceResolver],
+  providers: [QuotesResolver, CoinQuoteResolver],
   exports: [],
 })
-export class PricesModule { }
+export class QuotesModule { }

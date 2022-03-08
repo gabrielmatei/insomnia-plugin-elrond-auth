@@ -1,29 +1,29 @@
 import { Field, ObjectType } from "@nestjs/graphql";
-import { CoinModel } from "./coin.model";
+import { CoinPriceModel } from "./coin-price.model";
 
 @ObjectType()
 export class PricesModel {
-  @Field(() => CoinModel, {
+  @Field(() => CoinPriceModel, {
     name: 'egld_usd',
     nullable: true,
   })
-  usd?: CoinModel;
+  usd?: CoinPriceModel;
 
-  @Field(() => CoinModel, {
+  @Field(() => CoinPriceModel, {
     name: 'egld_eur',
     nullable: true,
   })
-  eur?: CoinModel;
+  eur?: CoinPriceModel;
 
-  @Field(() => CoinModel, {
+  @Field(() => CoinPriceModel, {
     name: 'egld_btc',
     nullable: true,
   })
-  btc?: CoinModel;
+  btc?: CoinPriceModel;
 
-  @Field(() => CoinModel, {
+  @Field(() => CoinPriceModel, {
     name: 'egld_eth',
     nullable: true,
   })
-  eth?: CoinModel;
+  eth?: CoinPriceModel;
 }

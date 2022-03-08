@@ -2,27 +2,33 @@ import { ObjectType, HideField, Field } from "@nestjs/graphql";
 import { ScalarValue } from "src/common/entities/scalar-value.object";
 
 @ObjectType()
-export class CoinModel {
+export class KeywordModel {
   @HideField()
   series: string;
 
   @Field(() => [ScalarValue], {
-    name: 'current_price',
+    name: 'clicks',
     nullable: true,
   })
-  currentPrice?: [ScalarValue];
+  clicks?: [ScalarValue];
 
   @Field(() => [ScalarValue], {
-    name: 'market_cap',
+    name: 'impressions',
     nullable: true,
   })
-  marketCap?: [ScalarValue];
+  impressions?: [ScalarValue];
 
   @Field(() => [ScalarValue], {
-    name: 'high_24h',
+    name: 'ctr',
     nullable: true,
   })
-  high24h?: [ScalarValue];
+  ctr?: [ScalarValue];
+
+  @Field(() => [ScalarValue], {
+    name: 'position',
+    nullable: true,
+  })
+  position?: [ScalarValue];
 
   constructor(series: string) {
     this.series = series;
