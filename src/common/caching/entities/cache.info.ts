@@ -1,4 +1,8 @@
+import { GenericIngestEntity } from "src/common/timescale/entities/generic-ingest.entity";
 import { Constants } from "src/utils/constants";
+import { EntityTarget } from "typeorm";
+import * as crypto from "crypto";
+import { QueryInput } from "src/modules/models/query.input";
 
 export class CacheInfo {
   key: string = "";
@@ -8,6 +12,26 @@ export class CacheInfo {
     return {
       key: `repositories:${organization}`,
       ttl: Constants.oneHour(),
+    };
+  }
+
+  static QueryResult<T extends GenericIngestEntity>(
+    entity: EntityTarget<T>,
+    series: string,
+    key: string,
+    query: QueryInput
+  ): CacheInfo {
+    const cacheKeyRaw = JSON.stringify({
+      entity: entity.toString(),
+      series,
+      key,
+      query,
+    });
+    const keyHash = crypto.createHash('sha1').update(cacheKeyRaw).digest('base64');
+
+    return {
+      key: `q:${keyHash}`,
+      ttl: Constants.oneMinute(),
     };
   }
 }

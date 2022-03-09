@@ -22,8 +22,8 @@ input QueryInput {
   aggregate: Aggregate!
   resolution: TimeResolutions
   range: TimeRange
-  startDate: DateTime
-  endDate: DateTime
+  start_date: DateTime
+  end_date: DateTime
 }
 
 enum Aggregate {

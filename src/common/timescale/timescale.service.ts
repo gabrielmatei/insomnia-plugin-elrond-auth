@@ -3,6 +3,8 @@ import moment from 'moment';
 import { AggregateEnum } from 'src/modules/models/aggregate.enum';
 import { QueryInput } from 'src/modules/models/query.input';
 import { EntityTarget, getRepository } from 'typeorm';
+import { CachingService } from '../caching/caching.service';
+import { CacheInfo } from '../caching/entities/cache.info';
 import { ScalarValue } from '../entities/scalar-value.object';
 import { GenericIngestEntity } from './entities/generic-ingest.entity';
 
@@ -10,7 +12,7 @@ import { GenericIngestEntity } from './entities/generic-ingest.entity';
 export class TimescaleService {
   private readonly logger: Logger;
 
-  constructor() {
+  constructor(private readonly cachingService: CachingService) {
     this.logger = new Logger(TimescaleService.name);
   }
 
@@ -119,6 +121,21 @@ export class TimescaleService {
   }
 
   public async resolveQuery<T extends GenericIngestEntity>(
+    entity: EntityTarget<T>,
+    series: string,
+    key: string,
+    query: QueryInput,
+  ): Promise<ScalarValue[]> {
+    const cacheInfo = CacheInfo.QueryResult(entity, series, key, query);
+
+    return this.cachingService.getOrSetCache(
+      cacheInfo.key,
+      async () => await this.resolveQueryRaw(entity, series, key, query),
+      cacheInfo.ttl,
+    );
+  }
+
+  private async resolveQueryRaw<T extends GenericIngestEntity>(
     entity: EntityTarget<T>,
     series: string,
     key: string,
