@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { ApiConfigService } from "../api-config/api.config.service";
 import { Octokit } from "@octokit/rest";
 import { throttling } from "@octokit/plugin-throttling";
@@ -7,29 +7,30 @@ import { CachingService } from "../caching/caching.service";
 
 @Injectable()
 export class GithubService {
+  private readonly logger: Logger;
   private readonly octokit: Octokit;
 
   constructor(
     private readonly apiConfigService: ApiConfigService,
     private readonly cachingService: CachingService,
   ) {
+    this.logger = new Logger(GithubService.name);
+
     const MyOctokit = Octokit.plugin(throttling);
     this.octokit = new MyOctokit({
       auth: this.apiConfigService.getGithubAccessToken(),
       throttle: {
-        onRateLimit: (retryAfter: number, options: any, octokit: any) => {
-          octokit.log.warn(`Request quota exhausted for request ${options.method} ${options.url}`);
+        onRateLimit: (retryAfter: number, options: any) => {
+          this.logger.warn(`Request quota exhausted for request ${options.method} ${options.url}`);
 
           if (options.request.retryCount === 0) {
-            octokit.log.info(`Retrying after ${retryAfter} seconds!`);
+            this.logger.log(`Retrying after ${retryAfter} seconds!`);
             return true;
           }
           return false;
         },
-        onAbuseLimit: (retryAfter: number, options: any, octokit: any) => {
-          octokit.log.warn(
-            `Abuse detected for request ${options.method} ${options.url}. Retry after ${retryAfter}`
-          );
+        onAbuseLimit: (retryAfter: number, options: any) => {
+          this.logger.warn(`Abuse detected for request ${options.method} ${options.url}. Retry after ${retryAfter}`);
         },
       },
     });
@@ -65,11 +66,13 @@ export class GithubService {
   }
 
   public async getLastCommits(organization: string, repository: string, startDate: moment.Moment, endDate: moment.Moment): Promise<any> {
-    const branches = await this.octokit.paginate('GET /repos/{owner}/{repo}/branches?per_page=100', {
+    const branches: any[] = await this.octokit.paginate('GET /repos/{owner}/{repo}/branches?per_page=100', {
       owner: organization,
       repo: repository,
     });
-    const lastRepositoryCommits = await Promise.all(branches.map(async (branch: any) => {
+
+    const lastRepositoryCommits: string[][] = [];
+    for (const branch of branches) {
       const lastBranchCommits = await this.octokit.paginate(
         'GET /repos/{owner}/{repo}/commits',
         {
@@ -83,10 +86,10 @@ export class GithubService {
         (response) => response.data.map((commit) => commit.sha)
       );
 
-      await new Promise((res) => setTimeout(res, 10000));
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
-      return lastBranchCommits.distinct();
-    }));
+      lastRepositoryCommits.push(lastBranchCommits.distinct());
+    }
 
     const distinctLastRepositoryCommits = lastRepositoryCommits
       .flat(1)

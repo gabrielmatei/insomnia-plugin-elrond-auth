@@ -27,8 +27,7 @@ export class GithubActivityIngest implements Ingest {
     let lastFeaturedCommits: string[] = [];
 
     const repositories = await this.githubService.getRepositories(organization);
-
-    await Promise.all(repositories.map(async (repository) => {
+    for (const repository of repositories) {
       const lastCommits = await this.githubService.getLastCommits(organization, repository, startDate, endDate);
 
       lastTotalCommits.push(...lastCommits);
@@ -42,7 +41,9 @@ export class GithubActivityIngest implements Ingest {
           commits_24h: lastCommits.length,
         };
       }
-    }));
+
+      await new Promise(resolve => setTimeout(resolve, 1500));
+    }
 
     repoDetails['total'] = {
       commits_24h: lastTotalCommits.length,

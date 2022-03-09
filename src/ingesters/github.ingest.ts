@@ -33,39 +33,38 @@ export class GithubIngest implements Ingest {
 
     const repositories = await this.githubService.getRepositories(organization);
 
-    await Promise.all(
-      repositories.map(async (repository) => {
-        const stars = await this.githubService.getRepositoryStars(organization, repository);
+    for (const repository of repositories) {
+      const stars = await this.githubService.getRepositoryStars(organization, repository);
 
-        totalStars += stars;
-        if (featuredRepositories.includes(repository)) {
-          featuredStars += stars;
-        }
+      totalStars += stars;
+      if (featuredRepositories.includes(repository)) {
+        featuredStars += stars;
+      }
 
-        const contributors = await this.githubService.getRepositoryContributors(organization, repository);
+      const contributors = await this.githubService.getRepositoryContributors(organization, repository);
+      contributors.map((contributor) => {
+        totalAuthors.add(contributor.author);
+        totalCommits += contributor.commits;
+      });
+
+      if (featuredRepositories.includes(repository)) {
+        let commits = 0;
         contributors.map((contributor) => {
-          totalAuthors.add(contributor.author);
-          totalCommits += contributor.commits;
+          featuredAuthors.add(contributor.author);
+          commits += contributor.commits;
+          featuredCommits += contributor.commits;
         });
 
-        if (featuredRepositories.includes(repository)) {
-          let commits = 0;
-          contributors.map((contributor) => {
-            featuredAuthors.add(contributor.author);
-            commits += contributor.commits;
-            featuredCommits += contributor.commits;
-          });
+        const formattedRepoName = repository.replace(/-/g, '_');
+        repoDetails[formattedRepoName] = {
+          commits: commits,
+          stars: stars,
+          contributors: contributors.length,
+        };
+      }
 
-          const formattedRepoName = repository.replace(/-/g, '_');
-          repoDetails[formattedRepoName] = {
-            commits: commits,
-            stars: stars,
-            contributors: contributors.length,
-          };
-        }
-
-      })
-    );
+      await new Promise(resolve => setTimeout(resolve, 1500));
+    }
 
     repoDetails['total'] = {
       commits: totalCommits,

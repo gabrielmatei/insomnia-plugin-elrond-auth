@@ -29,7 +29,7 @@ export class GithubContributorsIngest implements Ingest {
     const featuredRepositories = this.apiConfigService.getFeaturedGithubRepositories();
 
     const repositories = await this.githubService.getRepositories(organization);
-    await Promise.all(repositories.map(async (repository) => {
+    for (const repository of repositories) {
       const stars = await this.githubService.getRepositoryStars(organization, repository);
       const contributors = await this.githubService.getRepositoryContributors(organization, repository);
 
@@ -49,7 +49,9 @@ export class GithubContributorsIngest implements Ingest {
           stars: stars,
         };
       }
-    }));
+
+      await new Promise(resolve => setTimeout(resolve, 1500));
+    }
 
     repoDetails['total'] = {
       contributors: totalAuthors.size,

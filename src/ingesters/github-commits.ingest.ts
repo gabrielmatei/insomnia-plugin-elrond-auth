@@ -26,7 +26,7 @@ export class GithubCommitsIngest implements Ingest {
     let featuredCommits = 0;
 
     const repositories = await this.githubService.getRepositories(organization);
-    await Promise.all(repositories.map(async (repository) => {
+    for (const repository of repositories) {
       const commits = await this.githubService.getCommits(organization, repository);
 
       totalCommits += commits.length;
@@ -40,7 +40,7 @@ export class GithubCommitsIngest implements Ingest {
       }
 
       await new Promise(resolve => setTimeout(resolve, 1500));
-    }));
+    }
 
     repoDetails['total'] = {
       commits: totalCommits + featuredCommits,
