@@ -8,18 +8,13 @@ import { PrivateAppModule } from './private.app.module';
 import { PublicAppModule } from './public.app.module';
 import * as bodyParser from 'body-parser';
 import { Logger } from '@nestjs/common';
-import { QueueWorkerModule } from './workers/queue.worker.module';
-import { MicroserviceOptions, Transport } from '@nestjs/microservices';
-import { PubSubModule } from './websockets/pub.sub.module';
-import { SocketAdapter } from './websockets/socket.adapter';
 import { DataIngesterModule } from './crons/data-ingester/data.ingester.module';
 import { CacheWarmerModule } from './crons/cache-warmer/cache.warmer.module';
-import { TransactionProcessorModule } from './crons/transaction-processor/transaction.processor.module';
 
 async function bootstrap() {
   const publicApp = await NestFactory.create(PublicAppModule);
   publicApp.use(bodyParser.json({ limit: '1mb' }));
-  publicApp.enableCors();
+  publicApp.enableCors(); WeakMap;
   publicApp.useLogger(publicApp.get(WINSTON_MODULE_NEST_PROVIDER));
 
   const apiConfigService = publicApp.get<ApiConfigService>(ApiConfigService);
@@ -27,7 +22,7 @@ async function bootstrap() {
 
   const httpServer = httpAdapterHostService.httpAdapter.getHttpServer();
   httpServer.keepAliveTimeout = apiConfigService.getServerTimeout();
-  httpServer.headersTimeout = apiConfigService.getHeadersTimeout(); //`keepAliveTimeout + server's expected response time`
+  httpServer.headersTimeout = apiConfigService.getHeadersTimeout(); // keepAliveTimeout + server's expected response time`
 
   // TODO add interceptors
 
@@ -77,41 +72,11 @@ async function bootstrap() {
     await dataIngesterApp.listen(apiConfigService.getDataIngesterFeaturePort());
   }
 
-  if (apiConfigService.getIsTransactionProcessorFeatureActive()) {
-    const transactionProcessorApp = await NestFactory.create(TransactionProcessorModule);
-    await transactionProcessorApp.listen(apiConfigService.getTransactionProcessorFeaturePort());
-  }
-
-  if (apiConfigService.getIsQueueWorkerFeatureActive()) {
-    const queueWorkerApp = await NestFactory.create(QueueWorkerModule);
-    await queueWorkerApp.listen(8000);
-  }
-
   const logger = new Logger("Bootstrapper");
   logger.log(`Public API active: ${apiConfigService.getIsPrivateApiFeatureActive()}`);
   logger.log(`Private API active: ${apiConfigService.getIsPrivateApiFeatureActive()}`);
-  logger.log(`Transaction processor active: ${apiConfigService.getIsTransactionProcessorFeatureActive()}`);
   logger.log(`Cache warmer active: ${apiConfigService.getIsCacheWarmerFeatureActive()}`);
   logger.log(`Data ingester active: ${apiConfigService.getIsDataIngesterFeatureActive()}`);
-  logger.log(`Queue worker active: ${apiConfigService.getIsQueueWorkerFeatureActive()}`);
-
-  const pubSubApp = await NestFactory.createMicroservice<MicroserviceOptions>(
-    PubSubModule,
-    {
-      transport: Transport.REDIS,
-      options: {
-        url: `redis://${apiConfigService.getRedisUrl()}:6379`,
-        retryAttempts: 100,
-        retryDelay: 1000,
-        retry_strategy: function () {
-          return 1000;
-        },
-      },
-    },
-  );
-  pubSubApp.useWebSocketAdapter(new SocketAdapter(pubSubApp));
-
-  await pubSubApp.listen();
 }
 
 bootstrap();

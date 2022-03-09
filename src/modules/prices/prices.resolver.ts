@@ -1,5 +1,5 @@
 import { Query, ResolveField, Resolver } from '@nestjs/graphql';
-import { CoinModel } from './models/coin.model';
+import { CoinPriceModel } from './models/coin-price.model';
 import { PricesModel } from './models/prices.model';
 
 @Resolver(() => PricesModel)
@@ -9,23 +9,23 @@ export class PricesResolver {
     return new PricesModel();
   }
 
-  @ResolveField(() => CoinModel, { name: 'egld_usd' })
-  async getUsdPair(): Promise<CoinModel> {
-    return new CoinModel('usd');
+  @ResolveField(() => CoinPriceModel, { name: 'egld_usd' })
+  async getUsdPair(): Promise<CoinPriceModel> {
+    return new CoinPriceModel('usd');
   }
 
-  @ResolveField(() => CoinModel, { name: 'egld_eur' })
-  async getEurPair(): Promise<CoinModel> {
-    return new CoinModel('eur');
+  @ResolveField(() => CoinPriceModel, { name: 'egld_eur' })
+  async getEurPair(): Promise<CoinPriceModel> {
+    return new CoinPriceModel('eur');
   }
 
-  @ResolveField(() => CoinModel, { name: 'egld_btc' })
-  async getBtcPair(): Promise<CoinModel> {
-    return new CoinModel('btc');
+  @ResolveField(() => CoinPriceModel, { name: 'egld_btc' })
+  async getBtcPair(): Promise<CoinPriceModel> {
+    return new CoinPriceModel('btc');
   }
 
-  @ResolveField(() => CoinModel, { name: 'egld_eth' })
-  async getEthPair(): Promise<CoinModel> {
-    return new CoinModel('eth');
+  @ResolveField(() => CoinPriceModel, { name: 'egld_eth' })
+  async getEthPair(): Promise<CoinPriceModel> {
+    return new CoinPriceModel('eth');
   }
 }

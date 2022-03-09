@@ -50,15 +50,6 @@ export class ApiConfigService {
     return elasticUrls[Math.floor(Math.random() * elasticUrls.length)];
   }
 
-  getInternalElasticUrl(): string {
-    const internalElasticUrls = this.configService.get<string[]>('urls.internalElastic');
-    if (!internalElasticUrls) {
-      throw new Error('No internal elastic urls present');
-    }
-
-    return internalElasticUrls[Math.floor(Math.random() * internalElasticUrls.length)];
-  }
-
   getTimescaleHost(): string {
     const host = this.configService.get<string>('timescale.host');
     if (!host) {
@@ -181,51 +172,6 @@ export class ApiConfigService {
     const featurePort = this.configService.get<number>('features.dataIngester.port');
     if (featurePort === undefined) {
       throw new Error('No data ingester port present');
-    }
-
-    return featurePort;
-  }
-
-  getIsTransactionProcessorFeatureActive(): boolean {
-    const isTransactionProcessorActive = this.configService.get<boolean>('features.transactionProcessor.enabled');
-    if (isTransactionProcessorActive === undefined) {
-      throw new Error('No transaction processor feature flag present');
-    }
-
-    return isTransactionProcessorActive;
-  }
-
-  getTransactionProcessorFeaturePort(): number {
-    const featurePort = this.configService.get<number>('features.transactionProcessor.port');
-    if (featurePort === undefined) {
-      throw new Error('No transaction processor port present');
-    }
-
-    return featurePort;
-  }
-
-  getTransactionProcessorMaxLookBehind(): number {
-    const maxLookBehind = this.configService.get<number>('features.transactionProcessor.maxLookBehind');
-    if (maxLookBehind === undefined) {
-      throw new Error('No transaction processor max look behind present');
-    }
-
-    return maxLookBehind;
-  }
-
-  getIsQueueWorkerFeatureActive(): boolean {
-    const isQueueWorkerActive = this.configService.get<boolean>('features.queueWorker.enabled');
-    if (isQueueWorkerActive === undefined) {
-      throw new Error('No queue worker feature flag present');
-    }
-
-    return isQueueWorkerActive;
-  }
-
-  getQueueWorkerFeaturePort(): number {
-    const featurePort = this.configService.get<number>('features.queueWorker.port');
-    if (featurePort === undefined) {
-      throw new Error('No transaction processor port present');
     }
 
     return featurePort;

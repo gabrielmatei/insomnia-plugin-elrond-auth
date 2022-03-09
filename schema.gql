@@ -7,10 +7,15 @@ type ScalarValue {
   time: String
 }
 
-type CoinModel {
-  current_price(input: QueryInput!): [ScalarValue!]!
-  market_cap(input: QueryInput!): [ScalarValue!]!
-  high_24h(input: QueryInput!): [ScalarValue!]!
+type ThresholdCountModel {
+  count_gt_0(input: QueryInput!): [ScalarValue!]
+  count_gt_0_1(input: QueryInput!): [ScalarValue!]
+  count_gt_1(input: QueryInput!): [ScalarValue!]
+  count_gt_10(input: QueryInput!): [ScalarValue!]
+  count_gt_100(input: QueryInput!): [ScalarValue!]
+  count_gt_1000(input: QueryInput!): [ScalarValue!]
+  count_gt_10000(input: QueryInput!): [ScalarValue!]
+  count_24h(input: QueryInput!): [ScalarValue!]
 }
 
 input QueryInput {
@@ -49,22 +54,154 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
+type AccountsModel {
+  count(input: QueryInput!): [ScalarValue!]
+  count_24h(input: QueryInput!): [ScalarValue!]!
+  balance: ThresholdCountModel
+  delegation_legacy_active: ThresholdCountModel!
+  delegation: ThresholdCountModel
+  total_balance_with_stake: ThresholdCountModel!
+  total_stake: ThresholdCountModel!
+}
+
+type EconomicsModel {
+  total_supply(input: QueryInput!): [ScalarValue!]!
+  circulating_supply(input: QueryInput!): [ScalarValue!]!
+  floating_supply(input: QueryInput!): [ScalarValue!]!
+  staked(input: QueryInput!): [ScalarValue!]!
+  left_per_user(input: QueryInput!): [ScalarValue!]!
+}
+
+type ExchangeModel {
+  balance(input: QueryInput!): [ScalarValue!]!
+  total(input: QueryInput!): [ScalarValue!]!
+  inflows(input: QueryInput!): [ScalarValue!]!
+  outflows(input: QueryInput!): [ScalarValue!]!
+  inflow_24h(input: QueryInput!): [ScalarValue!]!
+  outflow_24h(input: QueryInput!): [ScalarValue!]!
+}
+
+type ExchangesModel {
+  total: ExchangeModel!
+  binance_com: ExchangeModel!
+  binance_us: ExchangeModel!
+  bitfinex: ExchangeModel!
+  bithumb: ExchangeModel!
+  bitmax: ExchangeModel!
+  crypto_com: ExchangeModel!
+  kucoin: ExchangeModel!
+  liquid: ExchangeModel!
+  okex: ExchangeModel!
+}
+
+type GithubActivityModel {
+  commits(input: QueryInput!): [ScalarValue!]
+  commits_24h(input: QueryInput!): [ScalarValue!]
+  contributors(input: QueryInput!): [ScalarValue!]
+  stars(input: QueryInput!): [ScalarValue!]
+}
+
+type GithubModel {
+  total: GithubActivityModel
+  featured: GithubActivityModel
+  repository(repository: FeaturedRepository!): GithubActivityModel
+}
+
+enum FeaturedRepository {
+  WASM_VM
+  ELROND_GO
+  ELROND_PROXY_GO
+  ELROND_SDK
+}
+
+type KeywordModel {
+  clicks(input: QueryInput!): [ScalarValue!]
+  impressions(input: QueryInput!): [ScalarValue!]
+  ctr(input: QueryInput!): [ScalarValue!]
+  position(input: QueryInput!): [ScalarValue!]
+}
+
+type GoogleModel {
+  total: KeywordModel!
+  keyword(keyword: GoogleKeywords!): KeywordModel!
+}
+
+enum GoogleKeywords {
+  ELROND
+  EGLD
+  EGOLD
+}
+
+type CoinPriceModel {
+  current_price(input: QueryInput!): [ScalarValue!]!
+  market_cap(input: QueryInput!): [ScalarValue!]!
+  high_24h(input: QueryInput!): [ScalarValue!]!
+}
+
 type PricesModel {
-  egld_usd: CoinModel!
-  egld_eur: CoinModel!
-  egld_btc: CoinModel!
-  egld_eth: CoinModel!
+  egld_usd: CoinPriceModel!
+  egld_eur: CoinPriceModel!
+  egld_btc: CoinPriceModel!
+  egld_eth: CoinPriceModel!
+}
+
+type CoinQuoteModel {
+  price(input: QueryInput!): [ScalarValue!]
+  market_cap(input: QueryInput!): [ScalarValue!]!
+  volume_24h(input: QueryInput!): [ScalarValue!]!
+}
+
+type QuotesModel {
+  egld: CoinQuoteModel
+  btc: CoinQuoteModel
+  eth: CoinQuoteModel
+  bnb: CoinQuoteModel
+  busd: CoinQuoteModel
+  usdc: CoinQuoteModel
+}
+
+type StakingTypeModel {
+  value(input: QueryInput!): [ScalarValue!]
+  users(input: QueryInput!): [ScalarValue!]
+  user_average(input: QueryInput!): [ScalarValue!]!
+}
+
+type StakingModel {
+  total: StakingTypeModel
+  staking: StakingTypeModel
+  delegation: StakingTypeModel
+  legacy_delegation: StakingTypeModel
+  legacy_delegation_active: StakingTypeModel
+  legacy_delegation_waiting_list: StakingTypeModel
+}
+
+type TransactionsModel {
+  count(input: QueryInput!): [ScalarValue!]
+  count_24h(input: QueryInput!): [ScalarValue!]!
+  value_moved(input: QueryInput!): [ScalarValue!]!
+  total_fees(input: QueryInput!): [ScalarValue!]!
+  new_emission(input: QueryInput!): [ScalarValue!]!
+}
+
+type TrendsModel {
+  google(input: QueryInput!): [ScalarValue!]!
+}
+
+type TwitterModel {
+  mentions(input: QueryInput!): [ScalarValue!]!
+  followers(input: QueryInput!): [ScalarValue!]!
 }
 
 type Query {
-  userAdoptionValue(key: String): ScalarValue
-  userAdoptionHistorical(input: HistoricalInput!): [ScalarValue!]!
+  accounts: AccountsModel!
+  economics: EconomicsModel!
+  exchanges: ExchangesModel!
+  github: GithubModel!
+  google: GoogleModel!
   prices: PricesModel!
-}
-
-input HistoricalInput {
-  key: String!
-  startDate: DateTime!
-  endDate: DateTime!
-  resolution: TimeResolutions!
+  quotes: QuotesModel!
+  staking: StakingModel!
+  transactions: TransactionsModel!
+  trends: TrendsModel!
+  twitter: TwitterModel!
 }
