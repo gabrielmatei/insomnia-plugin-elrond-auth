@@ -38,4 +38,4 @@ lerna-debug.log*
 config/config.yaml
 config/config.custom.yaml
 config/googleAuthConfig.json
-ormconfig.json
+ormconfig.*json
