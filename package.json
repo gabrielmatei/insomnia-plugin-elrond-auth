@@ -46,6 +46,7 @@
     "@octokit/plugin-throttling": "^3.5.2",
     "@types/ws": "^8.5.2",
     "apollo-server-express": "^3.6.3",
+    "axios": "^0.26.0",
     "bignumber.js": "^9.0.2",
     "cache-manager": "^3.6.0",
     "google-trends-api": "^4.9.2",
