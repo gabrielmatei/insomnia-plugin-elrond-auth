@@ -4,6 +4,7 @@ import { ApiConfigService } from "src/common/api-config/api.config.service";
 import { ApiService } from "src/common/network/api.service";
 import { PricesEntity } from "src/common/timescale/entities/prices.entity";
 import { Ingest } from "src/crons/data-ingester/entities/ingest.interface";
+import { IngestResponse } from "src/crons/data-ingester/entities/ingest.response";
 
 @Injectable()
 export class PricesIngest implements Ingest {
@@ -18,7 +19,7 @@ export class PricesIngest implements Ingest {
     this.apiService = apiService;
   }
 
-  public async fetch(): Promise<PricesEntity[]> {
+  public async fetch(): Promise<IngestResponse> {
     const timestamp = moment.utc().toDate();
 
     const elrondId = this.apiConfigService.getCoingeckoElrondId();
@@ -37,6 +38,11 @@ export class PricesIngest implements Ingest {
       };
     }));
 
-    return PricesEntity.fromObject(timestamp, prices);
+    return {
+      current: {
+        entity: PricesEntity,
+        records: PricesEntity.fromObject(timestamp, prices),
+      },
+    };
   }
 }

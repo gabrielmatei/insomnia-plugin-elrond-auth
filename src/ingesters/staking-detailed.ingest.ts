@@ -9,6 +9,7 @@ import { GatewayService } from "src/common/gateway/gateway.service";
 import { ApiService } from "src/common/network/api.service";
 import { StakingHistoricalEntity } from "src/common/timescale/entities/staking-historical.entity";
 import { Ingest } from "src/crons/data-ingester/entities/ingest.interface";
+import { IngestResponse } from "src/crons/data-ingester/entities/ingest.response";
 import { NumberUtils } from "src/utils/number.utils";
 
 @Injectable()
@@ -23,7 +24,7 @@ export class StakingDetailedIngest implements Ingest {
     private readonly elasticService: ElasticService,
   ) { }
 
-  public async fetch(): Promise<StakingHistoricalEntity[]> {
+  public async fetch(): Promise<IngestResponse> {
     const epoch = await this.gatewayService.getEpoch();
     const timestamp = moment.utc().startOf('day').subtract(1, 'days').toDate();
 
@@ -107,7 +108,7 @@ export class StakingDetailedIngest implements Ingest {
     const stakingUserAverage = NumberUtils.tryIntegerDivision(delegationLocked, stakingUsers);
     const userAverage = NumberUtils.tryIntegerDivision(totalStaked, totalUniqueUsers);
 
-    return StakingHistoricalEntity.fromObject(timestamp, {
+    const data = {
       legacydelegation: {
         value: delegationLegacyTotal,
         users: delegationLegacyUsers,
@@ -140,7 +141,13 @@ export class StakingDetailedIngest implements Ingest {
         users: totalUniqueUsers,
         user_average: userAverage,
       },
-    });
+    };
+    return {
+      historical: {
+        entity: StakingHistoricalEntity,
+        records: StakingHistoricalEntity.fromObject(timestamp, data),
+      },
+    };
   }
 
   private async getDelegationLegacyTotal(): Promise<number[]> {

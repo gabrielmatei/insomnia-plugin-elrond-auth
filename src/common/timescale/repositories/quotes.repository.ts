@@ -1,12 +1,12 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { GenericIngestService } from "src/ingesters/generic-ingest.service";
 import { EntityRepository, Repository } from "typeorm";
 import { QuotesEntity } from "../entities/quotes.entity";
+import { GenericIngestRepository } from "./generic-ingest.repository";
 
 @Injectable()
 @EntityRepository(QuotesEntity)
-export class QuotesRepository extends GenericIngestService<QuotesEntity> {
+export class QuotesRepository extends GenericIngestRepository<QuotesEntity> {
   constructor(
     @InjectRepository(QuotesEntity)
     protected repository: Repository<QuotesEntity>

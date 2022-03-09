@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { Repository } from "typeorm";
 
 @Injectable()
-export class GenericIngestService<T> {
+export class GenericIngestRepository<T> {
   constructor(
     protected repository: Repository<T>
   ) { }

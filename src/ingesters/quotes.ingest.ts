@@ -2,8 +2,10 @@ import { Injectable } from "@nestjs/common";
 import moment from "moment";
 import { ApiConfigService } from "src/common/api-config/api.config.service";
 import { ApiService } from "src/common/network/api.service";
+import { QuotesHistoricalEntity } from "src/common/timescale/entities/quotes-historical.entity";
 import { QuotesEntity } from "src/common/timescale/entities/quotes.entity";
 import { Ingest } from "src/crons/data-ingester/entities/ingest.interface";
+import { IngestResponse } from "src/crons/data-ingester/entities/ingest.response";
 
 @Injectable()
 export class QuotesIngest implements Ingest {
@@ -15,7 +17,7 @@ export class QuotesIngest implements Ingest {
     private readonly apiService: ApiService,
   ) { }
 
-  public async fetch(): Promise<QuotesEntity[]> {
+  public async fetch(): Promise<IngestResponse> {
     const timestamp = moment.utc().toDate();
 
     const { data: quotesRaw } = await this.apiService.get<any>(
@@ -41,6 +43,15 @@ export class QuotesIngest implements Ingest {
       };
     });
 
-    return QuotesEntity.fromObject(timestamp, data);
+    return {
+      current: {
+        entity: QuotesEntity,
+        records: QuotesEntity.fromObject(timestamp, data),
+      },
+      historical: {
+        entity: QuotesHistoricalEntity,
+        records: QuotesHistoricalEntity.fromObject(timestamp, data),
+      },
+    };
   }
 }

@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import moment from "moment";
 import { TrendsEntity } from "src/common/timescale/entities/trends.entity";
 import { Ingest } from "src/crons/data-ingester/entities/ingest.interface";
+import { IngestResponse } from "src/crons/data-ingester/entities/ingest.response";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const googleTrendsApi = require('google-trends-api');
 
@@ -12,7 +13,7 @@ export class TrendsIngest implements Ingest {
   public readonly name = TrendsIngest.name;
   public readonly entityTarget = TrendsEntity;
 
-  public async fetch(): Promise<TrendsEntity[]> {
+  public async fetch(): Promise<IngestResponse> {
     const startTime = moment.utc().startOf('day').subtract(1, 'day').toDate();
     const endTime = moment.utc().startOf('day').toDate();
 
@@ -26,10 +27,16 @@ export class TrendsIngest implements Ingest {
     const googleTrends = JSON.parse(googleTrendsRaw);
     const averages = googleTrends?.default?.averages || googleTrends?.averages;
 
-    return TrendsEntity.fromObject(startTime, {
+    const data = {
       trends: {
         google: averages[0],
       },
-    });
+    };
+    return {
+      current: {
+        entity: TrendsEntity,
+        records: TrendsEntity.fromObject(startTime, data),
+      },
+    };
   }
 }

@@ -7,6 +7,7 @@ import { StakingHistoricalBackupEntity } from "src/common/timescale/entities/sta
 import { StakingService } from "src/common/staking/staking.service";
 
 import { stakingActiveList } from "config/temp_stakingWallets.json";
+import { IngestResponse } from "src/crons/data-ingester/entities/ingest.response";
 
 @Injectable()
 export class StakingNewIngest implements Ingest {
@@ -19,7 +20,7 @@ export class StakingNewIngest implements Ingest {
     private readonly stakingService: StakingService,
   ) { }
 
-  public async fetch(): Promise<StakingHistoricalBackupEntity[]> {
+  public async fetch(): Promise<IngestResponse> {
     const timestamp = moment.utc().toDate();
 
     const { staked } = await this.apiService.get(`${this.apiConfigService.getApiUrl()}/economics`);
@@ -54,10 +55,16 @@ export class StakingNewIngest implements Ingest {
       user_average: Math.floor(staking.value / totalList.length),
     };
 
-    return StakingHistoricalBackupEntity.fromObject(timestamp, {
+    const data = {
       staking,
       legacydelegation,
       total,
-    });
+    };
+    return {
+      backup: {
+        entity: StakingHistoricalBackupEntity,
+        records: StakingHistoricalBackupEntity.fromObject(timestamp, data),
+      },
+    };
   }
 }

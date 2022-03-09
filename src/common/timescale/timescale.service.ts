@@ -16,7 +16,7 @@ export class TimescaleService {
     this.logger = new Logger(TimescaleService.name);
   }
 
-  public async writeData<T>(entityTarget: EntityTarget<T>, entity: T | T[]): Promise<void> {
+  public async writeData<T extends GenericIngestEntity>(entityTarget: EntityTarget<T>, entity: T | T[]): Promise<void> {
     try {
       const repository = getRepository(entityTarget);
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment

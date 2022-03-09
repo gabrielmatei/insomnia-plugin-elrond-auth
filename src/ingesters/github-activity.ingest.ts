@@ -4,6 +4,7 @@ import { ApiConfigService } from "src/common/api-config/api.config.service";
 import { GithubService } from "src/common/github/github.service";
 import { GithubActivityEntity } from "src/common/timescale/entities/github-activity.entity";
 import { Ingest } from "src/crons/data-ingester/entities/ingest.interface";
+import { IngestResponse } from "src/crons/data-ingester/entities/ingest.response";
 
 @Injectable()
 export class GithubActivityIngest implements Ingest {
@@ -15,7 +16,7 @@ export class GithubActivityIngest implements Ingest {
     private readonly githubService: GithubService,
   ) { }
 
-  public async fetch(): Promise<GithubActivityEntity[]> {
+  public async fetch(): Promise<IngestResponse> {
     const endDate = moment.utc().startOf('day');
     const startDate = moment(endDate).add(-1, 'days');
 
@@ -51,6 +52,12 @@ export class GithubActivityIngest implements Ingest {
     repoDetails['featured'] = {
       commits_24h: lastFeaturedCommits.length,
     };
-    return GithubActivityEntity.fromObject(startDate.toDate(), repoDetails);
+
+    return {
+      historical: {
+        entity: GithubActivityEntity,
+        records: GithubActivityEntity.fromObject(startDate.toDate(), repoDetails),
+      },
+    };
   }
 }

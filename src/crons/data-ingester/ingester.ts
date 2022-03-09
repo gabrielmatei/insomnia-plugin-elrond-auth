@@ -51,9 +51,17 @@ export class Ingester {
       }
 
       result = await Locker.lock(item.fetcher.name, async () => {
-        const records = await item.fetcher.fetch();
+        const fetchResponse = await item.fetcher.fetch();
 
-        await this.timescaleService.writeData(item.fetcher.entityTarget, records);
+        if (fetchResponse.current) {
+          await this.timescaleService.writeData(fetchResponse.current.entity, fetchResponse.current.records);
+        }
+        if (fetchResponse.historical) {
+          await this.timescaleService.writeData(fetchResponse.historical.entity, fetchResponse.historical.records);
+        }
+        if (fetchResponse.backup) {
+          await this.timescaleService.writeData(fetchResponse.backup.entity, fetchResponse.backup.records);
+        }
       }, true);
 
       retries++;

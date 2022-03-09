@@ -2,9 +2,11 @@ import { Injectable } from "@nestjs/common";
 import moment from "moment";
 import { ApiConfigService } from "src/common/api-config/api.config.service";
 import { ElasticService } from "src/common/elastic/elastic.service";
+import { AccountsHistoricalEntity } from "src/common/timescale/entities/accounts-historical.entity";
 import { AccountsEntity } from "src/common/timescale/entities/accounts.entity";
 import { TimescaleService } from "src/common/timescale/timescale.service";
 import { Ingest } from "src/crons/data-ingester/entities/ingest.interface";
+import { IngestResponse } from "src/crons/data-ingester/entities/ingest.response";
 
 @Injectable()
 export class AccountsIngest implements Ingest {
@@ -17,7 +19,7 @@ export class AccountsIngest implements Ingest {
     private readonly timescaleService: TimescaleService,
   ) { }
 
-  public async fetch(): Promise<AccountsEntity[]> {
+  public async fetch(): Promise<IngestResponse> {
     const timestamp = moment.utc().toDate();
 
     const count = await this.elasticService.getCount(this.apiConfigService.getElasticUrl(), 'accounts');
@@ -40,18 +42,41 @@ export class AccountsIngest implements Ingest {
     const previousResult24h = await this.timescaleService.getPreviousValue24h(AccountsEntity, timestamp, 'count', 'accounts');
     const count24h = previousResult24h && previousResult24h > 0 ? count - previousResult24h : 0;
 
-    return AccountsEntity.fromObject(timestamp, {
-      accounts: {
-        count,
-        count_gt_0,
-        count_gt_0_1,
-        count_gt_1,
-        count_gt_10,
-        count_gt_100,
-        count_gt_1000,
-        count_gt_10000,
-        count_24h: count24h,
+    return {
+      current: {
+        entity: AccountsEntity,
+        records: AccountsEntity.fromObject(timestamp, {
+          accounts: {
+            count,
+            count_gt_0,
+            count_gt_0_1,
+            count_gt_1,
+            count_gt_10,
+            count_gt_100,
+            count_gt_1000,
+            count_gt_10000,
+            count_24h: count24h,
+          },
+        }),
       },
-    });
+      historical: {
+        entity: AccountsHistoricalEntity,
+        records: AccountsHistoricalEntity.fromObject(timestamp, {
+          accounts: {
+            count,
+            count_24h: count24h,
+          },
+          balance: {
+            count_gt_0,
+            count_gt_0_1,
+            count_gt_1,
+            count_gt_10,
+            count_gt_100,
+            count_gt_1000,
+            count_24h: count24h,
+          },
+        }),
+      },
+    };
   }
 }

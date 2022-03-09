@@ -6,6 +6,7 @@ import { GatewayService } from "src/common/gateway/gateway.service";
 import { AccountsHistoricalEntity } from "src/common/timescale/entities/accounts-historical.entity";
 import { TimescaleService } from "src/common/timescale/timescale.service";
 import { Ingest } from "src/crons/data-ingester/entities/ingest.interface";
+import { IngestResponse } from "src/crons/data-ingester/entities/ingest.response";
 
 @Injectable()
 export class AccountsDelegationIngest implements Ingest {
@@ -19,7 +20,7 @@ export class AccountsDelegationIngest implements Ingest {
     private readonly timescaleService: TimescaleService,
   ) { }
 
-  public async fetch(): Promise<AccountsHistoricalEntity[]> {
+  public async fetch(): Promise<IngestResponse> {
     const epoch = await this.gatewayService.getEpoch();
     const timestamp = moment.utc().startOf('day').subtract(1, 'days').toDate();
 
@@ -41,7 +42,7 @@ export class AccountsDelegationIngest implements Ingest {
     const previousResult24h = await this.timescaleService.getPreviousValue24h(AccountsHistoricalEntity, timestamp, 'count_gt_0', 'delegation');
     const count24h = previousResult24h && previousResult24h > 0 ? count_gt_0 - previousResult24h : 0;
 
-    return AccountsHistoricalEntity.fromObject(timestamp, {
+    const data = {
       delegation: {
         count_gt_0,
         count_gt_0_1,
@@ -52,6 +53,12 @@ export class AccountsDelegationIngest implements Ingest {
         count_gt_10000,
         count_24h: count24h,
       },
-    });
+    };
+    return {
+      historical: {
+        entity: AccountsHistoricalEntity,
+        records: AccountsHistoricalEntity.fromObject(timestamp, data),
+      },
+    };
   }
 }

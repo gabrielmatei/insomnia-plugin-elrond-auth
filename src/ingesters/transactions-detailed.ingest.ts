@@ -9,6 +9,7 @@ import { Injectable } from "@nestjs/common";
 import { GatewayService } from "src/common/gateway/gateway.service";
 import { CachingService } from "src/common/caching/caching.service";
 import { TransactionsDetailedEntity } from "src/common/timescale/entities/transactions-detailed.entity";
+import { IngestResponse } from "src/crons/data-ingester/entities/ingest.response";
 
 @Injectable()
 export class TransactionsDetailedIngest implements Ingest {
@@ -24,7 +25,7 @@ export class TransactionsDetailedIngest implements Ingest {
     private readonly cachingService: CachingService,
   ) { }
 
-  public async fetch(): Promise<TransactionsDetailedEntity[]> {
+  public async fetch(): Promise<IngestResponse> {
     const startDate = moment.utc().startOf('day').subtract(1, 'day');
     const endDate = moment.utc().startOf('day');
 
@@ -62,7 +63,7 @@ export class TransactionsDetailedIngest implements Ingest {
     const activeUsers = await this.cachingService.getSetMembersCount(TransactionsDetailedIngest.ACTIVE_USERS_KEY);
     await this.cachingService.delCache(TransactionsDetailedIngest.ACTIVE_USERS_KEY);
 
-    return TransactionsDetailedEntity.fromObject(startDate.toDate(), {
+    const data = {
       users: {
         active_users: activeUsers,
       },
@@ -71,7 +72,13 @@ export class TransactionsDetailedIngest implements Ingest {
         total_fees: totalFeesFormatted,
         new_emission: newEmissionFormatted,
       },
-    });
+    };
+    return {
+      historical: {
+        entity: TransactionsDetailedEntity,
+        records: TransactionsDetailedEntity.fromObject(startDate.toDate(), data),
+      },
+    };
   }
 
   private async getCurrentRewardsPerEpoch(): Promise<number> {

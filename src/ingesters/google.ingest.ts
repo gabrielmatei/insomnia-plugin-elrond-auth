@@ -3,6 +3,7 @@ import { google, webmasters_v3 } from "googleapis";
 import { Ingest } from "src/crons/data-ingester/entities/ingest.interface";
 import { Injectable } from "@nestjs/common";
 import { GoogleEntity } from "src/common/timescale/entities/google.entity";
+import { IngestResponse } from "src/crons/data-ingester/entities/ingest.response";
 
 @Injectable()
 export class GoogleIngest implements Ingest {
@@ -22,7 +23,7 @@ export class GoogleIngest implements Ingest {
     google.options({ auth });
   }
 
-  public async fetch(): Promise<GoogleEntity[]> {
+  public async fetch(): Promise<IngestResponse> {
     const timestamp = moment.utc().toDate();
 
     const startDate = moment.utc().startOf('day').subtract(3, 'days').format('YYYY-MM-DD');
@@ -72,6 +73,11 @@ export class GoogleIngest implements Ingest {
       })
     );
 
-    return GoogleEntity.fromObject(timestamp, queryData);
+    return {
+      current: {
+        entity: GoogleEntity,
+        records: GoogleEntity.fromObject(timestamp, queryData),
+      },
+    };
   }
 }

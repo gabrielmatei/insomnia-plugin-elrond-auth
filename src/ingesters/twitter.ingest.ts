@@ -4,6 +4,7 @@ import { ApiConfigService } from "src/common/api-config/api.config.service";
 import { ApiService } from "src/common/network/api.service";
 import { TwitterEntity } from "src/common/timescale/entities/twitter.entity";
 import { Ingest } from "src/crons/data-ingester/entities/ingest.interface";
+import { IngestResponse } from "src/crons/data-ingester/entities/ingest.response";
 
 @Injectable()
 export class TwitterIngest implements Ingest {
@@ -20,19 +21,25 @@ export class TwitterIngest implements Ingest {
     private readonly apiService: ApiService,
   ) { }
 
-  public async fetch(): Promise<TwitterEntity[]> {
+  public async fetch(): Promise<IngestResponse> {
     const startTime = moment.utc().startOf('day').subtract(1, 'day');
     const endTime = moment.utc().startOf('day');
 
     const mentions = await this.getTwitterMentions(TwitterIngest.KEYWORDS, startTime, endTime);
     const followers = await this.getTwitterFollowers(TwitterIngest.USERNAME);
 
-    return TwitterEntity.fromObject(startTime.toDate(), {
+    const data = {
       twitter: {
         mentions,
         followers,
       },
-    });
+    };
+    return {
+      current: {
+        entity: TwitterEntity,
+        records: TwitterEntity.fromObject(startTime.toDate(), data),
+      },
+    };
   }
 
   private getTwitterAuthorizationHeaders() {

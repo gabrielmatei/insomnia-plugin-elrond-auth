@@ -6,6 +6,7 @@ import { Ingest } from "src/crons/data-ingester/entities/ingest.interface";
 import { NumberUtils } from "src/utils/number.utils";
 
 import { stakingActiveList } from "config/temp_stakingWallets.json";
+import { IngestResponse } from "src/crons/data-ingester/entities/ingest.response";
 
 @Injectable()
 export class StakingIngest implements Ingest {
@@ -16,7 +17,7 @@ export class StakingIngest implements Ingest {
     private readonly stakingService: StakingService,
   ) { }
 
-  public async fetch(): Promise<StakingEntity[]> {
+  public async fetch(): Promise<IngestResponse> {
     const timestamp = moment.utc().toDate();
 
     const delegationWaitingList = await this.stakingService.getDelegationWaitingList();
@@ -67,10 +68,16 @@ export class StakingIngest implements Ingest {
       user_average: NumberUtils.tryIntegerDivision(delegation.waiting_list_value + staking.total_value, totalList.length),
     };
 
-    return StakingEntity.fromObject(timestamp, {
+    const data = {
       delegation,
       staking,
       total,
-    });
+    };
+    return {
+      current: {
+        entity: StakingEntity,
+        records: StakingEntity.fromObject(timestamp, data),
+      },
+    };
   }
 }

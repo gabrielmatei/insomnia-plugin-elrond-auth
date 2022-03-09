@@ -5,6 +5,7 @@ import { ApiService } from "src/common/network/api.service";
 import { ExchangesEntity } from "src/common/timescale/entities/exchanges.entity";
 import { TimescaleService } from "src/common/timescale/timescale.service";
 import { Ingest } from "src/crons/data-ingester/entities/ingest.interface";
+import { IngestResponse } from "src/crons/data-ingester/entities/ingest.response";
 
 @Injectable()
 export class ExchangesIngest implements Ingest {
@@ -17,7 +18,7 @@ export class ExchangesIngest implements Ingest {
     private readonly timescaleService: TimescaleService,
   ) { }
 
-  public async fetch(): Promise<ExchangesEntity[]> {
+  public async fetch(): Promise<IngestResponse> {
     const timestamp = moment.utc().toDate();
     const exchangeWallets = this.apiConfigService.getExchangeWallets();
 
@@ -48,7 +49,12 @@ export class ExchangesIngest implements Ingest {
       outflow_24h: totalOutflow24h,
     };
 
-    return ExchangesEntity.fromObject(timestamp, exchangeDetails);
+    return {
+      current: {
+        entity: ExchangesEntity,
+        records: ExchangesEntity.fromObject(timestamp, exchangeDetails),
+      },
+    };
   }
 
   private async getExchangeBalance(wallets: string[]): Promise<number> {

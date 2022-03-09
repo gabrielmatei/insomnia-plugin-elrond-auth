@@ -8,6 +8,7 @@ import { RangeQuery, RangeQueryOptions } from "src/common/elastic/entities/range
 import { TermsQuery } from "src/common/elastic/entities/terms.query";
 import { ExchangesHistoricalEntity } from "src/common/timescale/entities/exchanges-historical.entity";
 import { Ingest } from "src/crons/data-ingester/entities/ingest.interface";
+import { IngestResponse } from "src/crons/data-ingester/entities/ingest.response";
 
 @Injectable()
 export class ExchangesDetailedIngest implements Ingest {
@@ -22,7 +23,7 @@ export class ExchangesDetailedIngest implements Ingest {
     this.elasticService = elasticService;
   }
 
-  public async fetch(): Promise<ExchangesHistoricalEntity[]> {
+  public async fetch(): Promise<IngestResponse> {
     const timestamp = moment.utc().startOf('day');
     const timestamp24hAgo = moment(timestamp).add(-1, 'days');
 
@@ -49,7 +50,12 @@ export class ExchangesDetailedIngest implements Ingest {
         })
     );
 
-    return ExchangesHistoricalEntity.fromObject(timestamp.toDate(), exchanges);
+    return {
+      historical: {
+        entity: ExchangesHistoricalEntity,
+        records: ExchangesHistoricalEntity.fromObject(timestamp.toDate(), exchanges),
+      },
+    };
   }
 
   private async getExchangeFlows(wallets: string[], range: RangeQueryOptions, direction: 'in' | 'out'): Promise<number> {
