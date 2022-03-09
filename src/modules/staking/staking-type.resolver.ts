@@ -12,17 +12,26 @@ export class StakingTypeResolver {
   ) { }
 
   @ResolveField(() => [ScalarValue], { name: 'value' })
-  public async value(@Parent() { series }: StakingTypeModel, @Args('input') query: QueryInput): Promise<ScalarValue[]> {
+  public async value(
+    @Parent() { series }: StakingTypeModel,
+    @Args('input') query: QueryInput
+  ): Promise<ScalarValue[]> {
     return await this.timescaleService.resolveQuery(StakingHistoricalEntity, series, 'value', query);
   }
 
   @ResolveField(() => [ScalarValue], { name: 'users' })
-  public async users(@Parent() { series }: StakingTypeModel, @Args('input') query: QueryInput): Promise<ScalarValue[]> {
+  public async users(
+    @Parent() { series }: StakingTypeModel,
+    @Args('input') query: QueryInput
+  ): Promise<ScalarValue[]> {
     return await this.timescaleService.resolveQuery(StakingHistoricalEntity, series, 'users', query);
   }
 
   @ResolveField(() => [ScalarValue], { name: 'user_average' })
-  public async user_average(@Parent() { series }: StakingTypeModel, @Args('input') query: QueryInput): Promise<ScalarValue[]> {
+  public async user_average(
+    @Parent() { series }: StakingTypeModel,
+    @Args('input') query: QueryInput
+  ): Promise<ScalarValue[]> {
     return await this.timescaleService.resolveQuery(StakingHistoricalEntity, series, 'user_average', query);
   }
 }

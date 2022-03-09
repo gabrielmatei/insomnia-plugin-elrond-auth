@@ -17,7 +17,9 @@ export class TrendsResolver {
   }
 
   @ResolveField(() => [ScalarValue], { name: 'google' })
-  public async getGoogleTrends(@Args('input') query: QueryInput): Promise<ScalarValue[]> {
+  public async getGoogleTrends(
+    @Args('input') query: QueryInput
+  ): Promise<ScalarValue[]> {
     return await this.timescaleService.resolveQuery(TrendsEntity, 'trends', 'google', query);
   }
 }

@@ -17,12 +17,16 @@ export class TwitterResolver {
   }
 
   @ResolveField(() => [ScalarValue], { name: 'mentions' })
-  public async getMentions(@Args('input') query: QueryInput): Promise<ScalarValue[]> {
+  public async getMentions(
+    @Args('input') query: QueryInput
+  ): Promise<ScalarValue[]> {
     return await this.timescaleService.resolveQuery(TwitterEntity, 'twitter', 'mentions', query);
   }
 
   @ResolveField(() => [ScalarValue], { name: 'followers' })
-  public async getFollowers(@Args('input') query: QueryInput): Promise<ScalarValue[]> {
+  public async getFollowers(
+    @Args('input') query: QueryInput
+  ): Promise<ScalarValue[]> {
     return await this.timescaleService.resolveQuery(TwitterEntity, 'twitter', 'followers', query);
   }
 }

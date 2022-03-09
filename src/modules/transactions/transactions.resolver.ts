@@ -18,27 +18,37 @@ export class TransactionsResolver {
   }
 
   @ResolveField(() => [ScalarValue], { name: 'count' })
-  public async count(@Args('input') query: QueryInput): Promise<ScalarValue[]> {
+  public async count(
+    @Args('input') query: QueryInput
+  ): Promise<ScalarValue[]> {
     return await this.timescaleService.resolveQuery(TransactionsEntity, 'transactions', 'count', query);
   }
 
   @ResolveField(() => [ScalarValue], { name: 'count_24h' })
-  public async count_24h(@Args('input') query: QueryInput): Promise<ScalarValue[]> {
+  public async count_24h(
+    @Args('input') query: QueryInput
+  ): Promise<ScalarValue[]> {
     return await this.timescaleService.resolveQuery(TransactionsEntity, 'transactions', 'count_24h', query);
   }
 
   @ResolveField(() => [ScalarValue], { name: 'value_moved' })
-  public async value_moved(@Args('input') query: QueryInput): Promise<ScalarValue[]> {
+  public async value_moved(
+    @Args('input') query: QueryInput
+  ): Promise<ScalarValue[]> {
     return await this.timescaleService.resolveQuery(TransactionsDetailedEntity, 'transactions', 'value_moved', query);
   }
 
   @ResolveField(() => [ScalarValue], { name: 'total_fees' })
-  public async total_fees(@Args('input') query: QueryInput): Promise<ScalarValue[]> {
+  public async total_fees(
+    @Args('input') query: QueryInput
+  ): Promise<ScalarValue[]> {
     return await this.timescaleService.resolveQuery(TransactionsDetailedEntity, 'transactions', 'total_fees', query);
   }
 
   @ResolveField(() => [ScalarValue], { name: 'new_emission' })
-  public async new_emission(@Args('input') query: QueryInput): Promise<ScalarValue[]> {
+  public async new_emission(
+    @Args('input') query: QueryInput
+  ): Promise<ScalarValue[]> {
     return await this.timescaleService.resolveQuery(TransactionsDetailedEntity, 'transactions', 'new_emission', query);
   }
 }

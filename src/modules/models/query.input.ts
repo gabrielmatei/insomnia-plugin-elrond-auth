@@ -5,18 +5,18 @@ import { AggregateEnum } from "./aggregate.enum";
 
 @InputType()
 export class QueryInput {
-  @Field(() => AggregateEnum)
+  @Field(() => AggregateEnum, { name: 'aggregate', nullable: false })
   aggregate!: AggregateEnum;
 
-  @Field(() => TimeResolutionsEnum, { nullable: true })
+  @Field(() => TimeResolutionsEnum, { name: 'resolution', nullable: true })
   resolution?: TimeResolutionsEnum;
 
-  @Field(() => TimeRangeEnum, { nullable: true })
+  @Field(() => TimeRangeEnum, { name: 'range', nullable: true })
   range?: TimeRangeEnum;
 
-  @Field(() => GraphQLISODateTime, { nullable: true })
+  @Field(() => GraphQLISODateTime, { name: 'start_date', nullable: true })
   startDate?: Date;
 
-  @Field(() => GraphQLISODateTime, { nullable: true })
+  @Field(() => GraphQLISODateTime, { name: 'end_date', nullable: true })
   endDate?: Date;
 }
