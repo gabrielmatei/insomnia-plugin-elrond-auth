@@ -20,7 +20,7 @@ export class AccountsIngest implements Ingest {
   public async fetch(): Promise<AccountsEntity[]> {
     const timestamp = moment.utc().toDate();
 
-    const count = await this.elasticService.getCount(this.apiConfigService.getInternalElasticUrl(), 'accounts');
+    const count = await this.elasticService.getCount(this.apiConfigService.getElasticUrl(), 'accounts');
 
     const [
       count_gt_0,
@@ -31,7 +31,7 @@ export class AccountsIngest implements Ingest {
       count_gt_1000,
       count_gt_10000,
     ] = await this.elasticService.getDetailedRangeCount(
-      this.apiConfigService.getInternalElasticUrl(),
+      this.apiConfigService.getElasticUrl(),
       'accounts',
       'balanceNum',
       [0, 0.1, 1, 10, 100, 1000, 10000]

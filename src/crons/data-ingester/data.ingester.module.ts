@@ -2,7 +2,6 @@ import { forwardRef, Module } from '@nestjs/common';
 import { ScheduleModule } from '@nestjs/schedule';
 import { CommonModule } from 'src/common/common.module';
 import { MicroserviceModule } from 'src/common/microservice/microservice.module';
-import { EndpointsServicesModule } from 'src/endpoints/endpoints.services.module';
 import { AccountsBalanceIngest } from 'src/ingesters/accounts-balance.ingest';
 import { AccountsCountIngest } from 'src/ingesters/accounts-count.ingest';
 import { AccountsDelegationLegacyActiveIngest } from 'src/ingesters/accounts-delegation-legacy-active.ingest';
@@ -34,7 +33,6 @@ import { Ingester } from './ingester';
   imports: [
     ScheduleModule.forRoot(),
     forwardRef(() => CommonModule),
-    forwardRef(() => EndpointsServicesModule),
     MicroserviceModule,
   ],
   providers: [

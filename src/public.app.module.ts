@@ -6,9 +6,8 @@ import { CommonModule } from './common/common.module';
 import { LoggingModule } from './common/logging/logging.module';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { GraphQLModule } from '@nestjs/graphql';
-import { EndpointsServicesModule } from './endpoints/endpoints.services.module';
-import { EndpointsControllersModule } from './endpoints/endpoints.controller';
 import { ResolversModule } from './modules/resolvers.module';
+import { HealthCheckController } from './common/health-check/health.check.controller';
 
 @Module({
   imports: [
@@ -19,8 +18,9 @@ import { ResolversModule } from './modules/resolvers.module';
       driver: ApolloDriver,
       autoSchemaFile: 'schema.gql',
     }),
-    EndpointsServicesModule,
-    EndpointsControllersModule,
+  ],
+  controllers: [
+    HealthCheckController,
   ],
 })
 export class PublicAppModule { }

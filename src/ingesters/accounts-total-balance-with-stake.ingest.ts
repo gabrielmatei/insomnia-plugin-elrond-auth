@@ -32,7 +32,7 @@ export class AccountsTotalBalanceWithStakeIngest implements Ingest {
       count_gt_1000,
       count_gt_10000,
     ] = await this.elasticService.getDetailedRangeCount(
-      this.apiConfigService.getInternalElasticUrl(),
+      this.apiConfigService.getElasticUrl(),
       `accounts-000001_${epoch}`,
       'totalBalanceWithStakeNum',
       [0, 0.1, 1, 10, 100, 1000, 10000]

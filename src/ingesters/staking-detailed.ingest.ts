@@ -45,25 +45,25 @@ export class StakingDetailedIngest implements Ingest {
       delegationLegacyWaitingUsers,
     ] = await Promise.all([
       this.elasticService.getCount(
-        this.apiConfigService.getInternalElasticUrl(),
+        this.apiConfigService.getElasticUrl(),
         `accounts-000001_${epoch}`,
         ElasticQuery.create().withFilter([
           new RangeQuery('totalStakeNum', { gt: 0 }),
         ])),
       this.elasticService.getCount(
-        this.apiConfigService.getInternalElasticUrl(),
+        this.apiConfigService.getElasticUrl(),
         `accounts-000001_${epoch}`,
         ElasticQuery.create().withFilter([
           new RangeQuery('delegationNum', { gt: 0 }),
         ])),
       this.elasticService.getCount(
-        this.apiConfigService.getInternalElasticUrl(),
+        this.apiConfigService.getElasticUrl(),
         `accounts-000001_${epoch}`,
         ElasticQuery.create().withFilter([
           new RangeQuery('delegationLegacyActiveNum', { gt: 0 }),
         ])),
       this.elasticService.getCount(
-        this.apiConfigService.getInternalElasticUrl(),
+        this.apiConfigService.getElasticUrl(),
         `accounts-000001_${epoch}`,
         ElasticQuery.create().withFilter([
           new RangeQuery('delegationLegacyWaitingNum', { gt: 0 }),
@@ -80,20 +80,20 @@ export class StakingDetailedIngest implements Ingest {
       },
     ] = await Promise.all([
       this.elasticService.getCount(
-        this.apiConfigService.getInternalElasticUrl(),
+        this.apiConfigService.getElasticUrl(),
         `accounts-000001_${epoch}`,
         ElasticQuery.create().withCondition(QueryConditionOptions.should, [
           new RangeQuery('delegationNum', { gt: 0 }),
           new RangeQuery('delegationLegacyActiveNum', { gt: 0 }),
         ])),
       this.elasticService.getCount(
-        this.apiConfigService.getInternalElasticUrl(),
+        this.apiConfigService.getElasticUrl(),
         `accounts-000001_${epoch}`,
         ElasticQuery.create().withCondition(QueryConditionOptions.should, [
           new RangeQuery('delegationLegacyWaitingNum', { gt: 0 }),
           new RangeQuery('delegationLegacyActiveNum', { gt: 0 }),
         ])),
-      this.apiService.post<any, any>(`${this.apiConfigService.getInternalElasticUrl()}/accounts-000001_${epoch}/_search`, {
+      this.apiService.post<any, any>(`${this.apiConfigService.getElasticUrl()}/accounts-000001_${epoch}/_search`, {
         aggs: {
           delegationTotal: { sum: { field: 'delegationNum' } },
         },

@@ -23,7 +23,7 @@ export class AccountsCountIngest implements Ingest {
     const epoch = await this.gatewayService.getEpoch();
     const timestamp = moment.utc().startOf('day').subtract(1, 'days').toDate();
 
-    const count = await this.elasticService.getCount(this.apiConfigService.getInternalElasticUrl(), `accounts-000001_${epoch}`);
+    const count = await this.elasticService.getCount(this.apiConfigService.getElasticUrl(), `accounts-000001_${epoch}`);
 
     const previousResult24h = await this.timescaleService.getPreviousValue24h(AccountsHistoricalEntity, timestamp, 'count', 'accounts');
     const count24h = previousResult24h && previousResult24h > 0 ? count - previousResult24h : 0;
