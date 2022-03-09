@@ -1,21 +1,21 @@
 urls:
   api: 'https://devnet-api.elrond.com'
   swagger:
-    - 'https://devnet-microservice.elrond.com'
-    - 'https://testnet-microservice.elrond.com'
-    - 'https://microservice.elrond.com'
+    - 'https://growth-api.elrond.com'
+    - 'https://devnet-growth-api.elrond.com'
+    - 'https://testnet-growth-api.elrond.com'
   redis: '127.0.0.1'
-database:
-  host: 'localhost'
-  port: 3306
-  username: 'root'
-  password: 'root'
-  name: 'example'
-flags:
-  useKeepAliveAgent: true
-keepAliveTimeout:
-  downstream: 61000
-  upstream: 60000
+  gateway:
+    - 'https://devnet-gateway.elrond.com'
+  elastic:
+    - 'https://devnet-index.elrond.com'
+  github: 'https://api.github.com/orgs/ElrondNetwork'
+timescale:
+  host:
+  port:
+  database:
+  username:
+  password:
 features:
   publicApi:
     enabled: true
@@ -24,11 +24,78 @@ features:
     enabled: true
     port: 4000
   cacheWarmer:
-    enabled: true
+    enabled: false
     port: 5201
-  queueWorker:
+  dataIngester:
     enabled: true
-    port: 8000
+    port: 5203
+rateLimiterSecret: ''
+flags:
+  useKeepAliveAgent: true
+keepAliveTimeout:
+  downstream: 61000
+  upstream: 60000
 security:
   jwtSecret: ''
   admins:
+contracts:
+  delegation: 'erd1qqqqqqqqqqqqqpgqxwakt2g7u9atsnr03gqcgmhcv38pt7mkd94q6shuwt'
+  auction: 'erd1qqqqqqqqqqqqqqqpqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqplllst77y4l'
+  staking: 'erd1qqqqqqqqqqqqqqqpqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqllls0lczs7'
+exchangeWallets:
+  Binance.com:
+    - 'erd16x7le8dpkjsafgwjx0e5kw94evsqw039rwp42m2j9eesd88x8zzs75tzry'
+    - 'erd18umqd6v045nww2g9kgneupj4dwme9lycrpjn293sfkrhpntx9z2ss4kvhg'
+    - 'erd1v4ms58e22zjcp08suzqgm9ajmumwxcy4hfkdc23gvynnegjdflmsj6gmaq'
+    - 'erd1rf4hv70arudgzus0ymnnsnc4pml0jkywg2xjvzslg0mz4nn2tg7q7k0t6p'
+  Binance.us:
+    - 'erd1rm8pg3yrngzyhrjejkz3xq2lfp64mvnt64llj3fyft53d3t4ckjq0q8v4k'
+    - 'erd1043dp0s3yw8vd44s5xvxklnp30ypp7y56mylm9t87vdhhgwcx24s2e2g5y'
+  Bitfinex:
+    - 'erd1a56dkgcpwwx6grmcvw9w5vpf9zeq53w3w7n6dmxcpxjry3l7uh2s3h9dtr'
+  Bithumb:
+    - 'erd18s4cfunrctf27ejp3jmvylff7psfdgdssgc7e5aal6yusac62xzqly0yh5'
+  Bitmax:
+    - 'erd15qltd5ccalm5smmgdc5wnx46ssda3p32xhsz4wpp6usldq7hq7xqq5fmn6'
+  Crypto.com:
+    - 'erd1tqun7ku6yrygd0gjezmmz42jffqzlhgtvl2tsch3cel7rfylwzxs2dhrcg'
+    - 'erd1hzccjg25yqaqnr732x2ka7pj5glx72pfqzf05jj9hxqn3lxkramq5zu8h4'
+    - 'erd1qr9av6ar4ymr05xj93jzdxyezdrp6r4hz6u0scz4dtzvv7kmlldse7zktc'
+  Kucoin:
+    - 'erd1hj9nlr3axgf48q75cy5mfw46kus3gaygtpjgxqe2qgk6uw6raelsw3j4lx'
+  Liquid:
+    - 'erd1z27mr0ertnan43avl4uhrud67awtkqklfsxzpetkp5u26cscsrzqdl56j8'
+    - 'erd1jfempey50xue4wa5hzwmle4p4y6g55dn4327m9pvrynttdscn2eqvaxcgy'
+    - 'erd1l3t8w72pf99dw25rhnl2258h8rqtp72cg2wpuglcc4r0gzjr3kmqvjuazv'
+  Okex:
+    - 'erd1qt827an62lztf74rx7cg2s6utx3dp6l8k9snlttd77zny4dlzr9qccdqgx'
+github:
+  accessToken:
+  featuredRepositories:
+    - 'wasm-vm'
+    - 'elrond-go'
+    - 'elrond-proxy-go'
+    - 'elrond-sdk'
+coinmarketcap:
+  accessToken:
+coingecko:
+  url: 'https://api.coingecko.com/api/v3'
+  elrondId: 'elrond-erd-2'
+  vsCurrencies:
+    - 'usd'
+    - 'eur'
+    - 'btc'
+    - 'eth'
+inflation:
+  - 1952123
+  - 1746637
+  - 1541150
+  - 1335663
+  - 1130177
+  - 924690
+  - 719203
+twitter:
+  url: 'https://api.twitter.com/2'
+  authorizationBearers:
+    - ''
+    - ''
