@@ -4,9 +4,11 @@ import { ApiConfigService } from "src/common/api-config/api.config.service";
 import { ElasticService } from "src/common/elastic/elastic.service";
 import { ElasticQuery } from "src/common/elastic/entities/elastic.query";
 import { RangeQuery } from "src/common/elastic/entities/range.query";
+import { ApiService } from "src/common/network/api.service";
 import { TransactionsHistoricalBackupEntity } from "src/common/timescale/entities/transactions-historical-backup.entity";
 import { TransactionsHistoricalEntity } from "src/common/timescale/entities/transactions-historical.entity";
 import { TransactionsEntity } from "src/common/timescale/entities/transactions.entity";
+import { TimescaleService } from "src/common/timescale/timescale.service";
 import { Ingest } from "src/crons/data-ingester/entities/ingest.interface";
 import { IngestResponse } from "src/crons/data-ingester/entities/ingest.response";
 
@@ -17,7 +19,9 @@ export class TransactionsIngest implements Ingest {
 
   constructor(
     private readonly apiConfigService: ApiConfigService,
+    private readonly apiService: ApiService,
     private readonly elasticService: ElasticService,
+    private readonly timescaleService: TimescaleService,
   ) { }
 
   public async fetch(): Promise<IngestResponse> {
@@ -25,8 +29,8 @@ export class TransactionsIngest implements Ingest {
     const endDate = moment.utc().startOf('day');
 
     const [
-      count,
-      count_24h,
+      transactionsCount,
+      transactionsCount24h,
     ] = await Promise.all([
       this.elasticService.getCount(this.apiConfigService.getElasticUrl(), 'transactions'),
       this.elasticService.getCount(
@@ -40,10 +44,33 @@ export class TransactionsIngest implements Ingest {
         ])),
     ]);
 
+    const [
+      tokensCount,
+      nftsCount,
+      previousTokensCountResult24h,
+      previousNftsCountResult24h,
+    ] = await Promise.all([
+      this.apiService.get<number>(`${this.apiConfigService.getApiUrl()}/tokens/count`),
+      this.apiService.get<number>(`${this.apiConfigService.getApiUrl()}/nfts/count?type=SemiFungibleESDT,NonFungibleESDT&hasUris=true`),
+      this.timescaleService.getPreviousValue24h(TransactionsEntity, endDate.toDate(), 'count', 'tokens'),
+      this.timescaleService.getPreviousValue24h(TransactionsEntity, endDate.toDate(), 'count', 'nfts'),
+    ]);
+
+    const tokensCount24h = previousTokensCountResult24h && previousTokensCountResult24h > 0 ? tokensCount - previousTokensCountResult24h : 0;
+    const nftsCount24h = previousNftsCountResult24h && previousNftsCountResult24h > 0 ? nftsCount - previousNftsCountResult24h : 0;
+
     const data = {
+      tokens: {
+        count: tokensCount,
+        count_24h: tokensCount24h,
+      },
+      nfts: {
+        count: nftsCount,
+        count_24h: nftsCount24h,
+      },
       transactions: {
-        count,
-        count_24h,
+        count: transactionsCount,
+        count_24h: transactionsCount24h,
       },
     };
     return {

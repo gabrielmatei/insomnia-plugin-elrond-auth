@@ -132,6 +132,11 @@ enum GoogleKeywords {
   EGOLD
 }
 
+type NftsModel {
+  count(input: QueryInput!): [ScalarValue!]
+  count_24h(input: QueryInput!): [ScalarValue!]!
+}
+
 type CoinPriceModel {
   current_price(input: QueryInput!): [ScalarValue!]!
   market_cap(input: QueryInput!): [ScalarValue!]!
@@ -175,6 +180,11 @@ type StakingModel {
   legacy_delegation_waiting_list: StakingTypeModel
 }
 
+type TokensModel {
+  count(input: QueryInput!): [ScalarValue!]
+  count_24h(input: QueryInput!): [ScalarValue!]!
+}
+
 type TransactionsModel {
   count(input: QueryInput!): [ScalarValue!]
   count_24h(input: QueryInput!): [ScalarValue!]!
@@ -198,9 +208,11 @@ type Query {
   exchanges: ExchangesModel!
   github: GithubModel!
   google: GoogleModel!
+  nfts: NftsModel!
   prices: PricesModel!
   quotes: QuotesModel!
   staking: StakingModel!
+  tokens: TokensModel!
   transactions: TransactionsModel!
   trends: TrendsModel!
   twitter: TwitterModel!

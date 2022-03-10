@@ -4,9 +4,11 @@ import { EconomicsModule } from "./economics/economics.module";
 import { ExchangesModule } from "./exchanges/exchanges.module";
 import { GithubModule } from "./github/github.module";
 import { GoogleModule } from "./google/google.module";
+import { NftsModule } from "./nfts/nfts.module";
 import { PricesModule } from "./prices/prices.module";
 import { QuotesModule } from "./quotes/quotes.module";
 import { StakingModule } from "./staking/staking.module";
+import { TokensModule } from "./tokens/tokens.module";
 import { TransactionsModule } from "./transactions/transactions.module";
 import { TrendsModule } from "./trends/trends.module";
 import { TwitterModule } from "./twitter/twitter.module";
@@ -18,9 +20,11 @@ import { TwitterModule } from "./twitter/twitter.module";
     forwardRef(() => ExchangesModule),
     forwardRef(() => GithubModule),
     forwardRef(() => GoogleModule),
+    forwardRef(() => NftsModule),
     forwardRef(() => PricesModule),
     forwardRef(() => QuotesModule),
     forwardRef(() => StakingModule),
+    forwardRef(() => TokensModule),
     forwardRef(() => TransactionsModule),
     forwardRef(() => TrendsModule),
     forwardRef(() => TwitterModule),
@@ -31,9 +35,11 @@ import { TwitterModule } from "./twitter/twitter.module";
     ExchangesModule,
     GithubModule,
     GoogleModule,
+    NftsModule,
     PricesModule,
     QuotesModule,
     StakingModule,
+    TokensModule,
     TransactionsModule,
     TrendsModule,
     TwitterModule,

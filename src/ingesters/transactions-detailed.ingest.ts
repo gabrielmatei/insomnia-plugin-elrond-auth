@@ -63,6 +63,8 @@ export class TransactionsDetailedIngest implements Ingest {
     const activeUsers = await this.cachingService.getSetMembersCount(TransactionsDetailedIngest.ACTIVE_USERS_KEY);
     await this.cachingService.delCache(TransactionsDetailedIngest.ACTIVE_USERS_KEY);
 
+    // TODO active token transfers
+
     const data = {
       users: {
         active_users: activeUsers,
