@@ -24,15 +24,33 @@ export class AccountsCountIngest implements Ingest {
     const epoch = await this.gatewayService.getEpoch();
     const timestamp = moment.utc().startOf('day').subtract(1, 'days').toDate();
 
-    const count = await this.elasticService.getCount(this.apiConfigService.getElasticUrl(), `accounts-000001_${epoch}`);
+    const [
+      accountsCount,
+      contractsCount,
+    ] = await Promise.all([
+      this.elasticService.getCount(this.apiConfigService.getElasticUrl(), `accounts-000001_${epoch}`),
+      this.elasticService.getCount(this.apiConfigService.getElasticUrl(), 'scdeploys'),
+    ]);
 
-    const previousResult24h = await this.timescaleService.getPreviousValue24h(AccountsHistoricalEntity, timestamp, 'count', 'accounts');
-    const count24h = previousResult24h && previousResult24h > 0 ? count - previousResult24h : 0;
+    const [
+      previousAccountsResult24h,
+      previousContractsResult24h,
+    ] = await Promise.all([
+      this.timescaleService.getPreviousValue24h(AccountsHistoricalEntity, timestamp, 'count', 'accounts'),
+      this.timescaleService.getPreviousValue24h(AccountsHistoricalEntity, timestamp, 'count', 'contracts'),
+    ]);
+
+    const accountsCount24h = previousAccountsResult24h && previousAccountsResult24h > 0 ? accountsCount - previousAccountsResult24h : 0;
+    const contractsCount24h = previousContractsResult24h && previousContractsResult24h > 0 ? contractsCount - previousContractsResult24h : 0;
 
     const data = {
       accounts: {
-        count,
-        count_24h: count24h,
+        count: accountsCount,
+        count_24h: accountsCount24h,
+      },
+      contracts: {
+        count: contractsCount,
+        count_24h: contractsCount24h,
       },
     };
     return {

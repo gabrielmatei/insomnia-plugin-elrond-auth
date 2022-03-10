@@ -22,7 +22,13 @@ export class AccountsIngest implements Ingest {
   public async fetch(): Promise<IngestResponse> {
     const timestamp = moment.utc().toDate();
 
-    const count = await this.elasticService.getCount(this.apiConfigService.getElasticUrl(), 'accounts');
+    const [
+      accountsCount,
+      contractsCount,
+    ] = await Promise.all([
+      this.elasticService.getCount(this.apiConfigService.getElasticUrl(), 'accounts'),
+      this.elasticService.getCount(this.apiConfigService.getElasticUrl(), 'scdeploys'),
+    ]);
 
     const [
       count_gt_0,
@@ -39,15 +45,23 @@ export class AccountsIngest implements Ingest {
       [0, 0.1, 1, 10, 100, 1000, 10000]
     );
 
-    const previousResult24h = await this.timescaleService.getPreviousValue24h(AccountsEntity, timestamp, 'count', 'accounts');
-    const count24h = previousResult24h && previousResult24h > 0 ? count - previousResult24h : 0;
+    const [
+      previousAccountsResult24h,
+      previousContractsResult24h,
+    ] = await Promise.all([
+      this.timescaleService.getPreviousValue24h(AccountsEntity, timestamp, 'count', 'accounts'),
+      this.timescaleService.getPreviousValue24h(AccountsEntity, timestamp, 'count', 'contracts'),
+    ]);
+
+    const accountsCount24h = previousAccountsResult24h && previousAccountsResult24h > 0 ? accountsCount - previousAccountsResult24h : 0;
+    const contractsCount24h = previousContractsResult24h && previousContractsResult24h > 0 ? contractsCount - previousContractsResult24h : 0;
 
     return {
       current: {
         entity: AccountsEntity,
         records: AccountsEntity.fromObject(timestamp, {
           accounts: {
-            count,
+            count: accountsCount,
             count_gt_0,
             count_gt_0_1,
             count_gt_1,
@@ -55,7 +69,11 @@ export class AccountsIngest implements Ingest {
             count_gt_100,
             count_gt_1000,
             count_gt_10000,
-            count_24h: count24h,
+            count_24h: accountsCount24h,
+          },
+          contracts: {
+            count: contractsCount,
+            count_24h: contractsCount24h,
           },
         }),
       },
@@ -63,8 +81,8 @@ export class AccountsIngest implements Ingest {
         entity: AccountsHistoricalEntity,
         records: AccountsHistoricalEntity.fromObject(timestamp, {
           accounts: {
-            count,
-            count_24h: count24h,
+            count: accountsCount,
+            count_24h: accountsCount24h,
           },
           balance: {
             count_gt_0,
@@ -73,7 +91,11 @@ export class AccountsIngest implements Ingest {
             count_gt_10,
             count_gt_100,
             count_gt_1000,
-            count_24h: count24h,
+            count_24h: accountsCount24h,
+          },
+          contracts: {
+            count: contractsCount,
+            count_24h: contractsCount24h,
           },
         }),
       },

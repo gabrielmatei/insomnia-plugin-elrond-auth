@@ -8,6 +8,7 @@ import { MetricsModule } from "./metrics/metrics.module";
 import { ApiModule } from "./network/api.module";
 import { StakingModule } from "./staking/staking.module";
 import { TimescaleModule } from "./timescale/timescale.module";
+import { TransactionsModule } from "./transactions/transactions.module";
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { TimescaleModule } from "./timescale/timescale.module";
     forwardRef(() => GatewayModule),
     forwardRef(() => GithubModule),
     forwardRef(() => StakingModule),
+    forwardRef(() => TransactionsModule),
   ],
   exports: [
     ApiConfigModule,
@@ -31,6 +33,7 @@ import { TimescaleModule } from "./timescale/timescale.module";
     GatewayModule,
     GithubModule,
     StakingModule,
+    TransactionsModule,
   ],
 })
 export class CommonModule { }

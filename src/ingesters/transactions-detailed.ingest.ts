@@ -10,10 +10,14 @@ import { GatewayService } from "src/common/gateway/gateway.service";
 import { CachingService } from "src/common/caching/caching.service";
 import { TransactionsDetailedEntity } from "src/common/timescale/entities/transactions-detailed.entity";
 import { IngestResponse } from "src/crons/data-ingester/entities/ingest.response";
+import { TransactionsService } from "src/common/transactions/transactions.service";
 
 @Injectable()
 export class TransactionsDetailedIngest implements Ingest {
-  public static readonly ACTIVE_USERS_KEY = "activeUserSet";
+  public static readonly ACTIVE_ACCOUNTS_KEY = "active:accounts";
+  public static readonly ACTIVE_TOKENS_KEY = "active:tokens";
+  public static readonly ACTIVE_NFT_COLLECTIONS_KEY = "active:nfts";
+  public static readonly ACTIVE_CONTRACTS_KEY = "active:contracts";
 
   public readonly name = TransactionsDetailedIngest.name;
   public readonly entityTarget = TransactionsDetailedEntity;
@@ -23,25 +27,15 @@ export class TransactionsDetailedIngest implements Ingest {
     private readonly elasticService: ElasticService,
     private readonly gatewayService: GatewayService,
     private readonly cachingService: CachingService,
+    private readonly transactionsService: TransactionsService,
   ) { }
 
   public async fetch(): Promise<IngestResponse> {
     const startDate = moment.utc().startOf('day').subtract(1, 'day');
     const endDate = moment.utc().startOf('day');
 
-    let valueMoved = new BigNumber(0);
-    let totalFees = new BigNumber(0);
-    const computeTransactionsPage = async (transactions: any[]) => {
-      for (const transaction of transactions) {
-        await this.cachingService.addInSet(TransactionsDetailedIngest.ACTIVE_USERS_KEY, transaction.sender);
-
-        valueMoved = valueMoved.plus(new BigNumber(transaction.value?.length > 0 ? transaction.value : '0'));
-        totalFees = totalFees.plus(new BigNumber(transaction.fee?.length > 0 ? transaction.fee : '0'));
-      }
-    };
-
     const elasticQuery = ElasticQuery.create()
-      .withFields(['sender', 'value', 'fee'])
+      // .withFields(['sender', 'value', 'fee', 'sender', 'receiver', 'data', 'type'])
       .withPagination({ size: 10000 })
       .withFilter([
         new RangeQuery('timestamp', {
@@ -50,29 +44,60 @@ export class TransactionsDetailedIngest implements Ingest {
         }),
       ]);
 
-    await this.cachingService.delCache(TransactionsDetailedIngest.ACTIVE_USERS_KEY);
-    await this.elasticService.computeAllItems(this.apiConfigService.getElasticUrl(), 'transactions', 'hash', elasticQuery, computeTransactionsPage);
+    await this.deleteSetKeys();
+
+    let valueMoved = new BigNumber(0);
+    let totalFees = new BigNumber(0);
+    let totalTokenTransfers = new BigNumber(0);
+    let totalNftTransfers = new BigNumber(0);
+    let totalContractsTransfers = new BigNumber(0);
+
+    await this.elasticService.computeAllItems(this.apiConfigService.getElasticUrl(), 'transactions', 'hash', elasticQuery, async (transactions: any[]) => {
+      const [
+        _valueMoved,
+        _totalFees,
+        _totalTokenTransfers,
+        _totalNftTransfers,
+        _totalContractsTransfers,
+      ] = await this.computeTransactionsPage(transactions);
+
+      valueMoved = valueMoved.plus(_valueMoved);
+      totalFees = totalFees.plus(_totalFees);
+      totalTokenTransfers = totalTokenTransfers.plus(_totalTokenTransfers);
+      totalNftTransfers = totalNftTransfers.plus(_totalNftTransfers);
+      totalContractsTransfers = totalContractsTransfers.plus(_totalContractsTransfers);
+    });
 
     const rewardsPerEpoch = await this.getCurrentRewardsPerEpoch();
     const newEmission = new BigNumber(rewardsPerEpoch).shiftedBy(18).minus(new BigNumber(totalFees));
 
-    const valueMovedFormatted = valueMoved.shiftedBy(-18).toNumber();
-    const totalFeesFormatted = totalFees.shiftedBy(-18).toNumber();
-    const newEmissionFormatted = newEmission.shiftedBy(-18).toNumber();
+    const activeAccounts = await this.cachingService.getSetMembersCount(TransactionsDetailedIngest.ACTIVE_ACCOUNTS_KEY);
+    const activeContracts = await this.cachingService.getSetMembersCount(TransactionsDetailedIngest.ACTIVE_CONTRACTS_KEY);
+    const activeTokens = await this.cachingService.getSetMembersCount(TransactionsDetailedIngest.ACTIVE_TOKENS_KEY);
+    const activeNfts = await this.cachingService.getSetMembersCount(TransactionsDetailedIngest.ACTIVE_NFT_COLLECTIONS_KEY);
 
-    const activeUsers = await this.cachingService.getSetMembersCount(TransactionsDetailedIngest.ACTIVE_USERS_KEY);
-    await this.cachingService.delCache(TransactionsDetailedIngest.ACTIVE_USERS_KEY);
-
-    // TODO active token transfers
+    await this.deleteSetKeys();
 
     const data = {
-      users: {
-        active_users: activeUsers,
+      accounts: {
+        active_accounts: activeAccounts,
+      },
+      contracts: {
+        active_contracts: activeContracts,
+        transfers: totalContractsTransfers.toNumber(),
+      },
+      tokens: {
+        active_tokens: activeTokens,
+        transfers: totalTokenTransfers.toNumber(),
+      },
+      nfts: {
+        active_nfts: activeNfts,
+        transfers: totalNftTransfers.toNumber(),
       },
       transactions: {
-        value_moved: valueMovedFormatted,
-        total_fees: totalFeesFormatted,
-        new_emission: newEmissionFormatted,
+        value_moved: valueMoved.shiftedBy(-18).toNumber(),
+        total_fees: totalFees.shiftedBy(-18).toNumber(),
+        new_emission: newEmission.shiftedBy(-18).toNumber(),
       },
     };
     return {
@@ -81,6 +106,43 @@ export class TransactionsDetailedIngest implements Ingest {
         records: TransactionsDetailedEntity.fromObject(startDate.toDate(), data),
       },
     };
+  }
+
+  private async computeTransactionsPage(transactions: any[]): Promise<BigNumber[]> {
+    let valueMoved = new BigNumber(0);
+    let totalFees = new BigNumber(0);
+    let totalTokenTransfers = new BigNumber(0);
+    let totalNftTransfers = new BigNumber(0);
+    let totalContractsTransfers = new BigNumber(0);
+
+    for (const transaction of transactions) {
+      valueMoved = valueMoved.plus(new BigNumber(transaction.value?.length > 0 ? transaction.value : '0'));
+      totalFees = totalFees.plus(new BigNumber(transaction.fee?.length > 0 ? transaction.fee : '0'));
+
+      await this.cachingService.addInSet(TransactionsDetailedIngest.ACTIVE_ACCOUNTS_KEY, transaction.sender);
+
+      const { tokens, nfts, contracts } = await this.transactionsService.getTransactionTransfers(transaction);
+
+      totalTokenTransfers = totalTokenTransfers.plus(new BigNumber(tokens.length));
+      totalNftTransfers = totalNftTransfers.plus(new BigNumber(nfts.length));
+      totalContractsTransfers = totalContractsTransfers.plus(new BigNumber(contracts.length));
+
+      for (const token of tokens) {
+        await this.cachingService.addInSet(TransactionsDetailedIngest.ACTIVE_TOKENS_KEY, token);
+      }
+      for (const nft of nfts) {
+        await this.cachingService.addInSet(TransactionsDetailedIngest.ACTIVE_NFT_COLLECTIONS_KEY, nft);
+      }
+    }
+
+    return [valueMoved, totalFees, totalTokenTransfers, totalNftTransfers, totalContractsTransfers];
+  }
+
+  private async deleteSetKeys() {
+    await this.cachingService.delCache(TransactionsDetailedIngest.ACTIVE_ACCOUNTS_KEY);
+    await this.cachingService.delCache(TransactionsDetailedIngest.ACTIVE_TOKENS_KEY);
+    await this.cachingService.delCache(TransactionsDetailedIngest.ACTIVE_NFT_COLLECTIONS_KEY);
+    await this.cachingService.delCache(TransactionsDetailedIngest.ACTIVE_CONTRACTS_KEY);
   }
 
   private async getCurrentRewardsPerEpoch(): Promise<number> {

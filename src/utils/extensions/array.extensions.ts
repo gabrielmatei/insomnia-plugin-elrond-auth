@@ -71,6 +71,10 @@ Array.prototype.distinct = function <T>(): T[] {
   return [...new Set(this)];
 };
 
+Array.prototype.all = function <T>(predicate: (item: T) => boolean): boolean {
+  return !this.some(x => !predicate(x));
+};
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 declare interface Array<T> {
   groupBy(predicate: (item: T) => string): { [key: string]: T };
@@ -80,4 +84,5 @@ declare interface Array<T> {
   remove(element: T): number;
   findMissingElements<T>(second: T[]): T[];
   distinct(): T[];
+  all(predicate: (item: T) => boolean): boolean;
 }

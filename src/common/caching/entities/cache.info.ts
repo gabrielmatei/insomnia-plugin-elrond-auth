@@ -34,4 +34,11 @@ export class CacheInfo {
       ttl: Constants.oneMinute(),
     };
   }
+
+  static NftCollection(collection: string): CacheInfo {
+    return {
+      key: `nft:${collection}`,
+      ttl: Constants.oneWeek(),
+    };
+  }
 }
