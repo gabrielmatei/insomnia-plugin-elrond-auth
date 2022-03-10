@@ -51,7 +51,7 @@ export class GithubContributorsIngest implements Ingest {
         };
       }
 
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await new Promise(resolve => setTimeout(resolve, GithubService.DELAY));
     }
 
     repoDetails['total'] = {

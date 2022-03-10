@@ -7,6 +7,8 @@ import { CachingService } from "../caching/caching.service";
 
 @Injectable()
 export class GithubService {
+  public static readonly DELAY = 1500;
+
   private readonly logger: Logger;
   private readonly octokit: Octokit;
 
@@ -86,7 +88,7 @@ export class GithubService {
         (response) => response.data.map((commit) => commit.sha)
       );
 
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, GithubService.DELAY));
 
       lastRepositoryCommits.push(lastBranchCommits.distinct());
     }
