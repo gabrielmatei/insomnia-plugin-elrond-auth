@@ -141,7 +141,7 @@ export class TimescaleService {
     key: string,
     query: QueryInput,
   ): Promise<ScalarValue[]> {
-    if (query.aggregate === AggregateEnum.LAST) {
+    if (query.aggregate === AggregateEnum.LAST && query.resolution === undefined) {
       const lastValue = await this.getLastValue(entity, series, key);
       if (!lastValue) {
         return [];
