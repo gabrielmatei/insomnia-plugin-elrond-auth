@@ -2,6 +2,7 @@ import { Resolver, ResolveField, Query, Args } from "@nestjs/graphql";
 import { ScalarValue } from "src/common/entities/scalar-value.object";
 import { AccountsHistoricalEntity } from "src/common/timescale/entities/accounts-historical.entity";
 import { AccountsEntity } from "src/common/timescale/entities/accounts.entity";
+import { TransactionsDetailedEntity } from "src/common/timescale/entities/transactions-detailed.entity";
 import { TimescaleService } from "src/common/timescale/timescale.service";
 import { QueryInput } from "../models/query.input";
 import { AccountsModel } from "./models/accounts.model";
@@ -26,6 +27,11 @@ export class AccountsResolver {
   @ResolveField(() => [ScalarValue], { name: 'count_24h' })
   public async count_24h(@Args('input') query: QueryInput): Promise<ScalarValue[]> {
     return await this.timescaleService.resolveQuery(AccountsEntity, 'accounts', 'count_24h', query);
+  }
+
+  @ResolveField(() => [ScalarValue], { name: 'active_accounts' })
+  public async active_accounts(@Args('input') query: QueryInput): Promise<ScalarValue[]> {
+    return await this.timescaleService.resolveQuery(TransactionsDetailedEntity, 'accounts', 'active_accounts', query);
   }
 
   @ResolveField(() => ThresholdCountModel, { name: 'balance' })

@@ -41,7 +41,7 @@ export class AddressUtils {
   }
 
   static isSmartContractAddress(address: string): boolean {
-    if (address.toLowerCase() === 'metachain') {
+    if (address.toLowerCase() === 'metachain' || address === '4294967295') {
       return true;
     }
 

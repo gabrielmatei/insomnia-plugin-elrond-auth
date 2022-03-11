@@ -57,11 +57,19 @@ scalar DateTime
 type AccountsModel {
   count(input: QueryInput!): [ScalarValue!]
   count_24h(input: QueryInput!): [ScalarValue!]!
+  active_accounts(input: QueryInput!): [ScalarValue!]
   balance: ThresholdCountModel
   delegation_legacy_active: ThresholdCountModel!
   delegation: ThresholdCountModel
   total_balance_with_stake: ThresholdCountModel!
   total_stake: ThresholdCountModel!
+}
+
+type ContractsModel {
+  count(input: QueryInput!): [ScalarValue!]
+  count_24h(input: QueryInput!): [ScalarValue!]!
+  active_contracts(input: QueryInput!): [ScalarValue!]!
+  transfers(input: QueryInput!): [ScalarValue!]
 }
 
 type EconomicsModel {
@@ -135,6 +143,8 @@ enum GoogleKeywords {
 type NftsModel {
   count(input: QueryInput!): [ScalarValue!]
   count_24h(input: QueryInput!): [ScalarValue!]!
+  active_nfts(input: QueryInput!): [ScalarValue!]
+  transfers(input: QueryInput!): [ScalarValue!]
 }
 
 type CoinPriceModel {
@@ -183,6 +193,8 @@ type StakingModel {
 type TokensModel {
   count(input: QueryInput!): [ScalarValue!]
   count_24h(input: QueryInput!): [ScalarValue!]!
+  active_tokens(input: QueryInput!): [ScalarValue!]
+  transfers(input: QueryInput!): [ScalarValue!]
 }
 
 type TransactionsModel {
@@ -204,6 +216,7 @@ type TwitterModel {
 
 type Query {
   accounts: AccountsModel!
+  contracts: ContractsModel!
   economics: EconomicsModel!
   exchanges: ExchangesModel!
   github: GithubModel!

@@ -11,6 +11,9 @@ export class AccountsModel {
   @Field(() => [ScalarValue], { name: 'count_24h', nullable: true })
   count_24?: [ScalarValue];
 
+  @Field(() => [ScalarValue], { name: 'active_accounts', nullable: true })
+  active_accounts?: [ScalarValue];
+
   @Field(() => ThresholdCountModel, { name: 'balance', nullable: true })
   balance?: ThresholdCountModel<AccountsHistoricalEntity>;
 

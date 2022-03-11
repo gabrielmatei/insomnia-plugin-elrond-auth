@@ -118,7 +118,7 @@ export class DataIngesterService {
         fetcher: this.googleIngest,
       },
       {
-        refreshInterval: CronExpressionExtended.EVERY_MINUTE,
+        refreshInterval: CronExpressionExtended.EVERY_HOUR,
         fetcher: this.quotesIngest,
       },
       {
@@ -138,7 +138,7 @@ export class DataIngesterService {
         fetcher: this.transactionsIngest,
       },
       {
-        refreshInterval: CronExpressionExtended.EVERY_10_SECONDS,
+        refreshInterval: CronExpressionExtended.EVERY_DAY_AT_12_10AM,
         fetcher: this.transactionsDetailedIngest,
       },
       {

@@ -1,5 +1,6 @@
 import { forwardRef, Module } from "@nestjs/common";
 import { AccountsModule } from "./accounts/accounts.module";
+import { ContractsModule } from "./contracts/contracts.module";
 import { EconomicsModule } from "./economics/economics.module";
 import { ExchangesModule } from "./exchanges/exchanges.module";
 import { GithubModule } from "./github/github.module";
@@ -16,6 +17,7 @@ import { TwitterModule } from "./twitter/twitter.module";
 @Module({
   imports: [
     forwardRef(() => AccountsModule),
+    forwardRef(() => ContractsModule),
     forwardRef(() => EconomicsModule),
     forwardRef(() => ExchangesModule),
     forwardRef(() => GithubModule),
@@ -31,6 +33,7 @@ import { TwitterModule } from "./twitter/twitter.module";
   ],
   exports: [
     AccountsModule,
+    ContractsModule,
     EconomicsModule,
     ExchangesModule,
     GithubModule,
