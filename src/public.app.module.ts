@@ -15,6 +15,7 @@ import { HealthCheckController } from './common/health-check/health.check.contro
     CommonModule,
     ResolversModule,
     GraphQLModule.forRoot<ApolloDriverConfig>({
+      useGlobalPrefix: true,
       driver: ApolloDriver,
       autoSchemaFile: 'schema.gql',
     }),

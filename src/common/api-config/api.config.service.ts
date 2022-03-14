@@ -5,6 +5,11 @@ import { ConfigService } from "@nestjs/config";
 export class ApiConfigService {
   constructor(private readonly configService: ConfigService) { }
 
+  getGlobalPrefix(): string {
+    const globalPrefix = this.configService.get<string>('globalPrefix') ?? '';
+    return globalPrefix;
+  }
+
   getApiUrl(): string {
     const apiUrl = this.configService.get<string>('urls.api');
     if (!apiUrl) {

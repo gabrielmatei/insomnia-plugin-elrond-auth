@@ -14,11 +14,13 @@ import { CacheWarmerModule } from './crons/cache-warmer/cache.warmer.module';
 async function bootstrap() {
   const publicApp = await NestFactory.create(PublicAppModule);
   publicApp.use(bodyParser.json({ limit: '1mb' }));
-  publicApp.enableCors(); WeakMap;
+  publicApp.enableCors();
   publicApp.useLogger(publicApp.get(WINSTON_MODULE_NEST_PROVIDER));
 
   const apiConfigService = publicApp.get<ApiConfigService>(ApiConfigService);
   const httpAdapterHostService = publicApp.get<HttpAdapterHost>(HttpAdapterHost);
+
+  publicApp.setGlobalPrefix(apiConfigService.getGlobalPrefix());
 
   const httpServer = httpAdapterHostService.httpAdapter.getHttpServer();
   httpServer.keepAliveTimeout = apiConfigService.getServerTimeout();

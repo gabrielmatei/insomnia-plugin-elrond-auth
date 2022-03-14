@@ -1,3 +1,4 @@
+globalPrefix: 'growth-api'
 urls:
   api: 'https://devnet-api.elrond.com'
   swagger:
