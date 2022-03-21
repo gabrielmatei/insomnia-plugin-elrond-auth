@@ -15,8 +15,8 @@ export class QueryInput {
   range?: TimeRangeEnum;
 
   @Field(() => GraphQLISODateTime, { name: 'start_date', nullable: true })
-  startDate?: Date;
+  start_date?: Date;
 
   @Field(() => GraphQLISODateTime, { name: 'end_date', nullable: true })
-  endDate?: Date;
+  end_date?: Date;
 }

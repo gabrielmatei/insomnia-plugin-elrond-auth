@@ -133,6 +133,9 @@ export class TransactionsDetailedIngest implements Ingest {
       for (const nft of nfts) {
         await this.cachingService.addInSet(TransactionsDetailedIngest.ACTIVE_NFT_COLLECTIONS_KEY, nft);
       }
+      for (const contract of contracts) {
+        await this.cachingService.addInSet(TransactionsDetailedIngest.ACTIVE_CONTRACTS_KEY, contract);
+      }
     }
 
     return [valueMoved, totalFees, totalTokenTransfers, totalNftTransfers, totalContractsTransfers];

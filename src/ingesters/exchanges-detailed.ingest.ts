@@ -4,6 +4,7 @@ import moment from "moment";
 import { ApiConfigService } from "src/common/api-config/api.config.service";
 import { ElasticService } from "src/common/elastic/elastic.service";
 import { ElasticQuery } from "src/common/elastic/entities/elastic.query";
+import { MatchQuery } from "src/common/elastic/entities/match.query";
 import { RangeQuery, RangeQueryOptions } from "src/common/elastic/entities/range.query";
 import { TermsQuery } from "src/common/elastic/entities/terms.query";
 import { ExchangesHistoricalEntity } from "src/common/timescale/entities/exchanges-historical.entity";
@@ -70,6 +71,7 @@ export class ExchangesDetailedIngest implements Ingest {
       .withFields(['value'])
       .withPagination({ size: 10000 })
       .withFilter([
+        new MatchQuery('status', 'success'),
         new RangeQuery('timestamp', range),
         new TermsQuery(direction === 'in' ? 'receiver' : 'sender', wallets),
       ]);

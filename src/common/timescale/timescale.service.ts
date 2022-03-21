@@ -32,7 +32,6 @@ export class TimescaleService {
     const params = {
       key,
       series,
-      now: currentTimestamp.toISOString(),
       ago24h: moment.utc(currentTimestamp).add(-1, 'days').toISOString(),
     };
 
@@ -40,9 +39,9 @@ export class TimescaleService {
     let query = repository
       .createQueryBuilder()
       .where('key = :key')
-      .andWhere('timestamp >= :ago24h')
+      .andWhere('timestamp < :ago24h')
       .setParameters(params)
-      .orderBy('timestamp', 'ASC')
+      .orderBy('timestamp', 'DESC')
       .limit(1);
 
     if (series) {
@@ -150,7 +149,7 @@ export class TimescaleService {
     }
 
 
-    let startDate = query.startDate;
+    let startDate = query.start_date;
     if (query.range) {
       startDate = moment.utc().subtract(1, query.range).toDate();
     } else if (!startDate) {
@@ -161,7 +160,7 @@ export class TimescaleService {
       throw new Error('resolution required');
     }
 
-    const values = await this.getValues(entity, series, key, startDate, query.endDate, query.resolution, query.aggregate);
+    const values = await this.getValues(entity, series, key, startDate, query.end_date, query.resolution, query.aggregate);
     return values;
   }
 }
