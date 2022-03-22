@@ -1,14 +1,9 @@
 import { Field, ObjectType } from "@nestjs/graphql";
 import { ScalarValue } from "src/common/entities/scalar-value.object";
+import { CountModel } from "src/modules/models/count.model";
 
 @ObjectType()
-export class NftsModel {
-  @Field(() => [ScalarValue], { name: 'count', nullable: true })
-  count?: [ScalarValue];
-
-  @Field(() => [ScalarValue], { name: 'count_24h', nullable: true })
-  count24h?: [ScalarValue];
-
+export class NftsModel extends CountModel {
   @Field(() => [ScalarValue], { name: 'active_nfts', nullable: true })
   active_nfts?: [ScalarValue];
 

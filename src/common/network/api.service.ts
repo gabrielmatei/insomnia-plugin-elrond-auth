@@ -28,7 +28,7 @@ export class ApiService {
           maxSockets: Infinity,
           maxFreeSockets: 10,
           timeout: this.apiConfigService.getAxiosTimeout(), // active socket keepalive
-          // freeSocketTimeout: 30000, // free socket keepalive for 30 seconds // TODO
+          // freeSocketTimeout: 30000, // free socket keepalive for 30 seconds
         });
       } else {
         this.keepaliveAgent = undefined;

@@ -1,16 +1,11 @@
 import { Field, ObjectType } from "@nestjs/graphql";
 import { ScalarValue } from "src/common/entities/scalar-value.object";
 import { AccountsHistoricalEntity } from "src/common/timescale/entities/accounts-historical.entity";
+import { CountModel } from "src/modules/models/count.model";
 import { ThresholdCountModel } from "./threshold-count.model";
 
 @ObjectType()
-export class AccountsModel {
-  @Field(() => [ScalarValue], { name: 'count', nullable: true })
-  count?: [ScalarValue];
-
-  @Field(() => [ScalarValue], { name: 'count_24h', nullable: true })
-  count_24?: [ScalarValue];
-
+export class AccountsModel extends CountModel {
   @Field(() => [ScalarValue], { name: 'active_accounts', nullable: true })
   active_accounts?: [ScalarValue];
 

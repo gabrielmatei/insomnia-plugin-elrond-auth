@@ -19,6 +19,15 @@ export class ApiConfigService {
     return apiUrl;
   }
 
+  getMaiarApiUrl(): string {
+    const maiarUrl = this.configService.get<string>('urls.maiar');
+    if (!maiarUrl) {
+      throw new Error('No Maiar API url present');
+    }
+
+    return maiarUrl;
+  }
+
   getSwaggerUrls(): string[] {
     const swaggerUrls = this.configService.get<string[]>('urls.swagger');
     if (!swaggerUrls) {

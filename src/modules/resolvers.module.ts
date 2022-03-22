@@ -5,6 +5,7 @@ import { EconomicsModule } from "./economics/economics.module";
 import { ExchangesModule } from "./exchanges/exchanges.module";
 import { GithubModule } from "./github/github.module";
 import { GoogleModule } from "./google/google.module";
+import { MaiarModule } from "./maiar/maiar.module";
 import { NftsModule } from "./nfts/nfts.module";
 import { PricesModule } from "./prices/prices.module";
 import { QuotesModule } from "./quotes/quotes.module";
@@ -22,6 +23,7 @@ import { TwitterModule } from "./twitter/twitter.module";
     forwardRef(() => ExchangesModule),
     forwardRef(() => GithubModule),
     forwardRef(() => GoogleModule),
+    forwardRef(() => MaiarModule),
     forwardRef(() => NftsModule),
     forwardRef(() => PricesModule),
     forwardRef(() => QuotesModule),
@@ -38,6 +40,7 @@ import { TwitterModule } from "./twitter/twitter.module";
     ExchangesModule,
     GithubModule,
     GoogleModule,
+    MaiarModule,
     NftsModule,
     PricesModule,
     QuotesModule,

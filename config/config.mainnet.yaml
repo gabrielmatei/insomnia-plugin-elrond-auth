@@ -1,6 +1,7 @@
 globalPrefix: 'growth-api'
 urls:
   api: 'https://api.elrond.com'
+  maiar: 'https://api.maiar.com'
   swagger:
     - 'https://growth-api.elrond.com'
     - 'https://devnet-growth-api.elrond.com'

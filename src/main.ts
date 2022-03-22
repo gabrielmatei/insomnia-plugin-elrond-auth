@@ -26,17 +26,6 @@ async function bootstrap() {
   httpServer.keepAliveTimeout = apiConfigService.getServerTimeout();
   httpServer.headersTimeout = apiConfigService.getHeadersTimeout(); // keepAliveTimeout + server's expected response time`
 
-  // TODO add interceptors
-
-  // const metricsService = publicApp.get<MetricsService>(MetricsService);
-  // const cachingService = publicApp.get<CachingService>(CachingService);
-  // const httpAdapterHostService = publicApp.get<HttpAdapterHost>(HttpAdapterHost);
-
-  // publicApp.useGlobalInterceptors(
-  //   new LoggingInterceptor(metricsService),
-  //   new CachingInterceptor(cachingService, httpAdapterHostService, metricsService),
-  // );
-
   const description = readFileSync(join(__dirname, '..', 'docs', 'swagger.md'), 'utf8');
 
   let documentBuilder = new DocumentBuilder()
