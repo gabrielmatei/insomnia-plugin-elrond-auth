@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { AbstractQuery } from "./abstract.query";
 
 export class ShouldQuery extends AbstractQuery {

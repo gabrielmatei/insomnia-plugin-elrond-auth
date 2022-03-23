@@ -3,7 +3,7 @@ import { google, webmasters_v3 } from "googleapis";
 import { Ingest } from "src/crons/data-ingester/entities/ingest.interface";
 import { Injectable } from "@nestjs/common";
 import { GoogleEntity } from "src/common/timescale/entities/google.entity";
-import { IngestResponse } from "src/crons/data-ingester/entities/ingest.response";
+import { IngestRecords } from "src/crons/data-ingester/entities/ingest.records";
 
 @Injectable()
 export class GoogleIngest implements Ingest {
@@ -23,13 +23,14 @@ export class GoogleIngest implements Ingest {
     google.options({ auth });
   }
 
-  public async fetch(): Promise<IngestResponse> {
+  public async fetch(): Promise<IngestRecords[]> {
     const timestamp = moment.utc().toDate();
 
     const startDate = moment.utc().startOf('day').subtract(3, 'days').format('YYYY-MM-DD');
     const endDate = moment.utc().startOf('day').subtract(2, 'days').format('YYYY-MM-DD');
     const highlightedWords = ['elrond', 'egld', 'egold'];
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const queryData: any = {};
 
     const { data } = await this.webmasters.searchanalytics.query({
@@ -73,11 +74,9 @@ export class GoogleIngest implements Ingest {
       })
     );
 
-    return {
-      current: {
-        entity: GoogleEntity,
-        records: GoogleEntity.fromObject(timestamp, queryData),
-      },
-    };
+    return [{
+      entity: GoogleEntity,
+      records: GoogleEntity.fromObject(timestamp, queryData),
+    }];
   }
 }

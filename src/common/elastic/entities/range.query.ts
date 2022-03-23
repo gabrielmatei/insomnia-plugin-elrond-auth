@@ -17,6 +17,7 @@ export class RangeQuery extends AbstractQuery {
     this.options = options;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getQuery(): any {
     return {
       range: {

@@ -9,7 +9,7 @@ import { GatewayService } from "src/common/gateway/gateway.service";
 import { ApiService } from "src/common/network/api.service";
 import { StakingHistoricalEntity } from "src/common/timescale/entities/staking-historical.entity";
 import { Ingest } from "src/crons/data-ingester/entities/ingest.interface";
-import { IngestResponse } from "src/crons/data-ingester/entities/ingest.response";
+import { IngestRecords } from "src/crons/data-ingester/entities/ingest.records";
 import { NumberUtils } from "src/utils/number.utils";
 
 @Injectable()
@@ -24,7 +24,7 @@ export class StakingDetailedIngest implements Ingest {
     private readonly elasticService: ElasticService,
   ) { }
 
-  public async fetch(): Promise<IngestResponse> {
+  public async fetch(): Promise<IngestRecords[]> {
     const epoch = await this.gatewayService.getEpoch();
     const timestamp = moment.utc().startOf('day').subtract(1, 'days').toDate();
 
@@ -94,6 +94,7 @@ export class StakingDetailedIngest implements Ingest {
           new RangeQuery('delegationLegacyWaitingNum', { gt: 0 }),
           new RangeQuery('delegationLegacyActiveNum', { gt: 0 }),
         ])),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       this.apiService.post<any, any>(`${this.apiConfigService.getElasticUrl()}/accounts-000001_${epoch}/_search`, {
         aggs: {
           delegationTotal: { sum: { field: 'delegationNum' } },
@@ -142,12 +143,10 @@ export class StakingDetailedIngest implements Ingest {
         user_average: userAverage,
       },
     };
-    return {
-      historical: {
-        entity: StakingHistoricalEntity,
-        records: StakingHistoricalEntity.fromObject(timestamp, data),
-      },
-    };
+    return [{
+      entity: StakingHistoricalEntity,
+      records: StakingHistoricalEntity.fromObject(timestamp, data),
+    }];
   }
 
   private async getDelegationLegacyTotal(): Promise<number[]> {

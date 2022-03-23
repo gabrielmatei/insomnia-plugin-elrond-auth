@@ -1,7 +1,6 @@
-import { IngestResponse } from "./ingest.response";
+import { IngestRecords } from "./ingest.records";
 
 export interface Ingest {
   name: string;
-  // entityTarget: EntityTarget<GenericIngestEntity>;
-  fetch(): Promise<IngestResponse>
+  fetch(): Promise<IngestRecords[]>
 }

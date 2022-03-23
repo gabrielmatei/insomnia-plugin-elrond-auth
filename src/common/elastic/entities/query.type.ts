@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { AbstractQuery } from "./abstract.query";
 import { ExistsQuery } from "./exists.query";
 import { MatchQuery } from "./match.query";

@@ -21,6 +21,7 @@ export class TransactionsService {
     this.logger = new Logger(TransactionsService.name);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public async getTransactionTransfers(transaction: any): Promise<{ tokens: string[], nfts: string[], contracts: string[] }> {
     const tokens = [];
     const nfts = [];
@@ -78,6 +79,7 @@ export class TransactionsService {
 
   private async isNftCollection(identifier: string): Promise<boolean> {
     try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const nftResponse = await this.apiService.get<any>(`${this.apiConfigService.getApiUrl()}/nfts/${identifier}`);
 
       if (nftResponse?.hasOwnProperty('uris')) {
@@ -91,6 +93,7 @@ export class TransactionsService {
     return false;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private async getTransactionMetadata(transaction: any): Promise<TransactionMetadata> {
     const metadata = this.getNormalTransactionMetadata(transaction);
 
@@ -112,6 +115,7 @@ export class TransactionsService {
     return metadata;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private getNormalTransactionMetadata(transaction: any): TransactionMetadata {
     const metadata = new TransactionMetadata();
     metadata.sender = transaction.sender;

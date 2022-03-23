@@ -6,6 +6,7 @@ import { QueryCondition } from "./query.condition";
 import { QueryConditionOptions } from "./query.condition.options";
 import { TermsQuery } from "./terms.query";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function buildElasticIndexerSort(sorts: ElasticSortProperty[]): any[] {
   if (!sorts) {
     return [];

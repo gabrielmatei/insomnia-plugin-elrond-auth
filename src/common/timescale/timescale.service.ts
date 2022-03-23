@@ -113,6 +113,7 @@ export class TimescaleService {
       [series, key]
     );
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return rows.map((row: any) => new ScalarValue({
       value: row.value,
       time: moment(row.time).toISOString(),

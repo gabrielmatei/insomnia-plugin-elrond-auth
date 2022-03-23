@@ -5,7 +5,7 @@ import { ApiService } from "src/common/network/api.service";
 import { ExchangesEntity } from "src/common/timescale/entities/exchanges.entity";
 import { TimescaleService } from "src/common/timescale/timescale.service";
 import { Ingest } from "src/crons/data-ingester/entities/ingest.interface";
-import { IngestResponse } from "src/crons/data-ingester/entities/ingest.response";
+import { IngestRecords } from "src/crons/data-ingester/entities/ingest.records";
 
 @Injectable()
 export class ExchangesIngest implements Ingest {
@@ -18,10 +18,11 @@ export class ExchangesIngest implements Ingest {
     private readonly timescaleService: TimescaleService,
   ) { }
 
-  public async fetch(): Promise<IngestResponse> {
+  public async fetch(): Promise<IngestRecords[]> {
     const timestamp = moment.utc().toDate();
     const exchangeWallets = this.apiConfigService.getExchangeWallets();
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const exchangeDetails: any = {};
 
     let totalBalance = 0;
@@ -49,12 +50,10 @@ export class ExchangesIngest implements Ingest {
       outflow_24h: totalOutflow24h,
     };
 
-    return {
-      current: {
-        entity: ExchangesEntity,
-        records: ExchangesEntity.fromObject(timestamp, exchangeDetails),
-      },
-    };
+    return [{
+      entity: ExchangesEntity,
+      records: ExchangesEntity.fromObject(timestamp, exchangeDetails),
+    }];
   }
 
   private async getExchangeBalance(wallets: string[]): Promise<number> {

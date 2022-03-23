@@ -5,9 +5,9 @@ import { ApiService } from "src/common/network/api.service";
 import { Ingest } from "src/crons/data-ingester/entities/ingest.interface";
 import { StakingHistoricalBackupEntity } from "src/common/timescale/entities/staking-historical-backup.entity";
 import { StakingService } from "src/common/staking/staking.service";
+import { IngestRecords } from "src/crons/data-ingester/entities/ingest.records";
 
 import { stakingActiveList } from "config/temp_stakingWallets.json";
-import { IngestResponse } from "src/crons/data-ingester/entities/ingest.response";
 
 @Injectable()
 export class StakingNewIngest implements Ingest {
@@ -20,7 +20,7 @@ export class StakingNewIngest implements Ingest {
     private readonly stakingService: StakingService,
   ) { }
 
-  public async fetch(): Promise<IngestResponse> {
+  public async fetch(): Promise<IngestRecords[]> {
     const timestamp = moment.utc().toDate();
 
     const { staked } = await this.apiService.get(`${this.apiConfigService.getApiUrl()}/economics`);
@@ -60,11 +60,9 @@ export class StakingNewIngest implements Ingest {
       legacydelegation,
       total,
     };
-    return {
-      backup: {
-        entity: StakingHistoricalBackupEntity,
-        records: StakingHistoricalBackupEntity.fromObject(timestamp, data),
-      },
-    };
+    return [{
+      entity: StakingHistoricalBackupEntity,
+      records: StakingHistoricalBackupEntity.fromObject(timestamp, data),
+    }];
   }
 }

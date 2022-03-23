@@ -22,6 +22,7 @@ export class GithubService {
     this.octokit = new MyOctokit({
       auth: this.apiConfigService.getGithubAccessToken(),
       throttle: {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         onRateLimit: (retryAfter: number, options: any) => {
           this.logger.warn(`Request quota exhausted for request ${options.method} ${options.url}`);
 
@@ -31,6 +32,7 @@ export class GithubService {
           }
           return false;
         },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         onAbuseLimit: (retryAfter: number, options: any) => {
           this.logger.warn(`Abuse detected for request ${options.method} ${options.url}. Retry after ${retryAfter}`);
         },
@@ -67,7 +69,9 @@ export class GithubService {
     return commits;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public async getLastCommits(organization: string, repository: string, startDate: moment.Moment, endDate: moment.Moment): Promise<any> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const branches: any[] = await this.octokit.paginate('GET /repos/{owner}/{repo}/branches?per_page=100', {
       owner: organization,
       repo: repository,

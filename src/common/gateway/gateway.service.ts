@@ -15,6 +15,7 @@ export class GatewayService {
     private readonly metricsService: MetricsService,
   ) { }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async get(url: string, component: GatewayComponentRequest): Promise<any> {
     const profiler = new PerformanceProfiler();
 
@@ -28,6 +29,7 @@ export class GatewayService {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async getRaw(url: string, component: GatewayComponentRequest): Promise<any> {
     const profiler = new PerformanceProfiler();
 
@@ -40,6 +42,7 @@ export class GatewayService {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async createRaw(url: string, component: GatewayComponentRequest, data: any): Promise<any> {
     const profiler = new PerformanceProfiler();
 

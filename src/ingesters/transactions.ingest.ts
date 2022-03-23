@@ -10,7 +10,7 @@ import { TransactionsHistoricalEntity } from "src/common/timescale/entities/tran
 import { TransactionsEntity } from "src/common/timescale/entities/transactions.entity";
 import { TimescaleService } from "src/common/timescale/timescale.service";
 import { Ingest } from "src/crons/data-ingester/entities/ingest.interface";
-import { IngestResponse } from "src/crons/data-ingester/entities/ingest.response";
+import { IngestRecords } from "src/crons/data-ingester/entities/ingest.records";
 
 @Injectable()
 export class TransactionsIngest implements Ingest {
@@ -24,7 +24,7 @@ export class TransactionsIngest implements Ingest {
     private readonly timescaleService: TimescaleService,
   ) { }
 
-  public async fetch(): Promise<IngestResponse> {
+  public async fetch(): Promise<IngestRecords[]> {
     const startDate = moment.utc().startOf('day').subtract(1, 'day');
     const endDate = moment.utc().startOf('day');
 
@@ -73,19 +73,19 @@ export class TransactionsIngest implements Ingest {
         count_24h: transactionsCount24h,
       },
     };
-    return {
-      current: {
+    return [
+      {
         entity: TransactionsEntity,
         records: TransactionsEntity.fromObject(startDate.toDate(), data),
       },
-      historical: {
+      {
         entity: TransactionsHistoricalEntity,
         records: TransactionsHistoricalEntity.fromObject(startDate.toDate(), data),
       },
-      backup: {
+      {
         entity: TransactionsHistoricalBackupEntity,
         records: TransactionsHistoricalBackupEntity.fromObject(startDate.toDate(), data),
       },
-    };
+    ];
   }
 }

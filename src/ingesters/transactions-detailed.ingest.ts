@@ -9,8 +9,8 @@ import { Injectable } from "@nestjs/common";
 import { GatewayService } from "src/common/gateway/gateway.service";
 import { CachingService } from "src/common/caching/caching.service";
 import { TransactionsDetailedEntity } from "src/common/timescale/entities/transactions-detailed.entity";
-import { IngestResponse } from "src/crons/data-ingester/entities/ingest.response";
 import { TransactionsService } from "src/common/transactions/transactions.service";
+import { IngestRecords } from "src/crons/data-ingester/entities/ingest.records";
 
 @Injectable()
 export class TransactionsDetailedIngest implements Ingest {
@@ -30,12 +30,11 @@ export class TransactionsDetailedIngest implements Ingest {
     private readonly transactionsService: TransactionsService,
   ) { }
 
-  public async fetch(): Promise<IngestResponse> {
+  public async fetch(): Promise<IngestRecords[]> {
     const startDate = moment.utc().startOf('day').subtract(1, 'day');
     const endDate = moment.utc().startOf('day');
 
     const elasticQuery = ElasticQuery.create()
-      // .withFields(['sender', 'value', 'fee', 'sender', 'receiver', 'data', 'type'])
       .withPagination({ size: 10000 })
       .withFilter([
         new RangeQuery('timestamp', {
@@ -52,6 +51,7 @@ export class TransactionsDetailedIngest implements Ingest {
     let totalNftTransfers = new BigNumber(0);
     let totalContractsTransfers = new BigNumber(0);
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await this.elasticService.computeAllItems(this.apiConfigService.getElasticUrl(), 'transactions', 'hash', elasticQuery, async (transactions: any[]) => {
       const [
         _valueMoved,
@@ -100,14 +100,13 @@ export class TransactionsDetailedIngest implements Ingest {
         new_emission: newEmission.shiftedBy(-18).toNumber(),
       },
     };
-    return {
-      historical: {
-        entity: TransactionsDetailedEntity,
-        records: TransactionsDetailedEntity.fromObject(startDate.toDate(), data),
-      },
-    };
+    return [{
+      entity: TransactionsDetailedEntity,
+      records: TransactionsDetailedEntity.fromObject(startDate.toDate(), data),
+    }];
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private async computeTransactionsPage(transactions: any[]): Promise<BigNumber[]> {
     let valueMoved = new BigNumber(0);
     let totalFees = new BigNumber(0);

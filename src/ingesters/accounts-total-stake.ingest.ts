@@ -6,7 +6,7 @@ import { GatewayService } from "src/common/gateway/gateway.service";
 import { AccountsHistoricalEntity } from "src/common/timescale/entities/accounts-historical.entity";
 import { TimescaleService } from "src/common/timescale/timescale.service";
 import { Ingest } from "src/crons/data-ingester/entities/ingest.interface";
-import { IngestResponse } from "src/crons/data-ingester/entities/ingest.response";
+import { IngestRecords } from "src/crons/data-ingester/entities/ingest.records";
 
 @Injectable()
 export class AccountsTotalStakeIngest implements Ingest {
@@ -19,7 +19,7 @@ export class AccountsTotalStakeIngest implements Ingest {
     private readonly timescaleService: TimescaleService,
   ) { }
 
-  public async fetch(): Promise<IngestResponse> {
+  public async fetch(): Promise<IngestRecords[]> {
     const epoch = await this.gatewayService.getEpoch();
     const timestamp = moment.utc().startOf('day').subtract(1, 'days').toDate();
 
@@ -53,11 +53,9 @@ export class AccountsTotalStakeIngest implements Ingest {
         count_24h: count24h,
       },
     };
-    return {
-      historical: {
-        entity: AccountsHistoricalEntity,
-        records: AccountsHistoricalEntity.fromObject(timestamp, data),
-      },
-    };
+    return [{
+      entity: AccountsHistoricalEntity,
+      records: AccountsHistoricalEntity.fromObject(timestamp, data),
+    }];
   }
 }

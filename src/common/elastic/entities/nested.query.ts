@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { AbstractQuery } from "./abstract.query";
 import { QueryType } from "./query.type";
 

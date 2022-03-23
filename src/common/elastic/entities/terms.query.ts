@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { AbstractQuery } from "./abstract.query";
 
 export class TermsQuery extends AbstractQuery {

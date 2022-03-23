@@ -5,7 +5,7 @@ import { ApiService } from "src/common/network/api.service";
 import { QuotesHistoricalEntity } from "src/common/timescale/entities/quotes-historical.entity";
 import { QuotesEntity } from "src/common/timescale/entities/quotes.entity";
 import { Ingest } from "src/crons/data-ingester/entities/ingest.interface";
-import { IngestResponse } from "src/crons/data-ingester/entities/ingest.response";
+import { IngestRecords } from "src/crons/data-ingester/entities/ingest.records";
 
 @Injectable()
 export class QuotesIngest implements Ingest {
@@ -17,9 +17,10 @@ export class QuotesIngest implements Ingest {
     private readonly apiService: ApiService,
   ) { }
 
-  public async fetch(): Promise<IngestResponse> {
+  public async fetch(): Promise<IngestRecords[]> {
     const timestamp = moment.utc().toDate();
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: quotesRaw } = await this.apiService.get<any>(
       'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest',
       {
@@ -31,7 +32,9 @@ export class QuotesIngest implements Ingest {
         },
       });
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const data: any = {};
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     Object.entries(quotesRaw).map(([key, value]: [string, any]) => {
       const { price, market_cap, volume_24h } = value.quote.USD;
 
@@ -43,15 +46,15 @@ export class QuotesIngest implements Ingest {
       };
     });
 
-    return {
-      current: {
+    return [
+      {
         entity: QuotesEntity,
         records: QuotesEntity.fromObject(timestamp, data),
       },
-      historical: {
+      {
         entity: QuotesHistoricalEntity,
         records: QuotesHistoricalEntity.fromObject(timestamp, data),
       },
-    };
+    ];
   }
 }

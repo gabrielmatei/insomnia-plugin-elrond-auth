@@ -4,7 +4,7 @@ import { ApiConfigService } from "src/common/api-config/api.config.service";
 import { ApiService } from "src/common/network/api.service";
 import { TwitterEntity } from "src/common/timescale/entities/twitter.entity";
 import { Ingest } from "src/crons/data-ingester/entities/ingest.interface";
-import { IngestResponse } from "src/crons/data-ingester/entities/ingest.response";
+import { IngestRecords } from "src/crons/data-ingester/entities/ingest.records";
 
 @Injectable()
 export class TwitterIngest implements Ingest {
@@ -21,7 +21,7 @@ export class TwitterIngest implements Ingest {
     private readonly apiService: ApiService,
   ) { }
 
-  public async fetch(): Promise<IngestResponse> {
+  public async fetch(): Promise<IngestRecords[]> {
     const startTime = moment.utc().startOf('day').subtract(1, 'day');
     const endTime = moment.utc().startOf('day');
 
@@ -34,12 +34,10 @@ export class TwitterIngest implements Ingest {
         followers,
       },
     };
-    return {
-      current: {
-        entity: TwitterEntity,
-        records: TwitterEntity.fromObject(startTime.toDate(), data),
-      },
-    };
+    return [{
+      entity: TwitterEntity,
+      records: TwitterEntity.fromObject(startTime.toDate(), data),
+    }];
   }
 
   private getTwitterAuthorizationHeaders() {
@@ -73,7 +71,7 @@ export class TwitterIngest implements Ingest {
     let previousToken = null;
     let callsMade = 1;
 
-    const getTwitterMentions = async (token: any) => {
+    const getTwitterMentions = async (token: string | null) => {
       previousToken = token;
 
       const params = {
@@ -83,6 +81,7 @@ export class TwitterIngest implements Ingest {
         max_results: 100,
         next_token: previousToken,
       };
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { meta } = await this.apiService.get<any>(
         `${this.apiConfigService.getTwitterUrl()}/tweets/search/recent`,
         {

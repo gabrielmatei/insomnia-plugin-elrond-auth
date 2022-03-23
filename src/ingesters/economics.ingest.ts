@@ -5,7 +5,7 @@ import { ElasticService } from "src/common/elastic/elastic.service";
 import { ApiService } from "src/common/network/api.service";
 import { EconomicsEntity } from "src/common/timescale/entities/economics.entity";
 import { Ingest } from "src/crons/data-ingester/entities/ingest.interface";
-import { IngestResponse } from "src/crons/data-ingester/entities/ingest.response";
+import { IngestRecords } from "src/crons/data-ingester/entities/ingest.records";
 
 @Injectable()
 export class EconomicsIngest implements Ingest {
@@ -22,7 +22,7 @@ export class EconomicsIngest implements Ingest {
     this.elasticService = elasticService;
   }
 
-  public async fetch(): Promise<IngestResponse> {
+  public async fetch(): Promise<IngestRecords[]> {
     const timestamp = moment.utc().startOf('day').subtract(1, 'days').toDate();
 
     const {
@@ -45,11 +45,9 @@ export class EconomicsIngest implements Ingest {
         left_per_user: leftPerUser,
       },
     };
-    return {
-      current: {
-        entity: EconomicsEntity,
-        records: EconomicsEntity.fromObject(timestamp, data),
-      },
-    };
+    return [{
+      entity: EconomicsEntity,
+      records: EconomicsEntity.fromObject(timestamp, data),
+    }];
   }
 }

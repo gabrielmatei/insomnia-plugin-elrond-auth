@@ -4,7 +4,7 @@ import { ApiConfigService } from "src/common/api-config/api.config.service";
 import { GithubService } from "src/common/github/github.service";
 import { GithubActivityEntity } from "src/common/timescale/entities/github-activity.entity";
 import { Ingest } from "src/crons/data-ingester/entities/ingest.interface";
-import { IngestResponse } from "src/crons/data-ingester/entities/ingest.response";
+import { IngestRecords } from "src/crons/data-ingester/entities/ingest.records";
 
 @Injectable()
 export class GithubCommitsIngest implements Ingest {
@@ -16,12 +16,13 @@ export class GithubCommitsIngest implements Ingest {
     private readonly githubService: GithubService,
   ) { }
 
-  public async fetch(): Promise<IngestResponse> {
+  public async fetch(): Promise<IngestRecords[]> {
     const timestamp = moment.utc().toDate();
 
     const organization = 'ElrondNetwork';
     const featuredRepositories = this.apiConfigService.getFeaturedGithubRepositories();
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const repoDetails: any = {};
     let totalCommits = 0;
     let featuredCommits = 0;
@@ -50,11 +51,9 @@ export class GithubCommitsIngest implements Ingest {
       commits: featuredCommits,
     };
 
-    return {
-      historical: {
-        entity: GithubActivityEntity,
-        records: GithubActivityEntity.fromObject(timestamp, repoDetails),
-      },
-    };
+    return [{
+      entity: GithubActivityEntity,
+      records: GithubActivityEntity.fromObject(timestamp, repoDetails),
+    }];
   }
 }

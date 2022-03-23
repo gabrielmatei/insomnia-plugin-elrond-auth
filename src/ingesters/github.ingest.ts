@@ -4,7 +4,7 @@ import { ApiConfigService } from "src/common/api-config/api.config.service";
 import { GithubService } from "src/common/github/github.service";
 import { GithubEntity } from "src/common/timescale/entities/github.entity";
 import { Ingest } from "src/crons/data-ingester/entities/ingest.interface";
-import { IngestResponse } from "src/crons/data-ingester/entities/ingest.response";
+import { IngestRecords } from "src/crons/data-ingester/entities/ingest.records";
 
 @Injectable()
 export class GithubIngest implements Ingest {
@@ -16,9 +16,10 @@ export class GithubIngest implements Ingest {
     private readonly githubService: GithubService,
   ) { }
 
-  public async fetch(): Promise<IngestResponse> {
+  public async fetch(): Promise<IngestRecords[]> {
     const timestamp = moment.utc().toDate();
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const repoDetails: any = {};
 
     let totalStars = 0;
@@ -79,11 +80,9 @@ export class GithubIngest implements Ingest {
       contributors: featuredAuthors.size,
     };
 
-    return {
-      current: {
-        entity: GithubEntity,
-        records: GithubEntity.fromObject(timestamp, repoDetails),
-      },
-    };
+    return [{
+      entity: GithubEntity,
+      records: GithubEntity.fromObject(timestamp, repoDetails),
+    }];
   }
 }

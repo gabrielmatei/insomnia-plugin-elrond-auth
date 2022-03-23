@@ -7,7 +7,7 @@ import { AccountsHistoricalEntity } from "src/common/timescale/entities/accounts
 import { AccountsEntity } from "src/common/timescale/entities/accounts.entity";
 import { TimescaleService } from "src/common/timescale/timescale.service";
 import { Ingest } from "src/crons/data-ingester/entities/ingest.interface";
-import { IngestResponse } from "src/crons/data-ingester/entities/ingest.response";
+import { IngestRecords } from "src/crons/data-ingester/entities/ingest.records";
 
 @Injectable()
 export class AccountsIngest implements Ingest {
@@ -21,7 +21,7 @@ export class AccountsIngest implements Ingest {
     private readonly timescaleService: TimescaleService,
   ) { }
 
-  public async fetch(): Promise<IngestResponse> {
+  public async fetch(): Promise<IngestRecords[]> {
     const timestamp = moment.utc().toDate();
 
     const [
@@ -63,8 +63,8 @@ export class AccountsIngest implements Ingest {
     const contractsCount24h = previousContractsResult24h && previousContractsResult24h > 0 ? contractsCount - previousContractsResult24h : 0;
     const maiarCount24h = previousMaiarResult24h && previousMaiarResult24h > 0 ? maiarCount - previousMaiarResult24h : 0;
 
-    return {
-      current: {
+    return [
+      {
         entity: AccountsEntity,
         records: AccountsEntity.fromObject(timestamp, {
           accounts: {
@@ -88,7 +88,7 @@ export class AccountsIngest implements Ingest {
           },
         }),
       },
-      historical: {
+      {
         entity: AccountsHistoricalEntity,
         records: AccountsHistoricalEntity.fromObject(timestamp, {
           accounts: {
@@ -114,6 +114,6 @@ export class AccountsIngest implements Ingest {
           },
         }),
       },
-    };
+    ];
   }
 }

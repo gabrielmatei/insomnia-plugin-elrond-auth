@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { forwardRef, Inject, Injectable, Logger } from "@nestjs/common";
 import { ApiService } from "../network/api.service";
 import { PerformanceProfiler } from "src/utils/performance.profiler";
