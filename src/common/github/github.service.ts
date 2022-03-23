@@ -41,7 +41,7 @@ export class GithubService {
   }
 
   async getRepositories(organization: string): Promise<string[]> {
-    return this.cachingService.getOrSetCache(
+    return await this.cachingService.getOrSetCache(
       CacheInfo.Repositories(organization).key,
       async () => await this.getRepositoriesRaw(organization),
       CacheInfo.Repositories(organization).ttl,

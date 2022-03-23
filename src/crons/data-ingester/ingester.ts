@@ -20,7 +20,7 @@ export class Ingester {
     this.logger = new Logger(Ingester.name);
   }
 
-  public async start(items: IngestItem[]) {
+  public start(items: IngestItem[]) {
     this.logger.log('Start data ingester');
 
     const jobs = items.map(item => this.scheduleIngestItem(item));

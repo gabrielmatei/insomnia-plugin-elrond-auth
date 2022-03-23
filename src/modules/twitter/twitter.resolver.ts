@@ -12,7 +12,7 @@ export class TwitterResolver {
   ) { }
 
   @Query(() => TwitterModel, { name: 'twitter' })
-  async getTwitter(): Promise<TwitterModel> {
+  getBaseModel(): TwitterModel {
     return new TwitterModel();
   }
 

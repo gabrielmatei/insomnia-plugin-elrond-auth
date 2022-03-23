@@ -61,7 +61,8 @@ export class ExchangesDetailedIngest implements Ingest {
     let totalValue = new BigNumber(0);
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const computeTransactionsPage = async (transactions: any[]) => {
+    // eslint-disable-next-line require-await
+    const computeTransactionsPage = async (_index: number, transactions: any[]) => {
       for (const transaction of transactions) {
         totalValue = totalValue.plus(new BigNumber(transaction.value));
       }

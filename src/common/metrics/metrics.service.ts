@@ -139,6 +139,6 @@ export class MetricsService {
   }
 
   async getMetrics(): Promise<string> {
-    return register.metrics();
+    return await register.metrics();
   }
 }

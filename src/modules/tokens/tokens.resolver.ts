@@ -13,7 +13,7 @@ export class TokensResolver {
   ) { }
 
   @Query(() => TokensModel, { name: 'tokens' })
-  async getBaseModel(): Promise<TokensModel> {
+  getBaseModel(): TokensModel {
     return new TokensModel();
   }
 

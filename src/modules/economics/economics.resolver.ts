@@ -12,7 +12,7 @@ export class EconomicsResolver {
   ) { }
 
   @Query(() => EconomicsModel, { name: 'economics' })
-  async getEconomics(): Promise<EconomicsModel> {
+  getBaseModel(): EconomicsModel {
     return new EconomicsModel();
   }
 

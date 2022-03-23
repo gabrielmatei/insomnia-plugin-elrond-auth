@@ -13,7 +13,7 @@ export class NftsResolver {
   ) { }
 
   @Query(() => NftsModel, { name: 'nfts' })
-  async getBaseModel(): Promise<NftsModel> {
+  getBaseModel(): NftsModel {
     return new NftsModel();
   }
 

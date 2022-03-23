@@ -70,4 +70,5 @@ async function bootstrap() {
   logger.log(`Data ingester active: ${apiConfigService.getIsDataIngesterFeatureActive()}`);
 }
 
+// eslint-disable-next-line @typescript-eslint/no-floating-promises
 bootstrap();

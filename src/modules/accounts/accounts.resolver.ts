@@ -15,7 +15,7 @@ export class AccountsResolver {
   ) { }
 
   @Query(() => AccountsModel, { name: 'accounts' })
-  async getBaseModel(): Promise<AccountsModel> {
+  getBaseModel(): AccountsModel {
     return new AccountsModel();
   }
 
@@ -35,27 +35,27 @@ export class AccountsResolver {
   }
 
   @ResolveField(() => ThresholdCountModel, { name: 'balance' })
-  async balance(): Promise<ThresholdCountModel<AccountsHistoricalEntity>> {
+  balance(): ThresholdCountModel<AccountsHistoricalEntity> {
     return new ThresholdCountModel('balance', AccountsHistoricalEntity);
   }
 
   @ResolveField(() => ThresholdCountModel, { name: 'delegation_legacy_active' })
-  async delegation_legacy_active(): Promise<ThresholdCountModel<AccountsHistoricalEntity>> {
+  delegation_legacy_active(): ThresholdCountModel<AccountsHistoricalEntity> {
     return new ThresholdCountModel('delegationlegacyactive', AccountsHistoricalEntity);
   }
 
   @ResolveField(() => ThresholdCountModel, { name: 'delegation' })
-  async delegation(): Promise<ThresholdCountModel<AccountsHistoricalEntity>> {
+  delegation(): ThresholdCountModel<AccountsHistoricalEntity> {
     return new ThresholdCountModel('delegation', AccountsHistoricalEntity);
   }
 
   @ResolveField(() => ThresholdCountModel, { name: 'total_balance_with_stake' })
-  async total_balance_with_stake(): Promise<ThresholdCountModel<AccountsHistoricalEntity>> {
+  total_balance_with_stake(): ThresholdCountModel<AccountsHistoricalEntity> {
     return new ThresholdCountModel('totalbalancewithstake', AccountsHistoricalEntity);
   }
 
   @ResolveField(() => ThresholdCountModel, { name: 'total_stake' })
-  async total_stake(): Promise<ThresholdCountModel<AccountsHistoricalEntity>> {
+  total_stake(): ThresholdCountModel<AccountsHistoricalEntity> {
     return new ThresholdCountModel('totalstake', AccountsHistoricalEntity);
   }
 }

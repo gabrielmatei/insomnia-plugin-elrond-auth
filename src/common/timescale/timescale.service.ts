@@ -128,7 +128,7 @@ export class TimescaleService {
   ): Promise<ScalarValue[]> {
     const cacheInfo = CacheInfo.QueryResult(entity, series, key, query);
 
-    return this.cachingService.getOrSetCache(
+    return await this.cachingService.getOrSetCache(
       cacheInfo.key,
       async () => await this.resolveQueryRaw(entity, series, key, query),
       cacheInfo.ttl,

@@ -5,57 +5,57 @@ import { ExchangesModel } from './models/exchanges.model';
 @Resolver(() => ExchangesModel)
 export class ExchangesResolver {
   @Query(() => ExchangesModel, { name: 'exchanges' })
-  async getExchanges(): Promise<ExchangesModel> {
+  getBaseModel(): ExchangesModel {
     return new ExchangesModel();
   }
 
   @ResolveField(() => ExchangeModel, { name: 'total' })
-  async getTotalExchanges(): Promise<ExchangeModel> {
+  getTotalExchanges(): ExchangeModel {
     return new ExchangeModel('total');
   }
 
   @ResolveField(() => ExchangeModel, { name: 'binance_com' })
-  async getBinanceComExchange(): Promise<ExchangeModel> {
+  getBinanceComExchange(): ExchangeModel {
     return new ExchangeModel('Binance.com');
   }
 
   @ResolveField(() => ExchangeModel, { name: 'binance_us' })
-  async getBinanceUsExchange(): Promise<ExchangeModel> {
+  getBinanceUsExchange(): ExchangeModel {
     return new ExchangeModel('Binance.us');
   }
 
   @ResolveField(() => ExchangeModel, { name: 'bitfinex' })
-  async getBitfinexExchange(): Promise<ExchangeModel> {
+  getBitfinexExchange(): ExchangeModel {
     return new ExchangeModel('Bitfinex');
   }
 
   @ResolveField(() => ExchangeModel, { name: 'bithumb' })
-  async getBithumbExchange(): Promise<ExchangeModel> {
+  getBithumbExchange(): ExchangeModel {
     return new ExchangeModel('Bithumb');
   }
 
   @ResolveField(() => ExchangeModel, { name: 'bitmax' })
-  async getBitmaxExchange(): Promise<ExchangeModel> {
+  getBitmaxExchange(): ExchangeModel {
     return new ExchangeModel('Bitmax');
   }
 
   @ResolveField(() => ExchangeModel, { name: 'crypto_com' })
-  async getCryptoComExchange(): Promise<ExchangeModel> {
+  getCryptoComExchange(): ExchangeModel {
     return new ExchangeModel('Crypto.com');
   }
 
   @ResolveField(() => ExchangeModel, { name: 'kucoin' })
-  async getKucoinExchange(): Promise<ExchangeModel> {
+  getKucoinExchange(): ExchangeModel {
     return new ExchangeModel('Kucoin');
   }
 
   @ResolveField(() => ExchangeModel, { name: 'liquid' })
-  async getLiquidExchange(): Promise<ExchangeModel> {
+  getLiquidExchange(): ExchangeModel {
     return new ExchangeModel('Liquid');
   }
 
   @ResolveField(() => ExchangeModel, { name: 'okex' })
-  async getOkexExchange(): Promise<ExchangeModel> {
+  getOkexExchange(): ExchangeModel {
     return new ExchangeModel('Okex');
   }
 }

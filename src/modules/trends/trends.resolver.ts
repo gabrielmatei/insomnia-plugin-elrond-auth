@@ -12,7 +12,7 @@ export class TrendsResolver {
   ) { }
 
   @Query(() => TrendsModel, { name: 'trends' })
-  async getTrends(): Promise<TrendsModel> {
+  getBaseModel(): TrendsModel {
     return new TrendsModel();
   }
 

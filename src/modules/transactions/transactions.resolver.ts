@@ -13,7 +13,7 @@ export class TransactionsResolver {
   ) { }
 
   @Query(() => TransactionsModel, { name: 'transactions' })
-  async getBaseModel(): Promise<TransactionsModel> {
+  getBaseModel(): TransactionsModel {
     return new TransactionsModel();
   }
 

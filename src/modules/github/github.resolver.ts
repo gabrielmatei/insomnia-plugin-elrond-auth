@@ -6,24 +6,24 @@ import { GithubModel } from './models/github.model';
 @Resolver(() => GithubModel)
 export class GithubResolver {
   @Query(() => GithubModel, { name: 'github' })
-  async getBaseModel(): Promise<GithubModel> {
+  getBaseModel(): GithubModel {
     return new GithubModel();
   }
 
   @ResolveField(() => GithubActivityModel, { name: 'total' })
-  async total(): Promise<GithubActivityModel> {
+  total(): GithubActivityModel {
     return new GithubActivityModel('total');
   }
 
   @ResolveField(() => GithubActivityModel, { name: 'featured' })
-  async featured(): Promise<GithubActivityModel> {
+  featured(): GithubActivityModel {
     return new GithubActivityModel('featured');
   }
 
   @ResolveField(() => GithubActivityModel, { name: 'repository' })
-  async repository(
+  repository(
     @Args({ name: 'repository', type: () => FeaturedRepositoryEnum }) repository: FeaturedRepositoryEnum
-  ): Promise<GithubActivityModel> {
+  ): GithubActivityModel {
     return new GithubActivityModel(repository);
   }
 }

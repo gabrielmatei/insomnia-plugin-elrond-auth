@@ -5,37 +5,37 @@ import { StakingModel } from './models/staking.model';
 @Resolver(() => StakingModel)
 export class StakingResolver {
   @Query(() => StakingModel, { name: 'staking' })
-  async getBaseModel(): Promise<StakingModel> {
+  getBaseModel(): StakingModel {
     return new StakingModel();
   }
 
   @ResolveField(() => StakingTypeModel, { name: 'total' })
-  async total(): Promise<StakingTypeModel> {
+  total(): StakingTypeModel {
     return new StakingTypeModel('total');
   }
 
   @ResolveField(() => StakingTypeModel, { name: 'staking' })
-  async staking(): Promise<StakingTypeModel> {
+  staking(): StakingTypeModel {
     return new StakingTypeModel('staking');
   }
 
   @ResolveField(() => StakingTypeModel, { name: 'delegation' })
-  async delegation(): Promise<StakingTypeModel> {
+  delegation(): StakingTypeModel {
     return new StakingTypeModel('delegation');
   }
 
   @ResolveField(() => StakingTypeModel, { name: 'legacy_delegation' })
-  async legacyDelegation(): Promise<StakingTypeModel> {
+  legacyDelegation(): StakingTypeModel {
     return new StakingTypeModel('legacydelegation');
   }
 
   @ResolveField(() => StakingTypeModel, { name: 'legacy_delegation_active' })
-  async legacyDelegationActive(): Promise<StakingTypeModel> {
+  legacyDelegationActive(): StakingTypeModel {
     return new StakingTypeModel('legacydelegationactive');
   }
 
   @ResolveField(() => StakingTypeModel, { name: 'legacy_delegation_waiting_list' })
-  async legacyDelegationWaitingList(): Promise<StakingTypeModel> {
+  legacyDelegationWaitingList(): StakingTypeModel {
     return new StakingTypeModel('legacydelegationwaitinglist');
   }
 }

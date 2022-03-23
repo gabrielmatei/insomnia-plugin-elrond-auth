@@ -89,7 +89,7 @@ export class ElasticService {
 
   async getDetailedRangeCount(elasticUrl: string, collection: string, key: string, gts: number[]) {
     const result = await Promise.all(
-      gts.map(async (gt: number) => this.getCount(
+      gts.map(async (gt: number) => await this.getCount(
         elasticUrl,
         collection,
         ElasticQuery.create().withFilter([

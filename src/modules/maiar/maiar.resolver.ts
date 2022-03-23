@@ -12,7 +12,7 @@ export class MaiarResolver {
   ) { }
 
   @Query(() => MaiarModel, { name: 'maiar' })
-  async getBaseModel(): Promise<MaiarModel> {
+  getBaseModel(): MaiarModel {
     return new MaiarModel();
   }
 
