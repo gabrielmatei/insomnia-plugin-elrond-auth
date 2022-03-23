@@ -100,16 +100,15 @@ export class ElasticService {
     return result;
   }
 
-  public async computeAllItems(elasticUrl: string, collection: string, key: string, elasticQuery: ElasticQuery, computePage: (transactions: any[]) => Promise<void>) {
+  public async computeAllItems(elasticUrl: string, collection: string, key: string, elasticQuery: ElasticQuery, computePage: (index: number, transactions: any[]) => Promise<void>) {
     const { scrollId, items: firstItems } = await this.getFirstPageUsingScrollApi(elasticUrl, collection, key, elasticQuery);
 
     let index = 0;
     let items = firstItems;
     while (items.length > 0) {
-      index += items.length;
+      await computePage(index, items);
 
-      await computePage(items);
-
+      index++;
       items = await this.getNextPageUsingScrollApi(elasticUrl, scrollId, key);
 
       this.logger.log({ items: items.length, totalItems: index });

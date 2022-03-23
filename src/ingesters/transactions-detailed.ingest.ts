@@ -5,7 +5,7 @@ import { ElasticQuery } from "src/common/elastic/entities/elastic.query";
 import { RangeQuery } from "src/common/elastic/entities/range.query";
 import { Ingest } from "src/crons/data-ingester/entities/ingest.interface";
 import BigNumber from "bignumber.js";
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { GatewayService } from "src/common/gateway/gateway.service";
 import { CachingService } from "src/common/caching/caching.service";
 import { TransactionsDetailedEntity } from "src/common/timescale/entities/transactions-detailed.entity";
@@ -22,13 +22,17 @@ export class TransactionsDetailedIngest implements Ingest {
   public readonly name = TransactionsDetailedIngest.name;
   public readonly entityTarget = TransactionsDetailedEntity;
 
+  private readonly logger: Logger;
+
   constructor(
     private readonly apiConfigService: ApiConfigService,
     private readonly elasticService: ElasticService,
     private readonly gatewayService: GatewayService,
     private readonly cachingService: CachingService,
     private readonly transactionsService: TransactionsService,
-  ) { }
+  ) {
+    this.logger = new Logger(TransactionsDetailedIngest.name);
+  }
 
   public async fetch(): Promise<IngestRecords[]> {
     const startDate = moment.utc().startOf('day').subtract(1, 'day');
@@ -52,7 +56,9 @@ export class TransactionsDetailedIngest implements Ingest {
     let totalContractsTransfers = new BigNumber(0);
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await this.elasticService.computeAllItems(this.apiConfigService.getElasticUrl(), 'transactions', 'hash', elasticQuery, async (transactions: any[]) => {
+    await this.elasticService.computeAllItems(this.apiConfigService.getElasticUrl(), 'transactions', 'hash', elasticQuery, async (index: number, transactions: any[]) => {
+      this.logger.log(`Start computing page ${index} with ${transactions.length} transactions`);
+
       const [
         _valueMoved,
         _totalFees,
@@ -66,6 +72,8 @@ export class TransactionsDetailedIngest implements Ingest {
       totalTokenTransfers = totalTokenTransfers.plus(_totalTokenTransfers);
       totalNftTransfers = totalNftTransfers.plus(_totalNftTransfers);
       totalContractsTransfers = totalContractsTransfers.plus(_totalContractsTransfers);
+
+      this.logger.log(`Finish computing page ${index}`);
     });
 
     const rewardsPerEpoch = await this.getCurrentRewardsPerEpoch();

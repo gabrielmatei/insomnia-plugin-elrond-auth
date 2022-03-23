@@ -29,8 +29,8 @@ export class TransactionsService {
 
     const metadata = await this.getTransactionMetadata(transaction);
 
-    if (AddressUtils.isSmartContractAddress(metadata.sender)) {
-      contracts.push(metadata.sender);
+    if (AddressUtils.isSmartContractAddress(metadata.receiver)) {
+      contracts.push(metadata.receiver);
     }
 
     if (metadata.functionName === 'ESDTTransfer') {
@@ -85,9 +85,8 @@ export class TransactionsService {
       if (nftResponse?.hasOwnProperty('uris')) {
         return true;
       }
-    } catch (error) {
+    } catch {
       this.logger.error(`Unhandled error checking if an identifier is NFT`);
-      this.logger.error(error);
     }
 
     return false;
@@ -160,7 +159,7 @@ export class TransactionsService {
     return metadata;
   }
 
-  private async getEsdtTransactionMetadata(metadata: TransactionMetadata): Promise<TransactionMetadata | undefined> {
+  private getEsdtTransactionMetadata(metadata: TransactionMetadata): TransactionMetadata | undefined {
     if (metadata.functionName !== 'ESDTTransfer') {
       return undefined;
     }
@@ -171,7 +170,8 @@ export class TransactionsService {
     }
 
     const tokenIdentifier = BinaryUtils.hexToString(args[0]);
-    // const value = BinaryUtils.hexToBigInt(args[1]);
+    // @ts-ignore
+    const _value = BinaryUtils.hexToBigInt(args[1]);
 
     const result = new TransactionMetadata();
     result.sender = metadata.sender;
@@ -184,7 +184,7 @@ export class TransactionsService {
     return result;
   }
 
-  private async getNftTransferMetadata(metadata: TransactionMetadata): Promise<TransactionMetadata | undefined> {
+  private getNftTransferMetadata(metadata: TransactionMetadata): TransactionMetadata | undefined {
     if (metadata.sender !== metadata.receiver) {
       return undefined;
     }
@@ -204,7 +204,8 @@ export class TransactionsService {
 
     const collectionIdentifier = BinaryUtils.hexToString(args[0]);
     const nonce = args[1];
-    // const value = BinaryUtils.hexToBigInt(args[2]);
+    // @ts-ignore
+    const _value = BinaryUtils.hexToBigInt(args[2]);
     const receiver = AddressUtils.bech32Encode(args[3]);
 
     const result = new TransactionMetadata();
@@ -219,7 +220,7 @@ export class TransactionsService {
     return result;
   }
 
-  private async getMultiTransferMetadata(metadata: TransactionMetadata): Promise<TransactionMetadata | undefined> {
+  private getMultiTransferMetadata(metadata: TransactionMetadata): TransactionMetadata | undefined {
     if (metadata.sender !== metadata.receiver) {
       return undefined;
     }
@@ -249,7 +250,8 @@ export class TransactionsService {
     for (let i = 0; i < transferCount; i++) {
       const identifier = BinaryUtils.hexToString(args[index++]);
       const nonce = args[index++];
-      index++; // const value = BinaryUtils.hexToBigInt(args[index++]);
+      // @ts-ignore
+      const _value = BinaryUtils.hexToBigInt(args[index++]);
 
       if (nonce) {
         result.transfers.push({
