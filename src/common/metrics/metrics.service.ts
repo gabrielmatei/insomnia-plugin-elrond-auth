@@ -14,6 +14,7 @@ export class MetricsService {
   private static cachedApiHitGauge: Gauge<string>;
   private static elasticDurationHistogram: Histogram<string>;
   private static gatewayDurationHistogram: Histogram<string>;
+  private static jobsHistogram: Histogram<string>;
   private static isDefaultMetricsRegistered: boolean = false;
 
   constructor() {
@@ -95,6 +96,15 @@ export class MetricsService {
       });
     }
 
+    if (!MetricsService.jobsHistogram) {
+      MetricsService.jobsHistogram = new Histogram({
+        name: 'jobs',
+        help: 'Jobs',
+        labelNames: ['job_identifier', 'result'],
+        buckets: [],
+      });
+    }
+
     if (!MetricsService.isDefaultMetricsRegistered) {
       MetricsService.isDefaultMetricsRegistered = true;
       collectDefaultMetrics();
@@ -136,6 +146,10 @@ export class MetricsService {
 
   incrementCachedApiHit(endpoint: string) {
     MetricsService.cachedApiHitGauge.inc({ endpoint });
+  }
+
+  static setJobResult(job: string, result: 'success' | 'error', duration: number) {
+    MetricsService.jobsHistogram.labels(job, result).observe(duration);
   }
 
   async getMetrics(): Promise<string> {

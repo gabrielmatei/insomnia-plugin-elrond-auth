@@ -1,4 +1,5 @@
 import { Logger } from "@nestjs/common";
+import { MetricsService } from "src/common/metrics/metrics.service";
 import { PerformanceProfiler } from "./performance.profiler";
 
 export class Locker {
@@ -17,18 +18,25 @@ export class Locker {
     const profiler = new PerformanceProfiler();
 
     try {
+      logger.log(`Start running ${key}`);
+
       await func();
+
+      profiler.stop(`End running ${key}`, log);
+      MetricsService.setJobResult(key, 'success', profiler.duration);
+
       return LockResult.success;
     } catch (error) {
       logger.error(`Error running ${key}`);
       logger.error(error);
+
+
+      profiler.stop(`End running ${key}`, log);
+      MetricsService.setJobResult(key, 'error', profiler.duration);
+
       return LockResult.error;
     } finally {
-      profiler.stop(`Running ${key}`, log);
-      const index = Locker.lockArray.indexOf(key);
-      if (index >= 0) {
-        Locker.lockArray.splice(index, 1);
-      }
+      Locker.lockArray.remove(key);
     }
   }
 }
