@@ -33,6 +33,7 @@
   "dependencies": {
     "@apollo/gateway": "^0.48.1",
     "@elrondnetwork/erdjs": "^8.0.1-alpha.22",
+    "@elrondnetwork/transaction-decoder": "^0.1.0",
     "@nestjs/apollo": "^10.0.6",
     "@nestjs/common": "^8.2.5",
     "@nestjs/config": "^1.1.6",
