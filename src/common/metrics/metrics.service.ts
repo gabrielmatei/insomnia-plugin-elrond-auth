@@ -15,6 +15,7 @@ export class MetricsService {
   private static elasticDurationHistogram: Histogram<string>;
   private static gatewayDurationHistogram: Histogram<string>;
   private static jobsHistogram: Histogram<string>;
+  private static timestreamDurationHistogram: Histogram<string>;
   private static isDefaultMetricsRegistered: boolean = false;
 
   constructor() {
@@ -105,6 +106,15 @@ export class MetricsService {
       });
     }
 
+    if (!MetricsService.timestreamDurationHistogram) {
+      MetricsService.timestreamDurationHistogram = new Histogram({
+        name: 'timestream_duration',
+        help: 'Timestream Duration',
+        labelNames: ['endpoint'],
+        buckets: [],
+      });
+    }
+
     if (!MetricsService.isDefaultMetricsRegistered) {
       MetricsService.isDefaultMetricsRegistered = true;
       collectDefaultMetrics();
@@ -146,6 +156,10 @@ export class MetricsService {
 
   incrementCachedApiHit(endpoint: string) {
     MetricsService.cachedApiHitGauge.inc({ endpoint });
+  }
+
+  setTimestreamDuration(name: string, duration: number) {
+    MetricsService.timestreamDurationHistogram.labels(name).observe(duration);
   }
 
   static setJobResult(job: string, result: 'success' | 'error', duration: number) {

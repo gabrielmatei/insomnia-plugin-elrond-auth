@@ -17,6 +17,7 @@ import { GithubCommitsIngest } from 'src/ingesters/github-commits.ingest';
 import { GithubContributorsIngest } from 'src/ingesters/github-contributors.ingest';
 import { GithubIngest } from 'src/ingesters/github.ingest';
 import { GoogleIngest } from 'src/ingesters/google.ingest';
+import { MaiarDexIngest } from 'src/ingesters/maiar-dex.ingest';
 import { PricesIngest } from 'src/ingesters/prices.ingest';
 import { QuotesIngest } from 'src/ingesters/quotes.ingest';
 import { StakingDetailedIngest } from 'src/ingesters/staking-detailed.ingest';
@@ -53,6 +54,7 @@ import { Ingester } from './ingester';
     GithubCommitsIngest,
     GithubContributorsIngest,
     GoogleIngest,
+    MaiarDexIngest,
     QuotesIngest,
     StakingIngest,
     StakingNewIngest,

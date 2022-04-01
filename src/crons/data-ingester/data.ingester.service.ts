@@ -14,6 +14,7 @@ import { GithubCommitsIngest } from "src/ingesters/github-commits.ingest";
 import { GithubContributorsIngest } from "src/ingesters/github-contributors.ingest";
 import { GithubIngest } from "src/ingesters/github.ingest";
 import { GoogleIngest } from "src/ingesters/google.ingest";
+import { MaiarDexIngest } from "src/ingesters/maiar-dex.ingest";
 import { PricesIngest } from "src/ingesters/prices.ingest";
 import { QuotesIngest } from "src/ingesters/quotes.ingest";
 import { StakingDetailedIngest } from "src/ingesters/staking-detailed.ingest";
@@ -46,6 +47,7 @@ export class DataIngesterService {
     private readonly githubCommitsIngest: GithubCommitsIngest,
     private readonly githubContributorsIngest: GithubContributorsIngest,
     private readonly googleIngest: GoogleIngest,
+    private readonly maiarDexIngest: MaiarDexIngest,
     private readonly trendsIngest: TrendsIngest,
     private readonly quotesIngest: QuotesIngest,
     private readonly stakingIngest: StakingIngest,
@@ -116,6 +118,10 @@ export class DataIngesterService {
       {
         refreshInterval: CronExpressionExtended.EVERY_HOUR,
         fetcher: this.googleIngest,
+      },
+      {
+        refreshInterval: CronExpressionExtended.EVERY_MONDAY_AT_12_10AM,
+        fetcher: this.maiarDexIngest,
       },
       {
         refreshInterval: CronExpressionExtended.EVERY_HOUR,
