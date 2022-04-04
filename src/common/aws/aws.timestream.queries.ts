@@ -1,7 +1,7 @@
 import { DateUtils } from "src/utils/date.utils";
 import { Pair } from '../maiar-dex/entities/pair';
 
-export function getOrderedPoolsQuery(tableName: string, pairs: Pair[], fromDate: Date, toDate: Date): string {
+export function getPoolVolumesQuery(tableName: string, pairs: Pair[], fromDate: Date, toDate: Date): string {
   const from = DateUtils.dateToSql(fromDate);
   const to = DateUtils.dateToSql(toDate);
 
@@ -35,7 +35,7 @@ export function getTokenBurntVolumeQuery(tableName: string, token: string, fromD
   `;
 }
 
-export function getVolumeQuery(tableName: string, pairs: Pair[], fromDate: Date, toDate: Date): string {
+export function getTotalVolumeQuery(tableName: string, pairs: Pair[], fromDate: Date, toDate: Date): string {
   const from = DateUtils.dateToSql(fromDate);
   const to = DateUtils.dateToSql(toDate);
 

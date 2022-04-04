@@ -7,6 +7,7 @@ import { CacheInfo } from "../caching/entities/cache.info";
 import { ApiService } from "../network/api.service";
 import { Pair } from "./entities/pair";
 import { Pool } from "./entities/pool";
+import { getPairsQuery, getTotalValueLockedQuery } from "./maiar-dex.queries";
 
 @Injectable()
 export class MaiarDexService {
@@ -32,20 +33,7 @@ export class MaiarDexService {
   private async getPairsRaw(): Promise<Pair[]> {
     try {
       const { pairs } = await this.apiService.post(this.apiConfigService.getMaiarDexUrl(), {
-        query: `{
-          pairs {
-            address
-            state
-            firstToken {
-              identifier
-              name
-            }
-            secondToken {
-              identifier
-              name
-            }
-          }
-        }`,
+        query: getPairsQuery(),
       }).then((response: any) => response.data);
 
       const activePairs = pairs
@@ -61,7 +49,7 @@ export class MaiarDexService {
 
   public async getPools(startDate: Date, endDate: Date): Promise<Pool[]> {
     const pairs = await this.getPairs();
-    const pools = await this.timestreamService.getOrderedPools(pairs, startDate, endDate);
+    const pools = await this.timestreamService.getPoolVolumes(pairs, startDate, endDate);
 
     return pools;
   }
@@ -69,9 +57,7 @@ export class MaiarDexService {
   public async getTotalValueLocked(): Promise<number> {
     try {
       const { totalValueLockedUSD } = await this.apiService.post(this.apiConfigService.getMaiarDexUrl(), {
-        query: `{
-          totalValueLockedUSD
-        }`,
+        query: getTotalValueLockedQuery(),
       }).then((response: any) => response.data);
 
       const totalValueLocked = new BigNumber(totalValueLockedUSD).toNumber();
@@ -88,9 +74,9 @@ export class MaiarDexService {
     return volume;
   }
 
-  public async getVolume(startDate: Date, endDate: Date): Promise<number> {
+  public async getTotalVolume(startDate: Date, endDate: Date): Promise<number> {
     const pairs = await this.getPairs();
-    const volume = await this.timestreamService.getVolume(pairs, startDate, endDate);
-    return volume;
+    const totalVolume = await this.timestreamService.getTotalVolume(pairs, startDate, endDate);
+    return totalVolume;
   }
 }

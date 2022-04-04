@@ -43,11 +43,11 @@ export class AWSTimestreamService {
     });
   }
 
-  public async getOrderedPools(pairs: Pair[], from: Date, to: Date): Promise<Pool[]> {
+  public async getPoolVolumes(pairs: Pair[], from: Date, to: Date): Promise<Pool[]> {
     const profiler = new PerformanceProfiler();
 
     try {
-      const query = timestreamQueries.getOrderedPoolsQuery(this.TableName, pairs, from, to);
+      const query = timestreamQueries.getPoolVolumesQuery(this.TableName, pairs, from, to);
       const queryResult = await this.queryClient.query({ QueryString: query }).promise();
 
       const pools = queryResult.Rows
@@ -66,11 +66,11 @@ export class AWSTimestreamService {
     }
   }
 
-  public async getVolume(pairs: Pair[], from: Date, to: Date): Promise<number> {
+  public async getTotalVolume(pairs: Pair[], from: Date, to: Date): Promise<number> {
     const profiler = new PerformanceProfiler();
 
     try {
-      const query = timestreamQueries.getVolumeQuery(this.TableName, pairs, from, to);
+      const query = timestreamQueries.getTotalVolumeQuery(this.TableName, pairs, from, to);
       const queryResult = await this.queryClient.query({ QueryString: query }).promise();
 
       if (queryResult.Rows.length === 0) {

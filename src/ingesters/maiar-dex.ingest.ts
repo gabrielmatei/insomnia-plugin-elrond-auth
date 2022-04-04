@@ -27,18 +27,18 @@ export class MaiarDexIngest implements Ingest {
 
     const [
       totalValueLocked,
-      volume,
+      totalVolume,
       mexBurnt,
     ] = await Promise.all([
       this.maiarDexService.getTotalValueLocked(),
-      this.maiarDexService.getVolume(startDate, endDate),
+      this.maiarDexService.getTotalVolume(startDate, endDate),
       this.maiarDexService.getTokenBurntVolume(mexIdentifier, startDate, endDate),
     ]);
 
     const data: any = {
       dashboard: {
         total_value_locked: totalValueLocked,
-        volume: volume,
+        volume: totalVolume,
         mex_burnt: mexBurnt,
       },
     };

@@ -120,7 +120,7 @@ export class DataIngesterService {
         fetcher: this.googleIngest,
       },
       {
-        refreshInterval: CronExpressionExtended.EVERY_MONDAY_AT_12_10AM,
+        refreshInterval: CronExpressionExtended.EVERY_FRIDAY_AT_12_10AM,
         fetcher: this.maiarDexIngest,
       },
       {
