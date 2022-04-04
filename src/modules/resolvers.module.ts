@@ -5,6 +5,7 @@ import { EconomicsModule } from "./economics/economics.module";
 import { ExchangesModule } from "./exchanges/exchanges.module";
 import { GithubModule } from "./github/github.module";
 import { GoogleModule } from "./google/google.module";
+import { MaiarDexModule } from "./maiar-dex/maiar-dex.module";
 import { MaiarModule } from "./maiar/maiar.module";
 import { NftsModule } from "./nfts/nfts.module";
 import { PricesModule } from "./prices/prices.module";
@@ -24,6 +25,7 @@ import { TwitterModule } from "./twitter/twitter.module";
     forwardRef(() => GithubModule),
     forwardRef(() => GoogleModule),
     forwardRef(() => MaiarModule),
+    forwardRef(() => MaiarDexModule),
     forwardRef(() => NftsModule),
     forwardRef(() => PricesModule),
     forwardRef(() => QuotesModule),
@@ -41,6 +43,7 @@ import { TwitterModule } from "./twitter/twitter.module";
     GithubModule,
     GoogleModule,
     MaiarModule,
+    MaiarDexModule,
     NftsModule,
     PricesModule,
     QuotesModule,

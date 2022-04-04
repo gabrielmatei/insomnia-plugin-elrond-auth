@@ -140,6 +140,27 @@ enum GoogleKeywords {
   EGOLD
 }
 
+type MaiarDexPoolModel {
+  name: String
+  volume(input: QueryInput!): [ScalarValue!]
+}
+
+type MaiarDexModel {
+  total_value_locked(input: QueryInput!): [ScalarValue!]
+  volume(input: QueryInput!): [ScalarValue!]
+  mex_burnt(input: QueryInput!): [ScalarValue!]
+  pool(pair: MaiarDexPairs!): MaiarDexPoolModel!
+  pools: [MaiarDexPoolModel!]!
+}
+
+enum MaiarDexPairs {
+  WEGLDUSDC
+  WEGLDRIDE
+  WEGLDMEX
+  AEROWEGLD
+  ISETWEGLD
+}
+
 type MaiarModel {
   count(input: QueryInput!): [ScalarValue!]!
   count_24h(input: QueryInput!): [ScalarValue!]!
@@ -227,6 +248,7 @@ type Query {
   github: GithubModel!
   google: GoogleModel!
   maiar: MaiarModel!
+  maiar_dex: MaiarDexModel!
   nfts: NftsModel!
   prices: PricesModel!
   quotes: QuotesModel!
