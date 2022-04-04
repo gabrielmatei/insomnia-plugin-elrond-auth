@@ -79,14 +79,18 @@ export class ApiService {
       return result.data;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      this.logger.error({
+      const customError = {
         method: 'GET',
-        path: url,
+        url,
         response: error.response?.data,
         status: error.response?.status,
-      });
+        message: error.message,
+        name: error.name,
+      };
 
-      throw error;
+      this.logger.error(customError);
+
+      throw customError;
     } finally {
       profiler.stop();
       this.metricsService.setExternalCall(this.getHostname(url), profiler.duration);
@@ -101,14 +105,19 @@ export class ApiService {
       return result.data;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      this.logger.error({
+      const customError = {
         method: 'POST',
         url,
+        body: data,
         response: error.response?.data,
         status: error.response?.status,
-      });
+        message: error.message,
+        name: error.name,
+      };
 
-      throw error;
+      this.logger.error(customError);
+
+      throw customError;
     } finally {
       profiler.stop();
       this.metricsService.setExternalCall(this.getHostname(url), profiler.duration);
@@ -122,14 +131,18 @@ export class ApiService {
       return await axios.head(url, this.getConfig(settings));
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      this.logger.error({
+      const customError = {
         method: 'HEAD',
         url,
         response: error.response?.data,
         status: error.response?.status,
-      });
+        message: error.message,
+        name: error.name,
+      };
 
-      throw error;
+      this.logger.error(customError);
+
+      throw customError;
     } finally {
       profiler.stop();
       this.metricsService.setExternalCall(this.getHostname(url), profiler.duration);
