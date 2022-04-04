@@ -28,6 +28,15 @@ export class ApiConfigService {
     return maiarUrl;
   }
 
+  getMaiarDexUrl(): string {
+    const maiarDexUrl = this.configService.get<string>('urls.maiarDex');
+    if (!maiarDexUrl) {
+      throw new Error('No MaiarDex url present');
+    }
+
+    return maiarDexUrl;
+  }
+
   getSwaggerUrls(): string[] {
     const swaggerUrls = this.configService.get<string[]>('urls.swagger');
     if (!swaggerUrls) {
@@ -339,5 +348,59 @@ export class ApiConfigService {
       throw new Error('No Twitter authorization bearers value present');
     }
     return authorizationBearers;
+  }
+
+  getAWSAccessKeyId(): string {
+    const accessKeyId = this.configService.get<string>('aws.accessKeyId');
+    if (accessKeyId === undefined) {
+      throw new Error('No AWS accessKeyId value present');
+    }
+
+    return accessKeyId;
+  }
+
+  getAWSSecretAccessKey(): string {
+    const secretAccessKey = this.configService.get<string>('aws.secretAccessKey');
+    if (secretAccessKey === undefined) {
+      throw new Error('No AWS secretAccessKey value present');
+    }
+
+    return secretAccessKey;
+  }
+
+  getAWSRegion(): string {
+    const region = this.configService.get<string>('aws.region');
+    if (region === undefined) {
+      throw new Error('No AWS region value present');
+    }
+
+    return region;
+  }
+
+  getAWSTimestreamDatabase(): string {
+    const databaseName = this.configService.get<string>('aws.timestream.databaseName');
+    if (databaseName === undefined) {
+      throw new Error('No AWS Timestream database value present');
+    }
+
+    return databaseName;
+  }
+
+  getAWSTimestreamTable(): string {
+    const tableName = this.configService.get<string>('aws.timestream.tableName');
+    if (tableName === undefined) {
+      throw new Error('No AWS Timestream table name value present');
+    }
+
+    return tableName;
+  }
+
+  getMexIdentifier(): string {
+    const identifier = this.configService.get<string>('maiarDex.mexIdentifier');
+    if (!identifier) {
+      throw new Error('No MEX identifier present');
+    }
+
+    return identifier;
   }
 }

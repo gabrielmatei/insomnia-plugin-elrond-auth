@@ -41,4 +41,9 @@ export class CacheInfo {
       ttl: Constants.oneWeek(),
     };
   }
+
+  static MaiarDexPairs: CacheInfo = {
+    key: 'maiarDexPairs',
+    ttl: Constants.oneHour(),
+  };
 }

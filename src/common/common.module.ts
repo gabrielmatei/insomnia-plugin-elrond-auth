@@ -4,6 +4,7 @@ import { CachingModule } from "./caching/caching.module";
 import { ElasticModule } from "./elastic/elastic.module";
 import { GatewayModule } from "./gateway/gateway.module";
 import { GithubModule } from "./github/github.module";
+import { MaiarDexModule } from "./maiar-dex/maiar-dex.module";
 import { MetricsModule } from "./metrics/metrics.module";
 import { ApiModule } from "./network/api.module";
 import { StakingModule } from "./staking/staking.module";
@@ -22,6 +23,7 @@ import { TransactionsModule } from "./transactions/transactions.module";
     forwardRef(() => GithubModule),
     forwardRef(() => StakingModule),
     forwardRef(() => TransactionsModule),
+    forwardRef(() => MaiarDexModule),
   ],
   exports: [
     ApiConfigModule,
@@ -34,6 +36,7 @@ import { TransactionsModule } from "./transactions/transactions.module";
     GithubModule,
     StakingModule,
     TransactionsModule,
+    MaiarDexModule,
   ],
 })
 export class CommonModule { }
