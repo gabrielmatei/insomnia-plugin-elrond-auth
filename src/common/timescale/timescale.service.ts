@@ -97,8 +97,8 @@ export class TimescaleService {
 
     const aggregates = aggregateList.map(aggregate => {
       const agg = aggregate === AggregateEnum.FIRST || aggregate === AggregateEnum.LAST
-        ? `${aggregate}(value, timestamp) AS ${aggregate.toLowerCase()}`
-        : `${aggregate}(value) AS ${aggregate.toLowerCase()}`;
+        ? `${aggregate}(value, timestamp) AS ${aggregate}`
+        : `${aggregate}(value) AS ${aggregate}`;
       return agg;
     });
 
@@ -135,12 +135,13 @@ export class TimescaleService {
     series: string,
     key: string,
     query: QueryInput,
+    aggregates: AggregateEnum[]
   ): Promise<AggregateValue[]> {
-    const cacheInfo = CacheInfo.QueryResult(entity, series, key, query);
+    const cacheInfo = CacheInfo.QueryResult(entity, series, key, query, aggregates);
 
     return await this.cachingService.getOrSetCache(
       cacheInfo.key,
-      async () => await this.resolveQueryRaw(entity, series, key, query),
+      async () => await this.resolveQueryRaw(entity, series, key, query, aggregates),
       cacheInfo.ttl,
     );
   }
@@ -150,8 +151,13 @@ export class TimescaleService {
     series: string,
     key: string,
     query: QueryInput,
+    aggregates: AggregateEnum[],
   ): Promise<AggregateValue[]> {
-    if (query.aggregate === AggregateEnum.LAST && query.resolution === undefined) {
+    if (aggregates.length === 0) {
+      throw new Error('An aggregate function id required');
+    }
+
+    if (aggregates.length === 1 && aggregates[0] === AggregateEnum.LAST && query === undefined) {
       const lastValue = await this.getLastValue(entity, series, key);
       if (!lastValue) {
         return [];
@@ -159,12 +165,8 @@ export class TimescaleService {
       return [lastValue];
     }
 
-    if (!query.aggregate && !query.aggregates) {
-      throw new Error('aggregate or aggregates required');
-    }
-
-    if (query.aggregate !== undefined && query.aggregates !== undefined) {
-      throw new Error('only one aggregate param');
+    if (!query) {
+      throw new Error('Query required');
     }
 
     let startDate = query.start_date;
@@ -178,11 +180,7 @@ export class TimescaleService {
       throw new Error('resolution required');
     }
 
-    const aggregateList = [query.aggregate, ...(query.aggregates ?? [])]
-      .filter((agg): agg is AggregateEnum => !!agg)
-      .distinct();
-
-    const values = await this.getValues(entity, series, key, startDate, query.end_date, query.resolution, aggregateList);
+    const values = await this.getValues(entity, series, key, startDate, query.end_date, query.resolution, aggregates);
     return values;
   }
 }

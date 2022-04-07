@@ -1,7 +1,10 @@
-import { Resolver, ResolveField, Parent, Args } from "@nestjs/graphql";
+import { Resolver, ResolveField, Parent, Args, Info } from "@nestjs/graphql";
 import { AggregateValue } from "src/common/entities/aggregate-value.object";
 import { StakingHistoricalEntity } from "src/common/timescale/entities/staking-historical.entity";
 import { TimescaleService } from "src/common/timescale/timescale.service";
+import { ParseFilterEnumArrayPipe } from "src/utils/pipes/parse.filter.enum.array.pipe";
+import { ParseQueryFieldsPipe } from "src/utils/pipes/parse.query.fields.pipe";
+import { AggregateEnum } from "../models/aggregate.enum";
 import { QueryInput } from "../models/query.input";
 import { StakingTypeModel } from "./models/staking-type.model";
 
@@ -14,24 +17,27 @@ export class StakingTypeResolver {
   @ResolveField(() => [AggregateValue], { name: 'value' })
   public async value(
     @Parent() { series }: StakingTypeModel,
-    @Args('input') query: QueryInput
+    @Args('query', { nullable: true }) query: QueryInput,
+    @Info(ParseQueryFieldsPipe, new ParseFilterEnumArrayPipe(AggregateEnum)) aggregates: AggregateEnum[],
   ): Promise<AggregateValue[]> {
-    return await this.timescaleService.resolveQuery(StakingHistoricalEntity, series, 'value', query);
+    return await this.timescaleService.resolveQuery(StakingHistoricalEntity, series, 'value', query, aggregates);
   }
 
   @ResolveField(() => [AggregateValue], { name: 'users' })
   public async users(
     @Parent() { series }: StakingTypeModel,
-    @Args('input') query: QueryInput
+    @Args('query', { nullable: true }) query: QueryInput,
+    @Info(ParseQueryFieldsPipe, new ParseFilterEnumArrayPipe(AggregateEnum)) aggregates: AggregateEnum[],
   ): Promise<AggregateValue[]> {
-    return await this.timescaleService.resolveQuery(StakingHistoricalEntity, series, 'users', query);
+    return await this.timescaleService.resolveQuery(StakingHistoricalEntity, series, 'users', query, aggregates);
   }
 
   @ResolveField(() => [AggregateValue], { name: 'user_average' })
   public async user_average(
     @Parent() { series }: StakingTypeModel,
-    @Args('input') query: QueryInput
+    @Args('query', { nullable: true }) query: QueryInput,
+    @Info(ParseQueryFieldsPipe, new ParseFilterEnumArrayPipe(AggregateEnum)) aggregates: AggregateEnum[],
   ): Promise<AggregateValue[]> {
-    return await this.timescaleService.resolveQuery(StakingHistoricalEntity, series, 'user_average', query);
+    return await this.timescaleService.resolveQuery(StakingHistoricalEntity, series, 'user_average', query, aggregates);
   }
 }
