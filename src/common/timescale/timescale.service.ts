@@ -115,6 +115,7 @@ export class TimescaleService {
       GROUP BY time
       ORDER BY time ASC
     `;
+
     const rows: any[] = await repository.query(query, [series, key]);
 
     const values = rows.map(row => new AggregateValue({
@@ -154,7 +155,7 @@ export class TimescaleService {
     aggregates: AggregateEnum[],
   ): Promise<AggregateValue[]> {
     if (aggregates.length === 0) {
-      throw new BadRequestException('An aggregate function is required');
+      throw new BadRequestException(`At least one aggregate function is required`);
     }
 
     if (aggregates.length === 1 && aggregates[0] === AggregateEnum.LAST && query === undefined) {
@@ -166,18 +167,18 @@ export class TimescaleService {
     }
 
     if (!query) {
-      throw new BadRequestException('Query required');
+      throw new BadRequestException(`'query' is required`);
     }
 
     let startDate = query.start_date;
     if (query.range) {
       startDate = moment.utc().subtract(1, query.range).toDate();
     } else if (!startDate) {
-      throw new BadRequestException('start date or range required');
+      throw new BadRequestException(`'start_date' or 'range' is required`);
     }
 
     if (!query.resolution) {
-      throw new BadRequestException('resolution required');
+      throw new BadRequestException(`'resolution' is required`);
     }
 
     const values = await this.getValues(entity, series, key, startDate, query.end_date, query.resolution, aggregates);
