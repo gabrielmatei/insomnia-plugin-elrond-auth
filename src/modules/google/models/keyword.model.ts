@@ -1,22 +1,22 @@
 import { ObjectType, HideField, Field } from "@nestjs/graphql";
-import { ScalarValue } from "src/common/entities/scalar-value.object";
+import { AggregateValue } from "src/common/entities/aggregate-value.object";
 
 @ObjectType()
 export class KeywordModel {
   @HideField()
   series: string;
 
-  @Field(() => [ScalarValue], { name: 'clicks', nullable: true })
-  clicks?: [ScalarValue];
+  @Field(() => [AggregateValue], { name: 'clicks', nullable: true })
+  clicks?: AggregateValue[];
 
-  @Field(() => [ScalarValue], { name: 'impressions', nullable: true })
-  impressions?: [ScalarValue];
+  @Field(() => [AggregateValue], { name: 'impressions', nullable: true })
+  impressions?: AggregateValue[];
 
-  @Field(() => [ScalarValue], { name: 'ctr', nullable: true })
-  ctr?: [ScalarValue];
+  @Field(() => [AggregateValue], { name: 'ctr', nullable: true })
+  ctr?: AggregateValue[];
 
-  @Field(() => [ScalarValue], { name: 'position', nullable: true })
-  position?: [ScalarValue];
+  @Field(() => [AggregateValue], { name: 'position', nullable: true })
+  position?: AggregateValue[];
 
   constructor(series: string) {
     this.series = series;

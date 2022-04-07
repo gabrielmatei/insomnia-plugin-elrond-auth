@@ -5,7 +5,7 @@ import { QueryInput } from 'src/modules/models/query.input';
 import { EntityTarget, getRepository } from 'typeorm';
 import { CachingService } from '../caching/caching.service';
 import { CacheInfo } from '../caching/entities/cache.info';
-import { ScalarValue } from '../entities/scalar-value.object';
+import { AggregateValue } from '../entities/aggregate-value.object';
 import { GenericIngestEntity } from './entities/generic-ingest.entity';
 
 @Injectable()
@@ -59,7 +59,7 @@ export class TimescaleService {
     entityTarget: EntityTarget<T>,
     series: string,
     key: string
-  ): Promise<ScalarValue | undefined> {
+  ): Promise<AggregateValue | undefined> {
     const repository = getRepository(entityTarget);
     const query = repository
       .createQueryBuilder()
@@ -77,8 +77,8 @@ export class TimescaleService {
       return undefined;
     }
 
-    return new ScalarValue({
-      value: entity.value,
+    return new AggregateValue({
+      last: entity.value,
       time: moment(entity.timestamp).toISOString(),
     });
   }
@@ -90,34 +90,44 @@ export class TimescaleService {
     startDate: Date,
     endDate: Date | undefined,
     resolution: string,
-    aggregate: string,
-  ): Promise<{ time: string, value: number }[]> {
+    aggregateList: string[],
+  ): Promise<AggregateValue[]> {
     const repository = getRepository(entityTarget);
     const tableName = repository.metadata.tableName;
 
-    const agg = aggregate === AggregateEnum.FIRST || aggregate === AggregateEnum.LAST
-      ? `${aggregate}(value, timestamp) AS value`
-      : `${aggregate}(value) AS value`;
-    const rows = await repository.query(
-      `SELECT
-        time_bucket('${resolution}', timestamp) AS time,
-        ${agg}
-       FROM ${tableName} 
-       WHERE series = $1
-          AND key = $2
-          ${endDate ?
-        `AND timestamp BETWEEN '${startDate.toISOString()}' AND '${endDate?.toISOString()}'` :
-        `AND timestamp >= '${startDate.toISOString()}'`}
-       GROUP BY time
-       ORDER BY time ASC`,
-      [series, key]
-    );
+    const aggregates = aggregateList.map(aggregate => {
+      const agg = aggregate === AggregateEnum.FIRST || aggregate === AggregateEnum.LAST
+        ? `${aggregate}(value, timestamp) AS ${aggregate.toLowerCase()}`
+        : `${aggregate}(value) AS ${aggregate.toLowerCase()}`;
+      return agg;
+    });
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return rows.map((row: any) => new ScalarValue({
-      value: row.value,
+    const query = `
+      SELECT
+        time_bucket('${resolution}', timestamp) AS time,
+        ${aggregates.join(',')}
+      FROM ${tableName} 
+      WHERE series = $1
+          AND key = $2
+          ${endDate
+        ? `AND timestamp BETWEEN '${startDate.toISOString()}' AND '${endDate?.toISOString()}'`
+        : `AND timestamp >= '${startDate.toISOString()}'`}
+      GROUP BY time
+      ORDER BY time ASC
+    `;
+    const rows: any[] = await repository.query(query, [series, key]);
+
+    const values = rows.map(row => new AggregateValue({
       time: moment(row.time).toISOString(),
+      first: row.first,
+      last: row.last,
+      min: row.min,
+      max: row.max,
+      count: row.count,
+      sum: row.sum,
+      avg: row.avg,
     }));
+    return values;
   }
 
   public async resolveQuery<T extends GenericIngestEntity>(
@@ -125,7 +135,7 @@ export class TimescaleService {
     series: string,
     key: string,
     query: QueryInput,
-  ): Promise<ScalarValue[]> {
+  ): Promise<AggregateValue[]> {
     const cacheInfo = CacheInfo.QueryResult(entity, series, key, query);
 
     return await this.cachingService.getOrSetCache(
@@ -140,7 +150,7 @@ export class TimescaleService {
     series: string,
     key: string,
     query: QueryInput,
-  ): Promise<ScalarValue[]> {
+  ): Promise<AggregateValue[]> {
     if (query.aggregate === AggregateEnum.LAST && query.resolution === undefined) {
       const lastValue = await this.getLastValue(entity, series, key);
       if (!lastValue) {
@@ -149,6 +159,13 @@ export class TimescaleService {
       return [lastValue];
     }
 
+    if (!query.aggregate && !query.aggregates) {
+      throw new Error('aggregate or aggregates required');
+    }
+
+    if (query.aggregate !== undefined && query.aggregates !== undefined) {
+      throw new Error('only one aggregate param');
+    }
 
     let startDate = query.start_date;
     if (query.range) {
@@ -161,7 +178,11 @@ export class TimescaleService {
       throw new Error('resolution required');
     }
 
-    const values = await this.getValues(entity, series, key, startDate, query.end_date, query.resolution, query.aggregate);
+    const aggregateList = [query.aggregate, ...(query.aggregates ?? [])]
+      .filter((agg): agg is AggregateEnum => !!agg)
+      .distinct();
+
+    const values = await this.getValues(entity, series, key, startDate, query.end_date, query.resolution, aggregateList);
     return values;
   }
 }

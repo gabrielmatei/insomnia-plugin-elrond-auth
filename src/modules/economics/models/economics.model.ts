@@ -1,20 +1,20 @@
 import { Field, ObjectType } from "@nestjs/graphql";
-import { ScalarValue } from "src/common/entities/scalar-value.object";
+import { AggregateValue } from "src/common/entities/aggregate-value.object";
 
 @ObjectType()
 export class EconomicsModel {
-  @Field(() => [ScalarValue], { name: 'total_supply', nullable: true })
-  totalSupply?: [ScalarValue];
+  @Field(() => [AggregateValue], { name: 'total_supply', nullable: true })
+  totalSupply?: AggregateValue[];
 
-  @Field(() => [ScalarValue], { name: 'circulating_supply', nullable: true })
-  circulatingSupply?: [ScalarValue];
+  @Field(() => [AggregateValue], { name: 'circulating_supply', nullable: true })
+  circulatingSupply?: AggregateValue[];
 
-  @Field(() => [ScalarValue], { name: 'floating_supply', nullable: true })
-  floatingSupply?: [ScalarValue];
+  @Field(() => [AggregateValue], { name: 'floating_supply', nullable: true })
+  floatingSupply?: AggregateValue[];
 
-  @Field(() => [ScalarValue], { name: 'staked', nullable: true })
-  staked?: [ScalarValue];
+  @Field(() => [AggregateValue], { name: 'staked', nullable: true })
+  staked?: AggregateValue[];
 
-  @Field(() => [ScalarValue], { name: 'left_per_user', nullable: true })
-  leftPerUser?: [ScalarValue];
+  @Field(() => [AggregateValue], { name: 'left_per_user', nullable: true })
+  leftPerUser?: AggregateValue[];
 }

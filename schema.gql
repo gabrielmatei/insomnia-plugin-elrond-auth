@@ -2,24 +2,31 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type ScalarValue {
-  value: Float
+type AggregateValue {
   time: String
+  first: Float
+  last: Float
+  min: Float
+  max: Float
+  count: Float
+  sum: Float
+  avg: Float
 }
 
 type ThresholdCountModel {
-  count_gt_0(input: QueryInput!): [ScalarValue!]
-  count_gt_0_1(input: QueryInput!): [ScalarValue!]
-  count_gt_1(input: QueryInput!): [ScalarValue!]
-  count_gt_10(input: QueryInput!): [ScalarValue!]
-  count_gt_100(input: QueryInput!): [ScalarValue!]
-  count_gt_1000(input: QueryInput!): [ScalarValue!]
-  count_gt_10000(input: QueryInput!): [ScalarValue!]
-  count_24h(input: QueryInput!): [ScalarValue!]
+  count_gt_0(input: QueryInput!): [AggregateValue!]
+  count_gt_0_1(input: QueryInput!): [AggregateValue!]
+  count_gt_1(input: QueryInput!): [AggregateValue!]
+  count_gt_10(input: QueryInput!): [AggregateValue!]
+  count_gt_100(input: QueryInput!): [AggregateValue!]
+  count_gt_1000(input: QueryInput!): [AggregateValue!]
+  count_gt_10000(input: QueryInput!): [AggregateValue!]
+  count_24h(input: QueryInput!): [AggregateValue!]
 }
 
 input QueryInput {
-  aggregate: Aggregate!
+  aggregate: Aggregate
+  aggregates: [Aggregate!]
   resolution: TimeResolutions
   range: TimeRange
   start_date: DateTime
@@ -55,9 +62,9 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 scalar DateTime
 
 type AccountsModel {
-  count(input: QueryInput!): [ScalarValue!]!
-  count_24h(input: QueryInput!): [ScalarValue!]!
-  active_accounts(input: QueryInput!): [ScalarValue!]
+  count(input: QueryInput!): [AggregateValue!]!
+  count_24h(input: QueryInput!): [AggregateValue!]!
+  active_accounts(input: QueryInput!): [AggregateValue!]
   balance: ThresholdCountModel
   delegation_legacy_active: ThresholdCountModel!
   delegation: ThresholdCountModel
@@ -66,27 +73,27 @@ type AccountsModel {
 }
 
 type ContractsModel {
-  count(input: QueryInput!): [ScalarValue!]!
-  count_24h(input: QueryInput!): [ScalarValue!]!
-  active_contracts(input: QueryInput!): [ScalarValue!]!
-  transfers(input: QueryInput!): [ScalarValue!]
+  count(input: QueryInput!): [AggregateValue!]!
+  count_24h(input: QueryInput!): [AggregateValue!]!
+  active_contracts(input: QueryInput!): [AggregateValue!]!
+  transfers(input: QueryInput!): [AggregateValue!]
 }
 
 type EconomicsModel {
-  total_supply(input: QueryInput!): [ScalarValue!]!
-  circulating_supply(input: QueryInput!): [ScalarValue!]!
-  floating_supply(input: QueryInput!): [ScalarValue!]!
-  staked(input: QueryInput!): [ScalarValue!]!
-  left_per_user(input: QueryInput!): [ScalarValue!]!
+  total_supply(input: QueryInput!): [AggregateValue!]!
+  circulating_supply(input: QueryInput!): [AggregateValue!]!
+  floating_supply(input: QueryInput!): [AggregateValue!]!
+  staked(input: QueryInput!): [AggregateValue!]!
+  left_per_user(input: QueryInput!): [AggregateValue!]!
 }
 
 type ExchangeModel {
-  balance(input: QueryInput!): [ScalarValue!]!
-  total(input: QueryInput!): [ScalarValue!]!
-  inflows(input: QueryInput!): [ScalarValue!]!
-  outflows(input: QueryInput!): [ScalarValue!]!
-  inflow_24h(input: QueryInput!): [ScalarValue!]!
-  outflow_24h(input: QueryInput!): [ScalarValue!]!
+  balance(input: QueryInput!): [AggregateValue!]!
+  total(input: QueryInput!): [AggregateValue!]!
+  inflows(input: QueryInput!): [AggregateValue!]!
+  outflows(input: QueryInput!): [AggregateValue!]!
+  inflow_24h(input: QueryInput!): [AggregateValue!]!
+  outflow_24h(input: QueryInput!): [AggregateValue!]!
 }
 
 type ExchangesModel {
@@ -103,10 +110,10 @@ type ExchangesModel {
 }
 
 type GithubActivityModel {
-  commits(input: QueryInput!): [ScalarValue!]
-  commits_24h(input: QueryInput!): [ScalarValue!]
-  contributors(input: QueryInput!): [ScalarValue!]
-  stars(input: QueryInput!): [ScalarValue!]
+  commits(input: QueryInput!): [AggregateValue!]
+  commits_24h(input: QueryInput!): [AggregateValue!]
+  contributors(input: QueryInput!): [AggregateValue!]
+  stars(input: QueryInput!): [AggregateValue!]
 }
 
 type GithubModel {
@@ -123,10 +130,10 @@ enum FeaturedRepository {
 }
 
 type KeywordModel {
-  clicks(input: QueryInput!): [ScalarValue!]
-  impressions(input: QueryInput!): [ScalarValue!]
-  ctr(input: QueryInput!): [ScalarValue!]
-  position(input: QueryInput!): [ScalarValue!]
+  clicks(input: QueryInput!): [AggregateValue!]
+  impressions(input: QueryInput!): [AggregateValue!]
+  ctr(input: QueryInput!): [AggregateValue!]
+  position(input: QueryInput!): [AggregateValue!]
 }
 
 type GoogleModel {
@@ -142,13 +149,13 @@ enum GoogleKeywords {
 
 type MaiarDexPoolModel {
   name: String
-  volume(input: QueryInput!): [ScalarValue!]
+  volume(input: QueryInput!): [AggregateValue!]
 }
 
 type MaiarDexModel {
-  total_value_locked(input: QueryInput!): [ScalarValue!]
-  volume(input: QueryInput!): [ScalarValue!]
-  mex_burnt(input: QueryInput!): [ScalarValue!]
+  total_value_locked(input: QueryInput!): [AggregateValue!]
+  volume(input: QueryInput!): [AggregateValue!]
+  mex_burnt(input: QueryInput!): [AggregateValue!]
   pool(pair: MaiarDexPairs!): MaiarDexPoolModel!
   pools: [MaiarDexPoolModel!]!
 }
@@ -162,21 +169,21 @@ enum MaiarDexPairs {
 }
 
 type MaiarModel {
-  count(input: QueryInput!): [ScalarValue!]!
-  count_24h(input: QueryInput!): [ScalarValue!]!
+  count(input: QueryInput!): [AggregateValue!]!
+  count_24h(input: QueryInput!): [AggregateValue!]!
 }
 
 type NftsModel {
-  count(input: QueryInput!): [ScalarValue!]!
-  count_24h(input: QueryInput!): [ScalarValue!]!
-  active_nfts(input: QueryInput!): [ScalarValue!]
-  transfers(input: QueryInput!): [ScalarValue!]
+  count(input: QueryInput!): [AggregateValue!]!
+  count_24h(input: QueryInput!): [AggregateValue!]!
+  active_nfts(input: QueryInput!): [AggregateValue!]
+  transfers(input: QueryInput!): [AggregateValue!]
 }
 
 type CoinPriceModel {
-  current_price(input: QueryInput!): [ScalarValue!]!
-  market_cap(input: QueryInput!): [ScalarValue!]!
-  high_24h(input: QueryInput!): [ScalarValue!]!
+  current_price(input: QueryInput!): [AggregateValue!]!
+  market_cap(input: QueryInput!): [AggregateValue!]!
+  high_24h(input: QueryInput!): [AggregateValue!]!
 }
 
 type PricesModel {
@@ -187,9 +194,9 @@ type PricesModel {
 }
 
 type CoinQuoteModel {
-  price(input: QueryInput!): [ScalarValue!]
-  market_cap(input: QueryInput!): [ScalarValue!]!
-  volume_24h(input: QueryInput!): [ScalarValue!]!
+  price(input: QueryInput!): [AggregateValue!]
+  market_cap(input: QueryInput!): [AggregateValue!]!
+  volume_24h(input: QueryInput!): [AggregateValue!]!
 }
 
 type QuotesModel {
@@ -202,9 +209,9 @@ type QuotesModel {
 }
 
 type StakingTypeModel {
-  value(input: QueryInput!): [ScalarValue!]
-  users(input: QueryInput!): [ScalarValue!]
-  user_average(input: QueryInput!): [ScalarValue!]!
+  value(input: QueryInput!): [AggregateValue!]
+  users(input: QueryInput!): [AggregateValue!]
+  user_average(input: QueryInput!): [AggregateValue!]!
 }
 
 type StakingModel {
@@ -217,27 +224,27 @@ type StakingModel {
 }
 
 type TokensModel {
-  count(input: QueryInput!): [ScalarValue!]!
-  count_24h(input: QueryInput!): [ScalarValue!]!
-  active_tokens(input: QueryInput!): [ScalarValue!]
-  transfers(input: QueryInput!): [ScalarValue!]
+  count(input: QueryInput!): [AggregateValue!]!
+  count_24h(input: QueryInput!): [AggregateValue!]!
+  active_tokens(input: QueryInput!): [AggregateValue!]
+  transfers(input: QueryInput!): [AggregateValue!]
 }
 
 type TransactionsModel {
-  count(input: QueryInput!): [ScalarValue!]!
-  count_24h(input: QueryInput!): [ScalarValue!]!
-  value_moved(input: QueryInput!): [ScalarValue!]!
-  total_fees(input: QueryInput!): [ScalarValue!]!
-  new_emission(input: QueryInput!): [ScalarValue!]!
+  count(input: QueryInput!): [AggregateValue!]!
+  count_24h(input: QueryInput!): [AggregateValue!]!
+  value_moved(input: QueryInput!): [AggregateValue!]!
+  total_fees(input: QueryInput!): [AggregateValue!]!
+  new_emission(input: QueryInput!): [AggregateValue!]!
 }
 
 type TrendsModel {
-  google(input: QueryInput!): [ScalarValue!]!
+  google(input: QueryInput!): [AggregateValue!]!
 }
 
 type TwitterModel {
-  mentions(input: QueryInput!): [ScalarValue!]!
-  followers(input: QueryInput!): [ScalarValue!]!
+  mentions(input: QueryInput!): [AggregateValue!]!
+  followers(input: QueryInput!): [AggregateValue!]!
 }
 
 type Query {

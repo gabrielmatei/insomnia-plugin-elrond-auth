@@ -1,5 +1,5 @@
 import { Args, Query, ResolveField, Resolver } from '@nestjs/graphql';
-import { ScalarValue } from 'src/common/entities/scalar-value.object';
+import { AggregateValue } from 'src/common/entities/aggregate-value.object';
 import { TrendsEntity } from 'src/common/timescale/entities/trends.entity';
 import { TimescaleService } from 'src/common/timescale/timescale.service';
 import { QueryInput } from '../models/query.input';
@@ -16,10 +16,10 @@ export class TrendsResolver {
     return new TrendsModel();
   }
 
-  @ResolveField(() => [ScalarValue], { name: 'google' })
+  @ResolveField(() => [AggregateValue], { name: 'google' })
   public async getGoogleTrends(
     @Args('input') query: QueryInput
-  ): Promise<ScalarValue[]> {
+  ): Promise<AggregateValue[]> {
     return await this.timescaleService.resolveQuery(TrendsEntity, 'trends', 'google', query);
   }
 }

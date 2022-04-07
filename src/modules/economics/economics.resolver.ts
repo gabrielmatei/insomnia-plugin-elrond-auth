@@ -1,5 +1,5 @@
 import { Args, Query, ResolveField, Resolver } from '@nestjs/graphql';
-import { ScalarValue } from 'src/common/entities/scalar-value.object';
+import { AggregateValue } from 'src/common/entities/aggregate-value.object';
 import { EconomicsEntity } from 'src/common/timescale/entities/economics.entity';
 import { TimescaleService } from 'src/common/timescale/timescale.service';
 import { QueryInput } from '../models/query.input';
@@ -16,28 +16,38 @@ export class EconomicsResolver {
     return new EconomicsModel();
   }
 
-  @ResolveField(() => [ScalarValue], { name: 'total_supply' })
-  public async getTotalSupply(@Args('input') query: QueryInput): Promise<ScalarValue[]> {
+  @ResolveField(() => [AggregateValue], { name: 'total_supply' })
+  public async getTotalSupply(
+    @Args('input') query: QueryInput
+  ): Promise<AggregateValue[]> {
     return await this.timescaleService.resolveQuery(EconomicsEntity, 'economics', 'total_supply', query);
   }
 
-  @ResolveField(() => [ScalarValue], { name: 'circulating_supply' })
-  public async getCirculatingSupply(@Args('input') query: QueryInput): Promise<ScalarValue[]> {
+  @ResolveField(() => [AggregateValue], { name: 'circulating_supply' })
+  public async getCirculatingSupply(
+    @Args('input') query: QueryInput
+  ): Promise<AggregateValue[]> {
     return await this.timescaleService.resolveQuery(EconomicsEntity, 'economics', 'circulating_supply', query);
   }
 
-  @ResolveField(() => [ScalarValue], { name: 'floating_supply' })
-  public async getFloatingSupply(@Args('input') query: QueryInput): Promise<ScalarValue[]> {
+  @ResolveField(() => [AggregateValue], { name: 'floating_supply' })
+  public async getFloatingSupply(
+    @Args('input') query: QueryInput
+  ): Promise<AggregateValue[]> {
     return await this.timescaleService.resolveQuery(EconomicsEntity, 'economics', 'floating_supply', query);
   }
 
-  @ResolveField(() => [ScalarValue], { name: 'staked' })
-  public async getStaked(@Args('input') query: QueryInput): Promise<ScalarValue[]> {
+  @ResolveField(() => [AggregateValue], { name: 'staked' })
+  public async getStaked(
+    @Args('input') query: QueryInput
+  ): Promise<AggregateValue[]> {
     return await this.timescaleService.resolveQuery(EconomicsEntity, 'economics', 'staked', query);
   }
 
-  @ResolveField(() => [ScalarValue], { name: 'left_per_user' })
-  public async getLeftPerUser(@Args('input') query: QueryInput): Promise<ScalarValue[]> {
+  @ResolveField(() => [AggregateValue], { name: 'left_per_user' })
+  public async getLeftPerUser(
+    @Args('input') query: QueryInput
+  ): Promise<AggregateValue[]> {
     return await this.timescaleService.resolveQuery(EconomicsEntity, 'economics', 'left_per_user', query);
   }
 }

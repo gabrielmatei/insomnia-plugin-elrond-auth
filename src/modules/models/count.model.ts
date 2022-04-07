@@ -1,11 +1,11 @@
 import { Field, ObjectType } from "@nestjs/graphql";
-import { ScalarValue } from "src/common/entities/scalar-value.object";
+import { AggregateValue } from "src/common/entities/aggregate-value.object";
 
 @ObjectType()
 export class CountModel {
-  @Field(() => [ScalarValue], { name: 'count', nullable: true })
-  count?: [ScalarValue];
+  @Field(() => [AggregateValue], { name: 'count', nullable: true })
+  count?: AggregateValue[];
 
-  @Field(() => [ScalarValue], { name: 'count_24h', nullable: true })
-  count24h?: [ScalarValue];
+  @Field(() => [AggregateValue], { name: 'count_24h', nullable: true })
+  count24h?: AggregateValue[];
 }

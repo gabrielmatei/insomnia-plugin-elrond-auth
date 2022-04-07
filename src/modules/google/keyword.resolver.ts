@@ -1,5 +1,5 @@
 import { Resolver, ResolveField, Parent, Args } from "@nestjs/graphql";
-import { ScalarValue } from "src/common/entities/scalar-value.object";
+import { AggregateValue } from "src/common/entities/aggregate-value.object";
 import { GoogleEntity } from "src/common/timescale/entities/google.entity";
 import { TimescaleService } from "src/common/timescale/timescale.service";
 import { QueryInput } from "../models/query.input";
@@ -11,35 +11,35 @@ export class KeywordResolver {
     private readonly timescaleService: TimescaleService
   ) { }
 
-  @ResolveField(() => [ScalarValue], { name: 'clicks' })
+  @ResolveField(() => [AggregateValue], { name: 'clicks' })
   public async clicks(
     @Parent() { series }: KeywordModel,
     @Args('input') query: QueryInput
-  ): Promise<ScalarValue[]> {
+  ): Promise<AggregateValue[]> {
     return await this.timescaleService.resolveQuery(GoogleEntity, series, 'clicks', query);
   }
 
-  @ResolveField(() => [ScalarValue], { name: 'impressions' })
+  @ResolveField(() => [AggregateValue], { name: 'impressions' })
   public async impressions(
     @Parent() { series }: KeywordModel,
     @Args('input') query: QueryInput
-  ): Promise<ScalarValue[]> {
+  ): Promise<AggregateValue[]> {
     return await this.timescaleService.resolveQuery(GoogleEntity, series, 'impressions', query);
   }
 
-  @ResolveField(() => [ScalarValue], { name: 'ctr' })
+  @ResolveField(() => [AggregateValue], { name: 'ctr' })
   public async ctr(
     @Parent() { series }: KeywordModel,
     @Args('input') query: QueryInput
-  ): Promise<ScalarValue[]> {
+  ): Promise<AggregateValue[]> {
     return await this.timescaleService.resolveQuery(GoogleEntity, series, 'ctr', query);
   }
 
-  @ResolveField(() => [ScalarValue], { name: 'position' })
+  @ResolveField(() => [AggregateValue], { name: 'position' })
   public async position(
     @Parent() { series }: KeywordModel,
     @Args('input') query: QueryInput
-  ): Promise<ScalarValue[]> {
+  ): Promise<AggregateValue[]> {
     return await this.timescaleService.resolveQuery(GoogleEntity, series, 'position', query);
   }
 }

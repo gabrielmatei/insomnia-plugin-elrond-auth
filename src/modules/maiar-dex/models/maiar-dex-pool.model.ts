@@ -1,5 +1,5 @@
 import { Field, HideField, ObjectType } from "@nestjs/graphql";
-import { ScalarValue } from "src/common/entities/scalar-value.object";
+import { AggregateValue } from "src/common/entities/aggregate-value.object";
 
 @ObjectType()
 export class MaiarDexPoolModel {
@@ -9,8 +9,8 @@ export class MaiarDexPoolModel {
   @Field(() => String, { name: 'name', nullable: true })
   name: string;
 
-  @Field(() => [ScalarValue], { name: 'volume', nullable: true })
-  volume?: ScalarValue[];
+  @Field(() => [AggregateValue], { name: 'volume', nullable: true })
+  volume?: AggregateValue[];
 
   constructor(series: string) {
     this.series = series;

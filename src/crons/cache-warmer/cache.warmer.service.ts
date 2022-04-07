@@ -31,7 +31,7 @@ export class CacheWarmerService {
     }, true);
   }
 
-  @Cron(CronExpression.EVERY_MINUTE)
+  @Cron(CronExpression.EVERY_10_MINUTES)
   async logMemoryUsage() {
     // eslint-disable-next-line require-await
     await Locker.lock('Memory usage', async () => {

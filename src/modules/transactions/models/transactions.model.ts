@@ -1,15 +1,15 @@
 import { Field, ObjectType } from "@nestjs/graphql";
-import { ScalarValue } from "src/common/entities/scalar-value.object";
+import { AggregateValue } from "src/common/entities/aggregate-value.object";
 import { CountModel } from "src/modules/models/count.model";
 
 @ObjectType()
 export class TransactionsModel extends CountModel {
-  @Field(() => [ScalarValue], { name: 'value_moved', nullable: true })
-  valueMoved?: [ScalarValue];
+  @Field(() => [AggregateValue], { name: 'value_moved', nullable: true })
+  valueMoved?: AggregateValue[];
 
-  @Field(() => [ScalarValue], { name: 'total_fees', nullable: true })
-  totalFees?: [ScalarValue];
+  @Field(() => [AggregateValue], { name: 'total_fees', nullable: true })
+  totalFees?: AggregateValue[];
 
-  @Field(() => [ScalarValue], { name: 'new_emission', nullable: true })
-  newEmission?: [ScalarValue];
+  @Field(() => [AggregateValue], { name: 'new_emission', nullable: true })
+  newEmission?: AggregateValue[];
 }

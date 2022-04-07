@@ -1,5 +1,5 @@
 import { Resolver, ResolveField, Parent, Args } from "@nestjs/graphql";
-import { ScalarValue } from "src/common/entities/scalar-value.object";
+import { AggregateValue } from "src/common/entities/aggregate-value.object";
 import { QuotesEntity } from "src/common/timescale/entities/quotes.entity";
 import { TimescaleService } from "src/common/timescale/timescale.service";
 import { QueryInput } from "../models/query.input";
@@ -11,27 +11,27 @@ export class CoinQuoteResolver {
     private readonly timescaleService: TimescaleService
   ) { }
 
-  @ResolveField(() => [ScalarValue], { name: 'price' })
+  @ResolveField(() => [AggregateValue], { name: 'price' })
   public async price(
     @Parent() { series }: CoinQuoteModel,
     @Args('input') query: QueryInput
-  ): Promise<ScalarValue[]> {
+  ): Promise<AggregateValue[]> {
     return await this.timescaleService.resolveQuery(QuotesEntity, series, 'price', query);
   }
 
-  @ResolveField(() => [ScalarValue], { name: 'market_cap' })
+  @ResolveField(() => [AggregateValue], { name: 'market_cap' })
   public async market_cap(
     @Parent() { series }: CoinQuoteModel,
     @Args('input') query: QueryInput
-  ): Promise<ScalarValue[]> {
+  ): Promise<AggregateValue[]> {
     return await this.timescaleService.resolveQuery(QuotesEntity, series, 'market_cap', query);
   }
 
-  @ResolveField(() => [ScalarValue], { name: 'volume_24h' })
+  @ResolveField(() => [AggregateValue], { name: 'volume_24h' })
   public async volume_24h(
     @Parent() { series }: CoinQuoteModel,
     @Args('input') query: QueryInput
-  ): Promise<ScalarValue[]> {
+  ): Promise<AggregateValue[]> {
     return await this.timescaleService.resolveQuery(QuotesEntity, series, 'volume_24h', query);
   }
 }

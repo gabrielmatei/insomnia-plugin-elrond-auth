@@ -1,5 +1,5 @@
 import { Resolver, ResolveField, Parent, Args } from "@nestjs/graphql";
-import { ScalarValue } from "src/common/entities/scalar-value.object";
+import { AggregateValue } from "src/common/entities/aggregate-value.object";
 import { StakingHistoricalEntity } from "src/common/timescale/entities/staking-historical.entity";
 import { TimescaleService } from "src/common/timescale/timescale.service";
 import { QueryInput } from "../models/query.input";
@@ -11,27 +11,27 @@ export class StakingTypeResolver {
     private readonly timescaleService: TimescaleService
   ) { }
 
-  @ResolveField(() => [ScalarValue], { name: 'value' })
+  @ResolveField(() => [AggregateValue], { name: 'value' })
   public async value(
     @Parent() { series }: StakingTypeModel,
     @Args('input') query: QueryInput
-  ): Promise<ScalarValue[]> {
+  ): Promise<AggregateValue[]> {
     return await this.timescaleService.resolveQuery(StakingHistoricalEntity, series, 'value', query);
   }
 
-  @ResolveField(() => [ScalarValue], { name: 'users' })
+  @ResolveField(() => [AggregateValue], { name: 'users' })
   public async users(
     @Parent() { series }: StakingTypeModel,
     @Args('input') query: QueryInput
-  ): Promise<ScalarValue[]> {
+  ): Promise<AggregateValue[]> {
     return await this.timescaleService.resolveQuery(StakingHistoricalEntity, series, 'users', query);
   }
 
-  @ResolveField(() => [ScalarValue], { name: 'user_average' })
+  @ResolveField(() => [AggregateValue], { name: 'user_average' })
   public async user_average(
     @Parent() { series }: StakingTypeModel,
     @Args('input') query: QueryInput
-  ): Promise<ScalarValue[]> {
+  ): Promise<AggregateValue[]> {
     return await this.timescaleService.resolveQuery(StakingHistoricalEntity, series, 'user_average', query);
   }
 }

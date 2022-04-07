@@ -1,22 +1,22 @@
 import { ObjectType, HideField, Field } from "@nestjs/graphql";
-import { ScalarValue } from "src/common/entities/scalar-value.object";
+import { AggregateValue } from "src/common/entities/aggregate-value.object";
 
 @ObjectType()
 export class GithubActivityModel {
   @HideField()
   series: string;
 
-  @Field(() => [ScalarValue], { name: 'commits', nullable: true })
-  commits?: [ScalarValue];
+  @Field(() => [AggregateValue], { name: 'commits', nullable: true })
+  commits?: AggregateValue[];
 
-  @Field(() => [ScalarValue], { name: 'commits_24h', nullable: true })
-  commits_24h?: [ScalarValue];
+  @Field(() => [AggregateValue], { name: 'commits_24h', nullable: true })
+  commits_24h?: AggregateValue[];
 
-  @Field(() => [ScalarValue], { name: 'contributors', nullable: true })
-  contributors?: [ScalarValue];
+  @Field(() => [AggregateValue], { name: 'contributors', nullable: true })
+  contributors?: AggregateValue[];
 
-  @Field(() => [ScalarValue], { name: 'stars', nullable: true })
-  stars?: [ScalarValue];
+  @Field(() => [AggregateValue], { name: 'stars', nullable: true })
+  stars?: AggregateValue[];
 
   constructor(series: string) {
     this.series = series;

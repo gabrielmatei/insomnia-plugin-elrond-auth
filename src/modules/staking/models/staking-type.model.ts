@@ -1,19 +1,19 @@
 import { ObjectType, HideField, Field } from "@nestjs/graphql";
-import { ScalarValue } from "src/common/entities/scalar-value.object";
+import { AggregateValue } from "src/common/entities/aggregate-value.object";
 
 @ObjectType()
 export class StakingTypeModel {
   @HideField()
   series: string;
 
-  @Field(() => [ScalarValue], { name: 'value', nullable: true })
-  value?: [ScalarValue];
+  @Field(() => [AggregateValue], { name: 'value', nullable: true })
+  value?: AggregateValue[];
 
-  @Field(() => [ScalarValue], { name: 'users', nullable: true })
-  users?: [ScalarValue];
+  @Field(() => [AggregateValue], { name: 'users', nullable: true })
+  users?: AggregateValue[];
 
-  @Field(() => [ScalarValue], { name: 'user_average', nullable: true })
-  userAverage?: [ScalarValue];
+  @Field(() => [AggregateValue], { name: 'user_average', nullable: true })
+  userAverage?: AggregateValue[];
 
   constructor(series: string) {
     this.series = series;

@@ -1,28 +1,28 @@
 import { ObjectType, HideField, Field } from "@nestjs/graphql";
-import { ScalarValue } from "src/common/entities/scalar-value.object";
+import { AggregateValue } from "src/common/entities/aggregate-value.object";
 
 @ObjectType()
 export class ExchangeModel {
   @HideField()
   series: string;
 
-  @Field(() => [ScalarValue], { name: 'balance', nullable: true })
-  balance?: [ScalarValue];
+  @Field(() => [AggregateValue], { name: 'balance', nullable: true })
+  balance?: AggregateValue[];
 
-  @Field(() => [ScalarValue], { name: 'total', nullable: true })
-  total?: [ScalarValue];
+  @Field(() => [AggregateValue], { name: 'total', nullable: true })
+  total?: AggregateValue[];
 
-  @Field(() => [ScalarValue], { name: 'inflows', nullable: true })
-  inflows?: [ScalarValue];
+  @Field(() => [AggregateValue], { name: 'inflows', nullable: true })
+  inflows?: AggregateValue[];
 
-  @Field(() => [ScalarValue], { name: 'outflows', nullable: true })
-  outflows?: [ScalarValue];
+  @Field(() => [AggregateValue], { name: 'outflows', nullable: true })
+  outflows?: AggregateValue[];
 
-  @Field(() => [ScalarValue], { name: 'inflow_24h', nullable: true })
-  inflow24h?: [ScalarValue];
+  @Field(() => [AggregateValue], { name: 'inflow_24h', nullable: true })
+  inflow24h?: AggregateValue[];
 
-  @Field(() => [ScalarValue], { name: 'outflow_24h', nullable: true })
-  outflow24h?: [ScalarValue];
+  @Field(() => [AggregateValue], { name: 'outflow_24h', nullable: true })
+  outflow24h?: AggregateValue[];
 
   constructor(series: string) {
     this.series = series;

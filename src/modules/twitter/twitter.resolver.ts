@@ -1,5 +1,5 @@
 import { Args, Query, ResolveField, Resolver } from '@nestjs/graphql';
-import { ScalarValue } from 'src/common/entities/scalar-value.object';
+import { AggregateValue } from 'src/common/entities/aggregate-value.object';
 import { TwitterEntity } from 'src/common/timescale/entities/twitter.entity';
 import { TimescaleService } from 'src/common/timescale/timescale.service';
 import { QueryInput } from '../models/query.input';
@@ -16,17 +16,17 @@ export class TwitterResolver {
     return new TwitterModel();
   }
 
-  @ResolveField(() => [ScalarValue], { name: 'mentions' })
+  @ResolveField(() => [AggregateValue], { name: 'mentions' })
   public async getMentions(
     @Args('input') query: QueryInput
-  ): Promise<ScalarValue[]> {
+  ): Promise<AggregateValue[]> {
     return await this.timescaleService.resolveQuery(TwitterEntity, 'twitter', 'mentions', query);
   }
 
-  @ResolveField(() => [ScalarValue], { name: 'followers' })
+  @ResolveField(() => [AggregateValue], { name: 'followers' })
   public async getFollowers(
     @Args('input') query: QueryInput
-  ): Promise<ScalarValue[]> {
+  ): Promise<AggregateValue[]> {
     return await this.timescaleService.resolveQuery(TwitterEntity, 'twitter', 'followers', query);
   }
 }

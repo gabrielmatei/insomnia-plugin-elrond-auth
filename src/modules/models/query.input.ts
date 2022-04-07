@@ -5,8 +5,11 @@ import { AggregateEnum } from "./aggregate.enum";
 
 @InputType()
 export class QueryInput {
-  @Field(() => AggregateEnum, { name: 'aggregate', nullable: false })
-  aggregate!: AggregateEnum;
+  @Field(() => AggregateEnum, { name: 'aggregate', nullable: true })
+  aggregate?: AggregateEnum;
+
+  @Field(() => [AggregateEnum], { name: 'aggregates', nullable: true })
+  aggregates?: AggregateEnum[];
 
   @Field(() => TimeResolutionsEnum, { name: 'resolution', nullable: true })
   resolution?: TimeResolutionsEnum;

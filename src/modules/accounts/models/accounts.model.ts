@@ -1,13 +1,13 @@
 import { Field, ObjectType } from "@nestjs/graphql";
-import { ScalarValue } from "src/common/entities/scalar-value.object";
+import { AggregateValue } from "src/common/entities/aggregate-value.object";
 import { AccountsHistoricalEntity } from "src/common/timescale/entities/accounts-historical.entity";
 import { CountModel } from "src/modules/models/count.model";
 import { ThresholdCountModel } from "./threshold-count.model";
 
 @ObjectType()
 export class AccountsModel extends CountModel {
-  @Field(() => [ScalarValue], { name: 'active_accounts', nullable: true })
-  active_accounts?: [ScalarValue];
+  @Field(() => [AggregateValue], { name: 'active_accounts', nullable: true })
+  active_accounts?: AggregateValue[];
 
   @Field(() => ThresholdCountModel, { name: 'balance', nullable: true })
   balance?: ThresholdCountModel<AccountsHistoricalEntity>;

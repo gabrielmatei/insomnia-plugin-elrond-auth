@@ -1,5 +1,5 @@
 import { Resolver, ResolveField, Parent, Args } from "@nestjs/graphql";
-import { ScalarValue } from "src/common/entities/scalar-value.object";
+import { AggregateValue } from "src/common/entities/aggregate-value.object";
 import { MaiarDexEntity } from "src/common/timescale/entities/maiar-dex.entity";
 import { TimescaleService } from "src/common/timescale/timescale.service";
 import { QueryInput } from "../models/query.input";
@@ -11,11 +11,11 @@ export class MaiarDexPoolResolver {
     private readonly timescaleService: TimescaleService
   ) { }
 
-  @ResolveField(() => [ScalarValue], { name: 'volume' })
+  @ResolveField(() => [AggregateValue], { name: 'volume' })
   public async volume(
     @Parent() { series }: MaiarDexPoolModel,
     @Args('input') query: QueryInput
-  ): Promise<ScalarValue[]> {
+  ): Promise<AggregateValue[]> {
     return await this.timescaleService.resolveQuery(MaiarDexEntity, series, 'volume', query);
   }
 }

@@ -1,5 +1,5 @@
 import { Args, Query, ResolveField, Resolver } from '@nestjs/graphql';
-import { ScalarValue } from 'src/common/entities/scalar-value.object';
+import { AggregateValue } from 'src/common/entities/aggregate-value.object';
 import { Pair } from 'src/common/maiar-dex/entities/pair';
 import { MaiarDexService } from 'src/common/maiar-dex/maiar-dex.service';
 import { MaiarDexEntity } from 'src/common/timescale/entities/maiar-dex.entity';
@@ -21,24 +21,24 @@ export class MaiarDexResolver {
     return new MaiarDexModel();
   }
 
-  @ResolveField(() => [ScalarValue], { name: 'total_value_locked' })
+  @ResolveField(() => [AggregateValue], { name: 'total_value_locked' })
   public async total_value_locked(
     @Args('input') query: QueryInput
-  ): Promise<ScalarValue[]> {
+  ): Promise<AggregateValue[]> {
     return await this.timescaleService.resolveQuery(MaiarDexEntity, 'dashboard', 'total_value_locked', query);
   }
 
-  @ResolveField(() => [ScalarValue], { name: 'volume' })
+  @ResolveField(() => [AggregateValue], { name: 'volume' })
   public async volume(
     @Args('input') query: QueryInput
-  ): Promise<ScalarValue[]> {
+  ): Promise<AggregateValue[]> {
     return await this.timescaleService.resolveQuery(MaiarDexEntity, 'dashboard', 'volume', query);
   }
 
-  @ResolveField(() => [ScalarValue], { name: 'mex_burnt' })
+  @ResolveField(() => [AggregateValue], { name: 'mex_burnt' })
   public async mex_burnt(
     @Args('input') query: QueryInput
-  ): Promise<ScalarValue[]> {
+  ): Promise<AggregateValue[]> {
     return await this.timescaleService.resolveQuery(MaiarDexEntity, 'dashboard', 'mex_burnt', query);
   }
 

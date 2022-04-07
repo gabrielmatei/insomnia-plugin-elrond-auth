@@ -1,11 +1,11 @@
 import { Field, ObjectType } from "@nestjs/graphql";
-import { ScalarValue } from "src/common/entities/scalar-value.object";
+import { AggregateValue } from "src/common/entities/aggregate-value.object";
 
 @ObjectType()
 export class TwitterModel {
-  @Field(() => [ScalarValue], { name: 'mentions', nullable: true })
-  mentions?: [ScalarValue];
+  @Field(() => [AggregateValue], { name: 'mentions', nullable: true })
+  mentions?: AggregateValue[];
 
-  @Field(() => [ScalarValue], { name: 'followers', nullable: true })
-  followers?: [ScalarValue];
+  @Field(() => [AggregateValue], { name: 'followers', nullable: true })
+  followers?: AggregateValue[];
 }
