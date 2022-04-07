@@ -1,18 +1,21 @@
-import { Inject, Injectable } from "@nestjs/common";
+import { Inject, Injectable, Logger } from "@nestjs/common";
 import { ClientProxy } from "@nestjs/microservices";
 import { Cron, CronExpression } from "@nestjs/schedule";
 import { CachingService } from "src/common/caching/caching.service";
 import { CacheInfo } from "src/common/caching/entities/cache.info";
 import { GithubService } from "src/common/github/github.service";
 import { Locker } from "src/utils/locker";
-
 @Injectable()
 export class CacheWarmerService {
+  private readonly logger: Logger;
+
   constructor(
     private readonly cachingService: CachingService,
     @Inject('PUBSUB_SERVICE') private clientProxy: ClientProxy,
     private readonly githubService: GithubService,
-  ) { }
+  ) {
+    this.logger = new Logger(CacheWarmerService.name);
+  }
 
   @Cron(CronExpression.EVERY_HOUR)
   async handleRepositoriesInvalidations() {
@@ -25,6 +28,22 @@ export class CacheWarmerService {
         repositories,
         CacheInfo.Repositories(organization).ttl
       );
+    }, true);
+  }
+
+  @Cron(CronExpression.EVERY_MINUTE)
+  async logMemoryUsage() {
+    // eslint-disable-next-line require-await
+    await Locker.lock('Memory usage', async () => {
+      const memoryUsageRaw = process.memoryUsage();
+
+      const memoryUsage: Record<string, string> = {};
+      Object.entries(memoryUsageRaw).map(([key, value]) => {
+        const mb = (value / 1024 / 1024).toFixed(2);
+        memoryUsage[key] = `${mb} MB`;
+      });
+
+      this.logger.log(`Memory usage: ${JSON.stringify(memoryUsage)}`);
     }, true);
   }
 
