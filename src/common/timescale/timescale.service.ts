@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import moment from 'moment';
 import { AggregateEnum } from 'src/modules/models/aggregate.enum';
 import { QueryInput } from 'src/modules/models/query.input';
@@ -154,7 +154,7 @@ export class TimescaleService {
     aggregates: AggregateEnum[],
   ): Promise<AggregateValue[]> {
     if (aggregates.length === 0) {
-      throw new Error('An aggregate function id required');
+      throw new BadRequestException('An aggregate function is required');
     }
 
     if (aggregates.length === 1 && aggregates[0] === AggregateEnum.LAST && query === undefined) {
@@ -166,18 +166,18 @@ export class TimescaleService {
     }
 
     if (!query) {
-      throw new Error('Query required');
+      throw new BadRequestException('Query required');
     }
 
     let startDate = query.start_date;
     if (query.range) {
       startDate = moment.utc().subtract(1, query.range).toDate();
     } else if (!startDate) {
-      throw new Error('start date or range required');
+      throw new BadRequestException('start date or range required');
     }
 
     if (!query.resolution) {
-      throw new Error('resolution required');
+      throw new BadRequestException('resolution required');
     }
 
     const values = await this.getValues(entity, series, key, startDate, query.end_date, query.resolution, aggregates);
