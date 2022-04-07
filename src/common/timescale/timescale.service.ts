@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import moment from 'moment';
 import { AggregateEnum } from 'src/modules/models/aggregate.enum';
 import { QueryInput } from 'src/modules/models/query.input';
@@ -97,8 +97,8 @@ export class TimescaleService {
 
     const aggregates = aggregateList.map(aggregate => {
       const agg = aggregate === AggregateEnum.FIRST || aggregate === AggregateEnum.LAST
-        ? `${aggregate}(value, timestamp) AS ${aggregate.toLowerCase()}`
-        : `${aggregate}(value) AS ${aggregate.toLowerCase()}`;
+        ? `${aggregate}(value, timestamp) AS ${aggregate}`
+        : `${aggregate}(value) AS ${aggregate}`;
       return agg;
     });
 
@@ -115,6 +115,7 @@ export class TimescaleService {
       GROUP BY time
       ORDER BY time ASC
     `;
+
     const rows: any[] = await repository.query(query, [series, key]);
 
     const values = rows.map(row => new AggregateValue({
@@ -135,12 +136,13 @@ export class TimescaleService {
     series: string,
     key: string,
     query: QueryInput,
+    aggregates: AggregateEnum[]
   ): Promise<AggregateValue[]> {
-    const cacheInfo = CacheInfo.QueryResult(entity, series, key, query);
+    const cacheInfo = CacheInfo.QueryResult(entity, series, key, query, aggregates);
 
     return await this.cachingService.getOrSetCache(
       cacheInfo.key,
-      async () => await this.resolveQueryRaw(entity, series, key, query),
+      async () => await this.resolveQueryRaw(entity, series, key, query, aggregates),
       cacheInfo.ttl,
     );
   }
@@ -150,8 +152,13 @@ export class TimescaleService {
     series: string,
     key: string,
     query: QueryInput,
+    aggregates: AggregateEnum[],
   ): Promise<AggregateValue[]> {
-    if (query.aggregate === AggregateEnum.LAST && query.resolution === undefined) {
+    if (aggregates.length === 0) {
+      throw new BadRequestException(`At least one aggregate function is required`);
+    }
+
+    if (aggregates.length === 1 && aggregates[0] === AggregateEnum.LAST && query === undefined) {
       const lastValue = await this.getLastValue(entity, series, key);
       if (!lastValue) {
         return [];
@@ -159,30 +166,22 @@ export class TimescaleService {
       return [lastValue];
     }
 
-    if (!query.aggregate && !query.aggregates) {
-      throw new Error('aggregate or aggregates required');
-    }
-
-    if (query.aggregate !== undefined && query.aggregates !== undefined) {
-      throw new Error('only one aggregate param');
+    if (!query) {
+      throw new BadRequestException(`'query' is required`);
     }
 
     let startDate = query.start_date;
     if (query.range) {
       startDate = moment.utc().subtract(1, query.range).toDate();
     } else if (!startDate) {
-      throw new Error('start date or range required');
+      throw new BadRequestException(`'start_date' or 'range' is required`);
     }
 
     if (!query.resolution) {
-      throw new Error('resolution required');
+      throw new BadRequestException(`'resolution' is required`);
     }
 
-    const aggregateList = [query.aggregate, ...(query.aggregates ?? [])]
-      .filter((agg): agg is AggregateEnum => !!agg)
-      .distinct();
-
-    const values = await this.getValues(entity, series, key, startDate, query.end_date, query.resolution, aggregateList);
+    const values = await this.getValues(entity, series, key, startDate, query.end_date, query.resolution, aggregates);
     return values;
   }
 }

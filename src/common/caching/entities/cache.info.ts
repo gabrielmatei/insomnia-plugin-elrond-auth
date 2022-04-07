@@ -3,6 +3,7 @@ import { Constants } from "src/utils/constants";
 import { EntityTarget } from "typeorm";
 import * as crypto from "crypto";
 import { QueryInput } from "src/modules/models/query.input";
+import { AggregateEnum } from "src/modules/models/aggregate.enum";
 
 export class CacheInfo {
   key: string = "";
@@ -19,13 +20,15 @@ export class CacheInfo {
     entity: EntityTarget<T>,
     series: string,
     key: string,
-    query: QueryInput
+    query: QueryInput,
+    aggregates: AggregateEnum[],
   ): CacheInfo {
     const cacheKeyRaw = JSON.stringify({
       entity: entity.toString(),
       series,
       key,
       query,
+      aggregates,
     });
     const keyHash = crypto.createHash('sha1').update(cacheKeyRaw).digest('base64');
 
