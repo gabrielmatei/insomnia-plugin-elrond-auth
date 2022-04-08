@@ -1,14 +1,19 @@
-import { Injectable, Logger } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
+import { JobType } from "aws-sdk/clients/importexport";
+import { CachingService } from "src/common/caching/caching.service";
+import { CacheInfo } from "src/common/caching/entities/cache.info";
 
 @Injectable()
 export class JobsService {
-  private readonly logger: Logger;
+  constructor(private readonly cachingService: CachingService) { }
 
-  constructor() {
-    this.logger = new Logger(JobsService.name);
-  }
+  public async runJob(jobType: JobType): Promise<string> {
+    await this.cachingService.setCacheRemote(
+      CacheInfo.ScheduledJob(jobType).key,
+      jobType,
+      CacheInfo.ScheduledJob(jobType).ttl,
+    );
 
-  log() {
-    this.logger.log('log');
+    return `${jobType} is scheduled to run in ~5 minutes`;
   }
 }

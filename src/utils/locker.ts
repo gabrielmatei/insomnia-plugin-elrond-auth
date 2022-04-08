@@ -9,7 +9,7 @@ export class Locker {
     const logger = new Logger('Lock');
 
     if (Locker.lockArray.includes(key) && log) {
-      logger.log(`${key} is already running`);
+      logger.log(`'${key}' is already running`);
       return LockResult.alreadyRunning;
     }
 
@@ -18,20 +18,20 @@ export class Locker {
     const profiler = new PerformanceProfiler();
 
     try {
-      logger.log(`Start running ${key}`);
+      logger.log(`Start running '${key}'`);
 
       await func();
 
-      profiler.stop(`End running ${key}`, log);
+      profiler.stop(`End running '${key}'`, log);
       MetricsService.setJobResult(key, 'success', profiler.duration);
 
       return LockResult.success;
     } catch (error) {
-      logger.error(`Error running ${key}`);
+      logger.error(`Error running '${key}'`);
       logger.error(error);
 
 
-      profiler.stop(`End running ${key}`, log);
+      profiler.stop(`End running '${key}'`, log);
       MetricsService.setJobResult(key, 'error', profiler.duration);
 
       return LockResult.error;

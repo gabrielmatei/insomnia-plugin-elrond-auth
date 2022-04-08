@@ -49,4 +49,11 @@ export class CacheInfo {
     key: 'maiarDexPairs',
     ttl: Constants.oneHour(),
   };
+
+  static ScheduledJob(job: string = '*'): CacheInfo {
+    return {
+      key: `scheduledJob:${job}`,
+      ttl: Constants.oneHour(),
+    };
+  }
 }

@@ -11,6 +11,7 @@ export class Ingester {
   public static readonly MAX_RETRIES = 3;
 
   private readonly logger: Logger;
+  private items: IngestItem[] = [];
 
   constructor(
     private readonly schedulerRegistry: SchedulerRegistry,
@@ -23,7 +24,9 @@ export class Ingester {
   public start(items: IngestItem[]) {
     this.logger.log(`Start data ingester with ${items.length} items`);
 
-    const jobs = items.map(item => this.scheduleIngestItem(item));
+    this.items = items;
+
+    const jobs = this.items.map(item => this.scheduleIngestItem(item));
     for (const job of jobs) {
       job.start();
     }
@@ -41,7 +44,7 @@ export class Ingester {
     return job;
   }
 
-  private async fetchRecords(item: IngestItem) {
+  public async fetchRecords(item: IngestItem) {
     let result: LockResult = LockResult.error;
     let retries = 0;
 
@@ -66,5 +69,9 @@ export class Ingester {
     if (result === LockResult.error) {
       this.metricsService.setFetcherAlert(item.fetcher.name);
     }
+  }
+
+  public getIngestItem(name: string): IngestItem | undefined {
+    return this.items.find(item => item.fetcher.name === name);
   }
 }
