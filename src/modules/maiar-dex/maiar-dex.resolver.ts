@@ -8,7 +8,6 @@ import { ParseFilterEnumArrayPipe } from 'src/utils/pipes/parse.filter.enum.arra
 import { ParseQueryFieldsPipe } from 'src/utils/pipes/parse.query.fields.pipe';
 import { AggregateEnum } from '../models/aggregate.enum';
 import { QueryInput } from '../models/query.input';
-import { MaiarDexPairsEnum } from './models/maiar-dex-pairs.enum';
 import { MaiarDexPoolModel } from './models/maiar-dex-pool.model';
 import { MaiarDexModel } from './models/maiar-dex.model';
 
@@ -50,7 +49,7 @@ export class MaiarDexResolver {
 
   @ResolveField(() => MaiarDexPoolModel, { name: 'pool' })
   getPool(
-    @Args({ name: 'pair', type: () => MaiarDexPairsEnum }) pair: MaiarDexPairsEnum
+    @Args({ name: 'pair', type: () => String }) pair: string
   ): MaiarDexPoolModel {
     return new MaiarDexPoolModel(pair);
   }
@@ -58,7 +57,7 @@ export class MaiarDexResolver {
   @ResolveField(() => [MaiarDexPoolModel], { name: 'pools' })
   async getAllPools(
   ): Promise<MaiarDexPoolModel[]> {
-    const pairs = await this.maiarDexService.getPairs();
+    const pairs = await this.maiarDexService.getAllPairs();
     const pairSymbols = pairs.map(pair => Pair.getSymbol(pair));
 
     const pools = pairSymbols.map(pair => new MaiarDexPoolModel(pair));

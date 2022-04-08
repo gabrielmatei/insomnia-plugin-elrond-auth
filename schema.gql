@@ -144,16 +144,8 @@ type MaiarDexModel {
   total_value_locked(query: QueryInput): [AggregateValue!]
   volume(query: QueryInput): [AggregateValue!]
   mex_burnt(query: QueryInput): [AggregateValue!]
-  pool(pair: MaiarDexPairs!): MaiarDexPoolModel!
+  pool(pair: String!): MaiarDexPoolModel!
   pools: [MaiarDexPoolModel!]!
-}
-
-enum MaiarDexPairs {
-  WEGLDUSDC
-  WEGLDRIDE
-  WEGLDMEX
-  AEROWEGLD
-  ISETWEGLD
 }
 
 type MaiarModel {

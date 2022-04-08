@@ -22,33 +22,50 @@ export class MaiarDexService {
     this.logger = new Logger(MaiarDexService.name);
   }
 
-  public async getPairs(): Promise<Pair[]> {
+  public async getAllPairs(): Promise<Pair[]> {
     return await this.cachingService.getOrSetCache(
       CacheInfo.MaiarDexPairs.key,
-      async () => await this.getPairsRaw(),
+      async () => await this.getAllPairsRaw(),
       CacheInfo.MaiarDexPairs.ttl
     );
   }
 
-  private async getPairsRaw(): Promise<Pair[]> {
+  private async getAllPairsRaw(): Promise<Pair[]> {
+    // TODO maiar-dex pagination bug
     try {
-      const { pairs } = await this.apiService.post(this.apiConfigService.getMaiarDexUrl(), {
-        query: getPairsQuery(),
-      }).then((response: any) => response.data);
+      let offset = 0;
+      const limit = 100;
 
-      const activePairs = pairs
-        .filter((pair: any) => pair.state === 'Active');
+      const allActivePairs: Pair[] = [];
 
-      return activePairs;
+      let currentPairs = [];
+      do {
+        const query = getPairsQuery(offset, limit);
+        currentPairs = await this.apiService
+          .post(this.apiConfigService.getMaiarDexUrl(), { query })
+          .then((response: any) => response.data?.pairs ?? []);
+
+        const activePairs = currentPairs
+          .filter((pair: any) => pair.state === 'Active');
+
+        for (const pair of activePairs) {
+          allActivePairs.push(pair);
+        }
+
+        offset += limit;
+      } while (currentPairs.length > 0);
+
+      return allActivePairs;
     } catch (error) {
       this.logger.error(`An unhandled error occurred when fetching pairs`);
       this.logger.error(error);
+
       return [];
     }
   }
 
   public async getPools(startDate: Date, endDate: Date): Promise<Pool[]> {
-    const pairs = await this.getPairs();
+    const pairs = await this.getAllPairs();
     const pools = await this.timestreamService.getPoolVolumes(pairs, startDate, endDate);
 
     return pools;
@@ -69,13 +86,13 @@ export class MaiarDexService {
     }
   }
 
-  public async getTokenBurntVolume(token: string, startDate: Date, endDate: Date): Promise<number> {
-    const volume = await this.timestreamService.getTokenBurntVolume(token, startDate, endDate);
+  public async getTokenBurntVolume(tokenIdentifier: string, startDate: Date, endDate: Date): Promise<number> {
+    const volume = await this.timestreamService.getTokenBurntVolume(tokenIdentifier, startDate, endDate);
     return volume;
   }
 
   public async getTotalVolume(startDate: Date, endDate: Date): Promise<number> {
-    const pairs = await this.getPairs();
+    const pairs = await this.getAllPairs();
     const totalVolume = await this.timestreamService.getTotalVolume(pairs, startDate, endDate);
     return totalVolume;
   }

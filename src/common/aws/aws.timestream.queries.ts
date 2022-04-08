@@ -22,7 +22,7 @@ export function getPoolVolumesQuery(tableName: string, pairs: Pair[], fromDate: 
   `;
 }
 
-export function getTokenBurntVolumeQuery(tableName: string, token: string, fromDate: Date, toDate: Date): string {
+export function getTokenBurntVolumeQuery(tableName: string, tokenIdentifier: string, fromDate: Date, toDate: Date): string {
   const from = DateUtils.dateToSql(fromDate);
   const to = DateUtils.dateToSql(toDate);
 
@@ -30,7 +30,7 @@ export function getTokenBurntVolumeQuery(tableName: string, token: string, fromD
     SELECT SUM(measure_value::double)
     FROM ${tableName}
     WHERE measure_name IN ('penaltyBurned', 'feeBurned')
-      AND series = '${token}'
+      AND series = '${tokenIdentifier}'
       AND time BETWEEN '${from}' AND '${to}'
   `;
 }

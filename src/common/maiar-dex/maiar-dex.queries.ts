@@ -1,6 +1,6 @@
-export function getPairsQuery(): string {
+export function getPairsQuery(offset: number, limit: number): string {
   return `{
-    pairs {
+    pairs(offset: ${offset}, limit: ${limit}) {
       address
       state
       firstToken {

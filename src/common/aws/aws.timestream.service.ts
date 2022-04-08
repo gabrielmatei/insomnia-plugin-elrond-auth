@@ -90,22 +90,23 @@ export class AWSTimestreamService {
     }
   }
 
-  public async getTokenBurntVolume(token: string, from: Date, to: Date): Promise<number> {
+  public async getTokenBurntVolume(tokenIdentifier: string, from: Date, to: Date, tokenDecimals: number = 18): Promise<number> {
     const profiler = new PerformanceProfiler();
 
     try {
-      const query = timestreamQueries.getTokenBurntVolumeQuery(this.TableName, token, from, to);
+      const query = timestreamQueries.getTokenBurntVolumeQuery(this.TableName, tokenIdentifier, from, to);
       const queryResult = await this.queryClient.query({ QueryString: query }).promise();
 
       if (queryResult.Rows.length === 0) {
         return 0;
       }
 
-      const volume = new BigNumber(queryResult.Rows[0]?.Data[0]?.ScalarValue ?? '0').toNumber();
+      const volume = new BigNumber(queryResult.Rows[0]?.Data[0]?.ScalarValue ?? '0').shiftedBy(-tokenDecimals).toNumber();
       return volume;
     } catch (error) {
       this.logger.error(`An unhandled error occurred when querying burnt volume`);
       this.logger.error(error);
+
       return 0;
     } finally {
       profiler.stop();
