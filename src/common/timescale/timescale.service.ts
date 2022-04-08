@@ -19,11 +19,16 @@ export class TimescaleService {
   public async writeData<T extends GenericIngestEntity>(entityTarget: EntityTarget<T>, entity: T | T[]): Promise<void> {
     try {
       const repository = getRepository(entityTarget);
+
+      this.logger.log(`Write ${Array.isArray(entity) ? entity.length : 1} records on '${GenericIngestEntity.getName(entityTarget)}`);
+
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       await repository.save(entity);
     } catch (error) {
+      this.logger.error(`An unhandled error writing data on '${GenericIngestEntity.getName(entityTarget)}'`);
       this.logger.error(error);
+
       throw error;
     }
   }
