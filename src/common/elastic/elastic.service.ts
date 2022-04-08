@@ -128,7 +128,9 @@ export class ElasticService {
         items: items.map((document: any) => this.formatItem(document, key)),
       };
     } catch (error) {
+      this.logger.error(`An unhandled error fetching first page using scroll api`);
       this.logger.error(error);
+
       return { items: [] };
     }
   }
@@ -144,7 +146,9 @@ export class ElasticService {
 
       return result.hits.hits.map((document: any) => this.formatItem(document, key));
     } catch (error) {
+      this.logger.error(`An unhandled error fetching next page using scroll api`);
       this.logger.error(error);
+
       return [];
     }
   }

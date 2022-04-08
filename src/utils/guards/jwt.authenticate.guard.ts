@@ -38,7 +38,9 @@ export class JwtAuthenticateGuard implements CanActivate {
       });
 
     } catch (error) {
+      this.logger.error(`An unhandled error checking jwt`);
       this.logger.error(error);
+
       return false;
     }
 

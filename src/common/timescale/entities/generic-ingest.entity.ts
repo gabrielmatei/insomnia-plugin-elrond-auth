@@ -1,4 +1,4 @@
-import { Column, Generated, PrimaryColumn } from "typeorm";
+import { Column, EntityTarget, Generated, PrimaryColumn } from "typeorm";
 
 export class GenericIngestEntity {
   @Generated('increment')
@@ -29,7 +29,7 @@ export class GenericIngestEntity {
   })
   value: number = 0;
 
-  static fromObject(timestamp: Date, object: Record<string, Record<string, number>>): GenericIngestEntity[] {
+  public static fromObject(timestamp: Date, object: Record<string, Record<string, number>>): GenericIngestEntity[] {
     const entities = Object
       .entries(object)
       .map(([series, record]: [string, Record<string, number>]) => GenericIngestEntity.fromRecord(timestamp, record, series))
@@ -47,5 +47,9 @@ export class GenericIngestEntity {
       return entity;
     });
     return entities;
+  }
+
+  public static getName<T extends GenericIngestEntity>(entityTarget: EntityTarget<T>): string {
+    return /class (.*) extends/g.exec(entityTarget.toString())?.at(1) ?? '';
   }
 }

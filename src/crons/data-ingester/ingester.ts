@@ -21,7 +21,7 @@ export class Ingester {
   }
 
   public start(items: IngestItem[]) {
-    this.logger.log('Start data ingester');
+    this.logger.log(`Start data ingester with ${items.length} items`);
 
     const jobs = items.map(item => this.scheduleIngestItem(item));
     for (const job of jobs) {
@@ -52,6 +52,8 @@ export class Ingester {
 
       result = await Locker.lock(item.fetcher.name, async () => {
         const fetchRecords = await item.fetcher.fetch();
+
+        this.logger.log(`Fetched ${fetchRecords.length} record sets from '${item.fetcher.name}'`);
 
         for (const record of fetchRecords) {
           await this.timescaleService.writeData(record.entity, record.records);

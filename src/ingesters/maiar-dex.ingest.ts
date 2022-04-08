@@ -18,10 +18,10 @@ export class MaiarDexIngest implements Ingest {
   ) { }
 
   public async fetch(): Promise<IngestRecords[]> {
-    const yesterdayDate = moment.utc().subtract(1, 'days');
+    const ingestDate = moment.utc().startOf('day').toDate();
 
-    const startDate = moment(yesterdayDate).startOf('isoWeek').toDate();
-    const endDate = moment(yesterdayDate).endOf('isoWeek').toDate();
+    const startDate = moment.utc().subtract(7, 'days').startOf('day').toDate();
+    const endDate = moment.utc().subtract(1, 'day').endOf('day').toDate();
 
     const mexIdentifier = this.apiConfigService.getMexIdentifier();
 
@@ -53,7 +53,7 @@ export class MaiarDexIngest implements Ingest {
 
     return [{
       entity: MaiarDexEntity,
-      records: MaiarDexEntity.fromObject(startDate, data),
+      records: MaiarDexEntity.fromObject(ingestDate, data),
     }];
   }
 }

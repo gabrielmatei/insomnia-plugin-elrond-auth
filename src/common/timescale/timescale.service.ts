@@ -7,6 +7,7 @@ import { CachingService } from '../caching/caching.service';
 import { CacheInfo } from '../caching/entities/cache.info';
 import { AggregateValue } from '../entities/aggregate-value.object';
 import { GenericIngestEntity } from './entities/generic-ingest.entity';
+import * as timescaleQueries from './timescale.queries';
 
 @Injectable()
 export class TimescaleService {
@@ -19,40 +20,31 @@ export class TimescaleService {
   public async writeData<T extends GenericIngestEntity>(entityTarget: EntityTarget<T>, entity: T | T[]): Promise<void> {
     try {
       const repository = getRepository(entityTarget);
+
+      this.logger.log(`Write ${Array.isArray(entity) ? entity.length : 1} records on '${GenericIngestEntity.getName(entityTarget)}`);
+
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       await repository.save(entity);
     } catch (error) {
+      this.logger.error(`An unhandled error writing data on '${GenericIngestEntity.getName(entityTarget)}'`);
       this.logger.error(error);
+
       throw error;
     }
   }
 
-  public async getPreviousValue24h<T extends GenericIngestEntity>(entityTarget: EntityTarget<T>, currentTimestamp: Date, key: string, series?: string): Promise<number | undefined> {
-    const params = {
-      key,
-      series,
-      ago24h: moment.utc(currentTimestamp).add(-1, 'days').toISOString(),
-    };
-
+  public async getPreviousValue24h<T extends GenericIngestEntity>(
+    entityTarget: EntityTarget<T>,
+    currentTimestamp: Date,
+    key: string,
+    series: string
+  ): Promise<number | undefined> {
     const repository = getRepository(entityTarget);
-    let query = repository
-      .createQueryBuilder()
-      .where('key = :key')
-      .andWhere('timestamp < :ago24h')
-      .setParameters(params)
-      .orderBy('timestamp', 'DESC')
-      .limit(1);
-
-    if (series) {
-      query = query.andWhere('series = :series');
-    }
+    const query = timescaleQueries.getPreviousValue24hQuery(repository, currentTimestamp, series, key);
 
     const entity = await query.getOne();
-    if (!entity) {
-      return undefined;
-    }
-    return entity.value;
+    return entity?.value;
   }
 
   public async getLastValue<T extends GenericIngestEntity>(
@@ -61,16 +53,7 @@ export class TimescaleService {
     key: string
   ): Promise<AggregateValue | undefined> {
     const repository = getRepository(entityTarget);
-    const query = repository
-      .createQueryBuilder()
-      .where('key = :key')
-      .andWhere('series = :series')
-      .setParameters({
-        key,
-        series,
-      })
-      .orderBy('timestamp', 'DESC')
-      .limit(1);
+    const query = timescaleQueries.getLastValueQuery(repository, series, key);
 
     const entity = await query.getOne();
     if (!entity) {
@@ -93,41 +76,11 @@ export class TimescaleService {
     aggregateList: string[],
   ): Promise<AggregateValue[]> {
     const repository = getRepository(entityTarget);
-    const tableName = repository.metadata.tableName;
 
-    const aggregates = aggregateList.map(aggregate => {
-      const agg = aggregate === AggregateEnum.FIRST || aggregate === AggregateEnum.LAST
-        ? `${aggregate}(value, timestamp) AS ${aggregate}`
-        : `${aggregate}(value) AS ${aggregate}`;
-      return agg;
-    });
-
-    const query = `
-      SELECT
-        time_bucket('${resolution}', timestamp) AS time,
-        ${aggregates.join(',')}
-      FROM ${tableName} 
-      WHERE series = $1
-          AND key = $2
-          ${endDate
-        ? `AND timestamp BETWEEN '${startDate.toISOString()}' AND '${endDate?.toISOString()}'`
-        : `AND timestamp >= '${startDate.toISOString()}'`}
-      GROUP BY time
-      ORDER BY time ASC
-    `;
-
+    const query = timescaleQueries.getValuesQuery(repository, startDate, endDate, resolution, aggregateList);
     const rows: any[] = await repository.query(query, [series, key]);
 
-    const values = rows.map(row => new AggregateValue({
-      time: moment(row.time).toISOString(),
-      first: row.first,
-      last: row.last,
-      min: row.min,
-      max: row.max,
-      count: row.count,
-      sum: row.sum,
-      avg: row.avg,
-    }));
+    const values = rows.map(row => AggregateValue.fromRow(row));
     return values;
   }
 
