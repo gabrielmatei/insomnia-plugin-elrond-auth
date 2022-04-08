@@ -166,9 +166,7 @@ export class TransactionsDetailedIngest implements Ingest {
     const inflationAmounts = this.apiConfigService.getInflationAmounts();
 
     if (yearIndex >= inflationAmounts.length) {
-      throw new Error(
-        `There is no inflation information for year with index ${yearIndex}`,
-      );
+      throw new Error(`There is no inflation information for year with index ${yearIndex}`);
     }
 
     const inflation = inflationAmounts[yearIndex];

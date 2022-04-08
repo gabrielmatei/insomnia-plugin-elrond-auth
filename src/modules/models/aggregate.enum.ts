@@ -1,13 +1,13 @@
 import { registerEnumType } from "@nestjs/graphql";
 
 export enum AggregateEnum {
-  FIRST = "FIRST",
-  LAST = "LAST",
-  MIN = "MIN",
-  MAX = "MAX",
-  COUNT = "COUNT",
-  SUM = "SUM",
-  AVG = "AVG",
+  FIRST = "first",
+  LAST = "last",
+  MIN = "min",
+  MAX = "max",
+  COUNT = "count",
+  SUM = "sum",
+  AVG = "avg",
 }
 
 registerEnumType(AggregateEnum, { name: 'Aggregate' });

@@ -54,6 +54,7 @@
     "google-trends-api": "^4.9.2",
     "googleapis": "^95.0.0",
     "graphql": "^16.3.0",
+    "graphql-fields": "^2.0.3",
     "ioredis": "^4.28.3",
     "jsonwebtoken": "^8.5.1",
     "nest-winston": "^1.6.2",

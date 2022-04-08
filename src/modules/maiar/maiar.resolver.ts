@@ -1,7 +1,10 @@
-import { Args, Query, ResolveField, Resolver } from '@nestjs/graphql';
+import { Args, Info, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { AggregateValue } from 'src/common/entities/aggregate-value.object';
 import { AccountsEntity } from 'src/common/timescale/entities/accounts.entity';
 import { TimescaleService } from 'src/common/timescale/timescale.service';
+import { ParseFilterEnumArrayPipe } from 'src/utils/pipes/parse.filter.enum.array.pipe';
+import { ParseQueryFieldsPipe } from 'src/utils/pipes/parse.query.fields.pipe';
+import { AggregateEnum } from '../models/aggregate.enum';
 import { QueryInput } from '../models/query.input';
 import { MaiarModel } from './models/maiar.model';
 
@@ -18,15 +21,17 @@ export class MaiarResolver {
 
   @ResolveField(() => [AggregateValue], { name: 'count' })
   public async count(
-    @Args('input') query: QueryInput
+    @Args('query', { nullable: true }) query: QueryInput,
+    @Info(ParseQueryFieldsPipe, new ParseFilterEnumArrayPipe(AggregateEnum)) aggregates: AggregateEnum[],
   ): Promise<AggregateValue[]> {
-    return await this.timescaleService.resolveQuery(AccountsEntity, 'maiar', 'count', query);
+    return await this.timescaleService.resolveQuery(AccountsEntity, 'maiar', 'count', query, aggregates);
   }
 
   @ResolveField(() => [AggregateValue], { name: 'count_24h' })
   public async count_24h(
-    @Args('input') query: QueryInput
+    @Args('query', { nullable: true }) query: QueryInput,
+    @Info(ParseQueryFieldsPipe, new ParseFilterEnumArrayPipe(AggregateEnum)) aggregates: AggregateEnum[],
   ): Promise<AggregateValue[]> {
-    return await this.timescaleService.resolveQuery(AccountsEntity, 'maiar', 'count_24h', query);
+    return await this.timescaleService.resolveQuery(AccountsEntity, 'maiar', 'count_24h', query, aggregates);
   }
 }

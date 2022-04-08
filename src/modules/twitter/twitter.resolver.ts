@@ -1,7 +1,10 @@
-import { Args, Query, ResolveField, Resolver } from '@nestjs/graphql';
+import { Args, Info, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { AggregateValue } from 'src/common/entities/aggregate-value.object';
 import { TwitterEntity } from 'src/common/timescale/entities/twitter.entity';
 import { TimescaleService } from 'src/common/timescale/timescale.service';
+import { ParseFilterEnumArrayPipe } from 'src/utils/pipes/parse.filter.enum.array.pipe';
+import { ParseQueryFieldsPipe } from 'src/utils/pipes/parse.query.fields.pipe';
+import { AggregateEnum } from '../models/aggregate.enum';
 import { QueryInput } from '../models/query.input';
 import { TwitterModel } from './models/twitter.model';
 
@@ -18,15 +21,17 @@ export class TwitterResolver {
 
   @ResolveField(() => [AggregateValue], { name: 'mentions' })
   public async getMentions(
-    @Args('input') query: QueryInput
+    @Args('query', { nullable: true }) query: QueryInput,
+    @Info(ParseQueryFieldsPipe, new ParseFilterEnumArrayPipe(AggregateEnum)) aggregates: AggregateEnum[],
   ): Promise<AggregateValue[]> {
-    return await this.timescaleService.resolveQuery(TwitterEntity, 'twitter', 'mentions', query);
+    return await this.timescaleService.resolveQuery(TwitterEntity, 'twitter', 'mentions', query, aggregates);
   }
 
   @ResolveField(() => [AggregateValue], { name: 'followers' })
   public async getFollowers(
-    @Args('input') query: QueryInput
+    @Args('query', { nullable: true }) query: QueryInput,
+    @Info(ParseQueryFieldsPipe, new ParseFilterEnumArrayPipe(AggregateEnum)) aggregates: AggregateEnum[],
   ): Promise<AggregateValue[]> {
-    return await this.timescaleService.resolveQuery(TwitterEntity, 'twitter', 'followers', query);
+    return await this.timescaleService.resolveQuery(TwitterEntity, 'twitter', 'followers', query, aggregates);
   }
 }

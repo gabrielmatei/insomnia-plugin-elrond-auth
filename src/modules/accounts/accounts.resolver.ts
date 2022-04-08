@@ -1,9 +1,12 @@
-import { Resolver, ResolveField, Query, Args } from "@nestjs/graphql";
+import { Resolver, ResolveField, Query, Args, Info } from "@nestjs/graphql";
 import { AggregateValue } from "src/common/entities/aggregate-value.object";
 import { AccountsHistoricalEntity } from "src/common/timescale/entities/accounts-historical.entity";
 import { AccountsEntity } from "src/common/timescale/entities/accounts.entity";
 import { TransactionsDetailedEntity } from "src/common/timescale/entities/transactions-detailed.entity";
 import { TimescaleService } from "src/common/timescale/timescale.service";
+import { ParseFilterEnumArrayPipe } from "src/utils/pipes/parse.filter.enum.array.pipe";
+import { ParseQueryFieldsPipe } from "src/utils/pipes/parse.query.fields.pipe";
+import { AggregateEnum } from "../models/aggregate.enum";
 import { QueryInput } from "../models/query.input";
 import { AccountsModel } from "./models/accounts.model";
 import { ThresholdCountModel } from "./models/threshold-count.model";
@@ -21,23 +24,26 @@ export class AccountsResolver {
 
   @ResolveField(() => [AggregateValue], { name: 'count' })
   public async count(
-    @Args('input') query: QueryInput
+    @Args('query', { nullable: true }) query: QueryInput,
+    @Info(ParseQueryFieldsPipe, new ParseFilterEnumArrayPipe(AggregateEnum)) aggregates: AggregateEnum[],
   ): Promise<AggregateValue[]> {
-    return await this.timescaleService.resolveQuery(AccountsEntity, 'accounts', 'count', query);
+    return await this.timescaleService.resolveQuery(AccountsEntity, 'accounts', 'count', query, aggregates);
   }
 
   @ResolveField(() => [AggregateValue], { name: 'count_24h' })
   public async count_24h(
-    @Args('input') query: QueryInput
+    @Args('query', { nullable: true }) query: QueryInput,
+    @Info(ParseQueryFieldsPipe, new ParseFilterEnumArrayPipe(AggregateEnum)) aggregates: AggregateEnum[],
   ): Promise<AggregateValue[]> {
-    return await this.timescaleService.resolveQuery(AccountsEntity, 'accounts', 'count_24h', query);
+    return await this.timescaleService.resolveQuery(AccountsEntity, 'accounts', 'count_24h', query, aggregates);
   }
 
   @ResolveField(() => [AggregateValue], { name: 'active_accounts' })
   public async active_accounts(
-    @Args('input') query: QueryInput
+    @Args('query', { nullable: true }) query: QueryInput,
+    @Info(ParseQueryFieldsPipe, new ParseFilterEnumArrayPipe(AggregateEnum)) aggregates: AggregateEnum[],
   ): Promise<AggregateValue[]> {
-    return await this.timescaleService.resolveQuery(TransactionsDetailedEntity, 'accounts', 'active_accounts', query);
+    return await this.timescaleService.resolveQuery(TransactionsDetailedEntity, 'accounts', 'active_accounts', query, aggregates);
   }
 
   @ResolveField(() => ThresholdCountModel, { name: 'balance' })
