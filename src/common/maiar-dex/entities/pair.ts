@@ -16,6 +16,7 @@ export class Pair {
 export class EsdtToken {
   identifier: string = '';
   name: string = '';
+  decimals: number = 0;
 
   static getTicker(token: EsdtToken) {
     return token.identifier.split('-')[0];
