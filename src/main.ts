@@ -10,6 +10,7 @@ import * as bodyParser from 'body-parser';
 import { Logger } from '@nestjs/common';
 import { DataIngesterModule } from './crons/data-ingester/data.ingester.module';
 import { CacheWarmerModule } from './crons/cache-warmer/cache.warmer.module';
+import { RabbitMqProcessorModule } from './rabbitmq.processor.module';
 
 async function bootstrap() {
   const publicApp = await NestFactory.create(PublicAppModule);
@@ -61,6 +62,11 @@ async function bootstrap() {
   if (apiConfigService.getIsDataIngesterFeatureActive()) {
     const dataIngesterApp = await NestFactory.create(DataIngesterModule);
     await dataIngesterApp.listen(apiConfigService.getDataIngesterFeaturePort());
+  }
+
+  if (apiConfigService.isEventsNotifierFeatureActive()) {
+    const eventsNotifierApp = await NestFactory.create(RabbitMqProcessorModule);
+    await eventsNotifierApp.listen(apiConfigService.getEventsNotifierFeaturePort());
   }
 
   const logger = new Logger("Bootstrapper");
