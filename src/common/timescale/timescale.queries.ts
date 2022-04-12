@@ -2,6 +2,7 @@ import moment from "moment";
 import { AggregateEnum } from "src/modules/models/aggregate.enum";
 import { Repository, SelectQueryBuilder } from "typeorm";
 import { GenericIngestEntity } from "./entities/generic-ingest.entity";
+import { TradingInfoEntity } from "./entities/trading-info.entity";
 
 export function getPreviousValue24hQuery<T extends GenericIngestEntity>(
   repository: Repository<T>,
@@ -78,6 +79,28 @@ export function getValuesQuery<T extends GenericIngestEntity>(
     GROUP BY time
     ORDER BY time ASC
   `;
+
+  return query;
+}
+
+export function getLastTradeQuery(
+  repository: Repository<TradingInfoEntity>,
+  firstTokenIdentifier: string,
+  secondTokenIdentifier: string,
+  lte: Date
+): SelectQueryBuilder<TradingInfoEntity> {
+  const query = repository
+    .createQueryBuilder()
+    .where('timestamp <= :lte')
+    .andWhere('"firstToken" = :firstTokenIdentifier')
+    .andWhere('"secondToken" = :secondTokenIdentifier')
+    .setParameters({
+      lte,
+      firstTokenIdentifier,
+      secondTokenIdentifier,
+    })
+    .orderBy('timestamp', 'DESC')
+    .limit(1);
 
   return query;
 }

@@ -31,6 +31,8 @@ export class CacheWarmerService {
     }, true);
   }
 
+  // TODO invalidate tokens
+
   @Cron(CronExpression.EVERY_10_MINUTES)
   async logMemoryUsage() {
     // eslint-disable-next-line require-await

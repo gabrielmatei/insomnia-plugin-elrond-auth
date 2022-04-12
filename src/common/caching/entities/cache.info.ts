@@ -50,6 +50,18 @@ export class CacheInfo {
     ttl: Constants.oneHour(),
   };
 
+  static Token(tokenIdentifier: string): CacheInfo {
+    return {
+      key: `token:${tokenIdentifier}`,
+      ttl: Constants.oneHour(),
+    };
+  }
+
+  static LastWEGLDPrice: CacheInfo = {
+    key: 'lastWEGLDPrice',
+    ttl: Constants.oneSecond(), // TODO
+  };
+
   static ScheduledJob(job: string = '*'): CacheInfo {
     return {
       key: `scheduledJob:${job}`,

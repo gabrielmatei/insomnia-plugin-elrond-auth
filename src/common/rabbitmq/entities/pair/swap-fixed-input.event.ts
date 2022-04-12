@@ -4,6 +4,7 @@ import { GenericEvent } from "../generic.event";
 import { GenericToken } from "../generic.token";
 import { PairEventTopics } from "./pair.event.topics";
 import { SwapEventType } from "./pair.types";
+import * as crypto from "crypto";
 
 export class SwapFixedInputEvent extends GenericEvent {
   private decodedTopics: PairEventTopics;
@@ -59,6 +60,22 @@ export class SwapFixedInputEvent extends GenericEvent {
 
   getTopics() {
     return this.decodedTopics.toPlainObject();
+  }
+
+  getDatabaseIdentifier(prefix: string): string {
+    const key = {
+      timestamp: this.getTimestamp().toNumber(),
+      event: {
+        address: this.getAddress(),
+        identifier: this.getIdentifier(),
+        topics: this.topics,
+        data: this.data,
+      },
+    };
+    const keyString = JSON.stringify(key);
+
+    const hash = crypto.createHash('md5').update(keyString).digest('base64');
+    return `${prefix}_${hash}`;
   }
 
   private decodeEvent() {

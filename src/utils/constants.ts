@@ -1,3 +1,5 @@
+import { EsdtToken } from "src/common/maiar-dex/entities/pair";
+
 export class Constants {
   static oneSecond(): number {
     return 1;
@@ -26,4 +28,17 @@ export class Constants {
   static sqlDateFormat(): string {
     return 'yyyy-MM-DD HH:mm:ss';
   }
+
+  // TODO mainnet
+  static WrappedEGLD: EsdtToken = {
+    identifier: "WEGLD-d7c6bb",
+    name: "WrappedEGLD",
+    decimals: 18,
+  };
+
+  static WrappedUSDC: EsdtToken = {
+    identifier: "USDC-8d4068",
+    name: "WrappedUSDC",
+    decimals: 6,
+  };
 }

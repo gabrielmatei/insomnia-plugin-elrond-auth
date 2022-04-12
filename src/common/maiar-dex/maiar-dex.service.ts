@@ -1,11 +1,14 @@
 import { Injectable, Logger } from "@nestjs/common";
 import BigNumber from "bignumber.js";
+import { ApiUtils } from "src/utils/api.utils";
+import { Constants } from "src/utils/constants";
 import { ApiConfigService } from "../api-config/api.config.service";
 import { AWSTimestreamService } from "../aws/aws.timestream.service";
 import { CachingService } from "../caching/caching.service";
 import { CacheInfo } from "../caching/entities/cache.info";
 import { ApiService } from "../network/api.service";
-import { Pair } from "./entities/pair";
+import { TimescaleService } from "../timescale/timescale.service";
+import { EsdtToken, Pair } from "./entities/pair";
 import { Pool } from "./entities/pool";
 import { getPairsQuery, getTotalValueLockedQuery } from "./maiar-dex.queries";
 
@@ -17,6 +20,7 @@ export class MaiarDexService {
     private readonly apiConfigService: ApiConfigService,
     private readonly apiService: ApiService,
     private readonly cachingService: CachingService,
+    private readonly timescaleService: TimescaleService,
     private readonly timestreamService: AWSTimestreamService,
   ) {
     this.logger = new Logger(MaiarDexService.name);
@@ -95,5 +99,50 @@ export class MaiarDexService {
     const pairs = await this.getAllPairs();
     const totalVolume = await this.timestreamService.getTotalVolume(pairs, startDate, endDate);
     return totalVolume;
+  }
+
+  public async getToken(tokenIdentifier: string): Promise<EsdtToken> {
+    return await this.cachingService.getOrSetCache(
+      CacheInfo.Token(tokenIdentifier).key,
+      async () => await this.getTokenRaw(tokenIdentifier),
+      CacheInfo.Token(tokenIdentifier).ttl
+    );
+  }
+
+  private async getTokenRaw(tokenIdentifier: string): Promise<EsdtToken> {
+    // TODO error handling
+    const tokenRaw = await this.apiService.get<EsdtToken>(`${this.apiConfigService.getApiUrl()}/tokens/${tokenIdentifier} `);
+    return ApiUtils.mergeObjects(new EsdtToken(), tokenRaw);
+  }
+
+  public async getLastWEGLDPrice(lte: Date): Promise<BigNumber> {
+    return await this.cachingService.getOrSetCache(
+      CacheInfo.LastWEGLDPrice.key,
+      async () => await this.getLastWEGLDPriceRaw(lte),
+      CacheInfo.LastWEGLDPrice.ttl
+    );
+  }
+
+  private async getLastWEGLDPriceRaw(lte: Date): Promise<BigNumber> {
+    try {
+      const lastTrade = await this.timescaleService.getLastTrade(
+        Constants.WrappedEGLD.identifier,
+        Constants.WrappedUSDC.identifier,
+        lte
+      );
+
+      if (!lastTrade) {
+        // TODO
+        return new BigNumber(0);
+      }
+
+      return new BigNumber(lastTrade.price);
+    } catch (error) {
+      this.logger.error(`An unhandled error getting last WEGLD price`);
+      this.logger.error(error);
+
+      // TODO
+      return new BigNumber(0);
+    }
   }
 }

@@ -7,6 +7,7 @@ import { CachingService } from '../caching/caching.service';
 import { CacheInfo } from '../caching/entities/cache.info';
 import { AggregateValue } from '../entities/aggregate-value.object';
 import { GenericIngestEntity } from './entities/generic-ingest.entity';
+import { TradingInfoEntity } from './entities/trading-info.entity';
 import * as timescaleQueries from './timescale.queries';
 
 @Injectable()
@@ -28,6 +29,20 @@ export class TimescaleService {
       await repository.save(entity);
     } catch (error) {
       this.logger.error(`An unhandled error writing data on '${GenericIngestEntity.getName(entityTarget)}'`);
+      this.logger.error(error);
+
+      throw error;
+    }
+  }
+
+  public async writeTrades(trades: TradingInfoEntity[]): Promise<void> {
+    try {
+      const repository = getRepository(TradingInfoEntity);
+      for (const trade of trades) {
+        await repository.save(trade);
+      }
+    } catch (error) {
+      this.logger.error(`An unhandled error writing trades`);
       this.logger.error(error);
 
       throw error;
@@ -136,5 +151,13 @@ export class TimescaleService {
 
     const values = await this.getValues(entity, series, key, startDate, query.end_date, query.resolution, aggregates);
     return values;
+  }
+
+  public async getLastTrade(firstTokenIdentifier: string, secondTokenIdentifier: string, lte: Date): Promise<TradingInfoEntity | undefined> {
+    const repository = getRepository(TradingInfoEntity);
+    const query = timescaleQueries.getLastTradeQuery(repository, firstTokenIdentifier, secondTokenIdentifier, lte);
+
+    const entity = await query.getOne();
+    return entity;
   }
 }
