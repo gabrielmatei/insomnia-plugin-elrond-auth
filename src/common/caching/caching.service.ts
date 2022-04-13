@@ -100,6 +100,9 @@ export class CachingService {
     const value = await this.getCacheRemote<T>(key);
     if (value) {
       await this.setCacheLocal<T>(key, value, ttl);
+    } else {
+      this.logger.log(`Deleting local cache key '${key}'`);
+      await this.deleteInCacheLocal(key);
     }
 
     return value;

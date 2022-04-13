@@ -34,7 +34,7 @@ export class MaiarDexService {
     );
   }
 
-  private async getAllPairsRaw(): Promise<Pair[]> {
+  public async getAllPairsRaw(): Promise<Pair[]> {
     // TODO maiar-dex pagination bug
     try {
       let offset = 0;
@@ -109,7 +109,7 @@ export class MaiarDexService {
     );
   }
 
-  private async getTokenRaw(tokenIdentifier: string): Promise<EsdtToken> {
+  public async getTokenRaw(tokenIdentifier: string): Promise<EsdtToken> {
     // TODO error handling
     const tokenRaw = await this.apiService.get<EsdtToken>(`${this.apiConfigService.getApiUrl()}/tokens/${tokenIdentifier} `);
     return ApiUtils.mergeObjects(new EsdtToken(), tokenRaw);

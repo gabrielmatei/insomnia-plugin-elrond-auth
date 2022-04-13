@@ -20,4 +20,10 @@ export class MicroserviceController {
       await this.cachingService.deleteInCacheLocal(key);
     }
   }
+
+  @EventPattern('refreshCacheKey')
+  async refreshCacheKey(info: { key: string, ttl: number }) {
+    this.logger.log(`Refreshing local cache key ${info.key} with ttl ${info.ttl}`);
+    await this.cachingService.refreshCacheLocal(info.key, info.ttl);
+  }
 }
