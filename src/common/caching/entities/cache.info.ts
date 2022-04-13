@@ -59,7 +59,7 @@ export class CacheInfo {
 
   static LastWEGLDPrice: CacheInfo = {
     key: 'lastWEGLDPrice',
-    ttl: Constants.oneDay(),
+    ttl: Constants.oneMinute() * 30,
   };
 
   static ScheduledJob(job: string = '*'): CacheInfo {

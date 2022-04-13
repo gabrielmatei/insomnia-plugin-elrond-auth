@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import moment from 'moment';
 import { Constants } from 'src/utils/constants';
 import { MaiarDexService } from '../maiar-dex/maiar-dex.service';
@@ -7,12 +7,17 @@ import { TimescaleService } from '../timescale/timescale.service';
 import { SwapFixedInputEvent } from './entities/pair/swap-fixed-input.event';
 import { SwapFixedOutputEvent } from './entities/pair/swap-fixed-output.event';
 import { EsdtToken } from '../maiar-dex/entities/pair';
+import { CachingService } from '../caching/caching.service';
+import { CacheInfo } from '../caching/entities/cache.info';
+import { ClientProxy } from '@nestjs/microservices';
 
 @Injectable()
 export class RabbitMqPairHandlerService {
   constructor(
+    private readonly cachingService: CachingService,
     private readonly maiarDexService: MaiarDexService,
     private readonly timescaleService: TimescaleService,
+    @Inject('PUBSUB_SERVICE') private clientProxy: ClientProxy,
   ) { }
 
   public async handleSwapEvent(
@@ -39,8 +44,7 @@ export class RabbitMqPairHandlerService {
     };
 
     const isInvertedPair = this.isInvertedPair(tokenInInfo.identifier, tokenOutInfo.identifier);
-    const isUSDCWEGLDPair = this.isUSDCWEGLDPair(tokenInInfo.identifier, tokenOutInfo.identifier);
-    if (isInvertedPair || isUSDCWEGLDPair) {
+    if (isInvertedPair) {
       const tempInfo = tokenInInfo;
       tokenInInfo = tokenOutInfo;
       tokenOutInfo = tempInfo;
@@ -65,7 +69,17 @@ export class RabbitMqPairHandlerService {
     });
     trades.push(pairWithWEGLD);
 
-    if (!isUSDCWEGLDPair) {
+    const isWEGLDUSDCPair = this.isWEGLDUSDCPair(tokenInInfo.identifier, tokenOutInfo.identifier);
+    if (isWEGLDUSDCPair) {
+      await this.cachingService.setCache(
+        CacheInfo.LastWEGLDPrice.key,
+        pairWithWEGLD.price,
+        CacheInfo.LastWEGLDPrice.ttl
+      );
+      this.clientProxy.emit('refreshCacheKey', CacheInfo.LastWEGLDPrice);
+    }
+
+    if (!isWEGLDUSDCPair) {
       const currentWEGLDPrice = await this.maiarDexService.getLastWEGLDPrice(timestamp);
 
       const pairSymbol = this.getPairSymbol(tokenInInfo.token, Constants.WrappedUSDC);
@@ -92,7 +106,7 @@ export class RabbitMqPairHandlerService {
     return tokenInInfoIdentifier === Constants.WrappedEGLD.identifier && tokenOutInfoIdentifier !== Constants.WrappedUSDC.identifier;
   }
 
-  private isUSDCWEGLDPair(tokenInInfoIdentifier: string, tokenOutInfoIdentifier: string): boolean {
-    return tokenInInfoIdentifier === Constants.WrappedUSDC.identifier && tokenOutInfoIdentifier === Constants.WrappedEGLD.identifier;
+  private isWEGLDUSDCPair(tokenInInfoIdentifier: string, tokenOutInfoIdentifier: string): boolean {
+    return tokenInInfoIdentifier === Constants.WrappedEGLD.identifier && tokenOutInfoIdentifier === Constants.WrappedUSDC.identifier;
   }
 }

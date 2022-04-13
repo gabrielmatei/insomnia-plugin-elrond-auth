@@ -110,9 +110,16 @@ export class MaiarDexService {
   }
 
   public async getTokenRaw(tokenIdentifier: string): Promise<EsdtToken> {
-    // TODO error handling
-    const tokenRaw = await this.apiService.get<EsdtToken>(`${this.apiConfigService.getApiUrl()}/tokens/${tokenIdentifier} `);
-    return ApiUtils.mergeObjects(new EsdtToken(), tokenRaw);
+    try {
+      const tokenRaw = await this.apiService.get<EsdtToken>(`${this.apiConfigService.getApiUrl()}/tokens/${tokenIdentifier} `);
+
+      return ApiUtils.mergeObjects(new EsdtToken(), tokenRaw);
+    } catch (error) {
+      this.logger.error(`An unhandled error occurred when fetching token with identifier '${tokenIdentifier}'`);
+      this.logger.error(error);
+
+      return new EsdtToken(); // TODO
+    }
   }
 
   public async getLastWEGLDPrice(lte: Date): Promise<BigNumber> {
@@ -124,25 +131,14 @@ export class MaiarDexService {
   }
 
   private async getLastWEGLDPriceRaw(lte: Date): Promise<BigNumber> {
-    try {
-      const lastTrade = await this.timescaleService.getLastTrade(
-        Constants.WrappedEGLD.identifier,
-        Constants.WrappedUSDC.identifier,
-        lte
-      );
+    const lastTrade = await this.timescaleService.getLastTrade(
+      Constants.WrappedEGLD.identifier,
+      Constants.WrappedUSDC.identifier,
+      lte
+    );
 
-      if (!lastTrade) {
-        // TODO
-        return new BigNumber(0);
-      }
-
-      return new BigNumber(lastTrade.price);
-    } catch (error) {
-      this.logger.error(`An unhandled error getting last WEGLD price`);
-      this.logger.error(error);
-
-      // TODO
-      return new BigNumber(0);
-    }
+    return lastTrade
+      ? new BigNumber(lastTrade.price)
+      : new BigNumber(0); // TODO
   }
 }

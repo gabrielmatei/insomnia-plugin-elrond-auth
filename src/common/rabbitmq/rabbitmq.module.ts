@@ -3,6 +3,7 @@ import { DynamicModule, Module } from '@nestjs/common';
 import { ApiConfigModule } from '../api-config/api.config.module';
 import { ApiConfigService } from '../api-config/api.config.service';
 import { CommonModule } from '../common.module';
+import { MicroserviceModule } from '../microservice/microservice.module';
 import { RabbitMqPairConsumer } from './rabbitmq.pair.consumer';
 import { RabbitMqPairHandlerService } from './rabbitmq.pair.handler.service';
 
@@ -10,6 +11,7 @@ import { RabbitMqPairHandlerService } from './rabbitmq.pair.handler.service';
   imports: [
     ApiConfigModule,
     CommonModule,
+    MicroserviceModule,
   ],
   providers: [
     RabbitMqPairConsumer,

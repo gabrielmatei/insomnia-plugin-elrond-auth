@@ -28,7 +28,7 @@ export class TimescaleService {
       // @ts-ignore
       await repository.save(entity);
     } catch (error) {
-      this.logger.error(`An unhandled error writing data on '${GenericIngestEntity.getName(entityTarget)}'`);
+      this.logger.error(`An unhandled error occurred when writing data on '${GenericIngestEntity.getName(entityTarget)}'`);
       this.logger.error(error);
 
       throw error;
@@ -42,7 +42,7 @@ export class TimescaleService {
         await repository.save(trade);
       }
     } catch (error) {
-      this.logger.error(`An unhandled error writing trades`);
+      this.logger.error(`An unhandled error occurred when writing trades`);
       this.logger.error(error);
 
       throw error;
@@ -154,10 +154,17 @@ export class TimescaleService {
   }
 
   public async getLastTrade(firstTokenIdentifier: string, secondTokenIdentifier: string, lte: Date): Promise<TradingInfoEntity | undefined> {
-    const repository = getRepository(TradingInfoEntity);
-    const query = timescaleQueries.getLastTradeQuery(repository, firstTokenIdentifier, secondTokenIdentifier, lte);
+    try {
+      const repository = getRepository(TradingInfoEntity);
+      const query = timescaleQueries.getLastTradeQuery(repository, firstTokenIdentifier, secondTokenIdentifier, lte);
 
-    const entity = await query.getOne();
-    return entity;
+      const entity = await query.getOne();
+      return entity;
+    } catch (error) {
+      this.logger.error(`An unhandled error occurred when getting last WEGLD price`);
+      this.logger.error(error);
+
+      return undefined;
+    }
   }
 }
