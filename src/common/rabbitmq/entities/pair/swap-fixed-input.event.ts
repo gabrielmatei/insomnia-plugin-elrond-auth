@@ -62,20 +62,17 @@ export class SwapFixedInputEvent extends GenericEvent {
     return this.decodedTopics.toPlainObject();
   }
 
-  getDatabaseIdentifier(prefix: string): string {
-    const key = {
-      timestamp: this.getTimestamp().toNumber(),
-      event: {
-        address: this.getAddress(),
-        identifier: this.getIdentifier(),
-        topics: this.topics,
-        data: this.data,
-      },
-    };
-    const keyString = JSON.stringify(key);
+  getDatabaseIdentifier(): string {
+    const keys = [];
+    keys.push(
+      this.getTimestamp().toString(),
+      this.getIdentifier(),
+      ...this.topics
+    );
+    const keysConcat = JSON.stringify(keys.join('_'));
 
-    const hash = crypto.createHash('md5').update(keyString).digest('base64');
-    return `${prefix}_${hash}`;
+    const hash = crypto.createHash('md5').update(keysConcat).digest('base64url');
+    return hash;
   }
 
   private decodeEvent() {

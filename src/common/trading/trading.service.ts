@@ -4,7 +4,6 @@ import moment from "moment";
 import { Constants } from "src/utils/constants";
 import { CachingService } from "../caching/caching.service";
 import { CacheInfo } from "../caching/entities/cache.info";
-import { EsdtToken } from "../maiar-dex/entities/pair";
 import { MaiarDexService } from "../maiar-dex/maiar-dex.service";
 import { SwapFixedInputEvent } from "../rabbitmq/entities/pair/swap-fixed-input.event";
 import { SwapFixedOutputEvent } from "../rabbitmq/entities/pair/swap-fixed-output.event";
@@ -56,10 +55,9 @@ export class TradingService {
 
     const trades: TradingInfoEntity[] = [];
 
-    const pairSymbol = this.getPairSymbol(tokenInInfo.token, tokenOutInfo.token);
     const pairWithWEGLD = new TradingInfoEntity({
       timestamp,
-      identifier: event.getDatabaseIdentifier(pairSymbol),
+      identifier: event.getDatabaseIdentifier(),
       firstToken: tokenInInfo.token.identifier,
       secondToken: tokenOutInfo.token.identifier,
       price: priceWEGLD.toNumber(),
@@ -81,10 +79,9 @@ export class TradingService {
     if (!isWEGLDUSDCPair) {
       const currentWEGLDPrice = await this.maiarDexService.getLastWEGLDPrice(timestamp);
 
-      const pairSymbol = this.getPairSymbol(tokenInInfo.token, Constants.WrappedUSDC);
       const pairWithUSDC = new TradingInfoEntity({
         timestamp,
-        identifier: event.getDatabaseIdentifier(pairSymbol),
+        identifier: event.getDatabaseIdentifier(),
         firstToken: tokenInInfo.token.identifier,
         secondToken: Constants.WrappedUSDC.identifier,
         price: priceWEGLD.multipliedBy(currentWEGLDPrice).toNumber(),
@@ -95,10 +92,6 @@ export class TradingService {
     }
 
     await this.timescaleService.writeTrades(trades);
-  }
-
-  private getPairSymbol(tokenIn: EsdtToken, tokenOut: EsdtToken) {
-    return `${EsdtToken.getTicker(tokenIn)}${EsdtToken.getTicker(tokenOut)}`;
   }
 
   private isInvertedPair(tokenInInfoIdentifier: string, tokenOutInfoIdentifier: string): boolean {
