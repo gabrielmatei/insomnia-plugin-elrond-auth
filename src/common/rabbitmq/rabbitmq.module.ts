@@ -2,16 +2,14 @@ import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
 import { DynamicModule, Module } from '@nestjs/common';
 import { ApiConfigModule } from '../api-config/api.config.module';
 import { ApiConfigService } from '../api-config/api.config.service';
-import { CommonModule } from '../common.module';
-import { MicroserviceModule } from '../microservice/microservice.module';
+import { TradingModule } from '../trading/trading.module';
 import { RabbitMqPairConsumer } from './rabbitmq.pair.consumer';
 import { RabbitMqPairHandlerService } from './rabbitmq.pair.handler.service';
 
 @Module({
   imports: [
     ApiConfigModule,
-    CommonModule,
-    MicroserviceModule,
+    TradingModule,
   ],
   providers: [
     RabbitMqPairConsumer,
