@@ -42,7 +42,8 @@ export class TradingService {
     };
 
     const isInvertedPair = this.isInvertedPair(tokenInInfo.identifier, tokenOutInfo.identifier);
-    if (isInvertedPair) {
+    const isUSDCWEGLDPair = this.isUSDCWEGLDPair(tokenInInfo.identifier, tokenOutInfo.identifier);
+    if (isInvertedPair || isUSDCWEGLDPair) {
       const tempInfo = tokenInInfo;
       tokenInInfo = tokenOutInfo;
       tokenOutInfo = tempInfo;
@@ -106,5 +107,9 @@ export class TradingService {
 
   private isWEGLDUSDCPair(tokenInInfoIdentifier: string, tokenOutInfoIdentifier: string): boolean {
     return tokenInInfoIdentifier === Constants.WrappedEGLD.identifier && tokenOutInfoIdentifier === Constants.WrappedUSDC.identifier;
+  }
+
+  private isUSDCWEGLDPair(tokenInInfoIdentifier: string, tokenOutInfoIdentifier: string): boolean {
+    return tokenInInfoIdentifier === Constants.WrappedUSDC.identifier && tokenOutInfoIdentifier === Constants.WrappedEGLD.identifier;
   }
 }
