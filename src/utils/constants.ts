@@ -29,15 +29,14 @@ export class Constants {
     return 'yyyy-MM-DD HH:mm:ss';
   }
 
-  // TODO mainnet tokens
   static WrappedEGLD: EsdtToken = {
-    identifier: "WEGLD-d7c6bb", // "WEGLD-bd4d79"
+    identifier: "WEGLD-bd4d79",
     name: "WrappedEGLD",
     decimals: 18,
   };
 
   static WrappedUSDC: EsdtToken = {
-    identifier: "USDC-8d4068", // "USDC-c76f1f"
+    identifier: "USDC-c76f1f",
     name: "WrappedUSDC",
     decimals: 6,
   };
