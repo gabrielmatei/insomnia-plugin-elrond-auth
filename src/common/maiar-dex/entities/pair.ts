@@ -2,6 +2,7 @@ export class Pair {
   address: string = '';
   firstToken: EsdtToken;
   secondToken: EsdtToken;
+  totalFeePercent: number = 0;
 
   constructor(firstToken: EsdtToken, secondToken: EsdtToken) {
     this.firstToken = firstToken;

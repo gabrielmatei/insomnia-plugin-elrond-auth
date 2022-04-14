@@ -141,4 +141,10 @@ export class MaiarDexService {
       ? new BigNumber(lastTrade.price)
       : new BigNumber(0); // TODO
   }
+
+  public async getTotalFeePercent(pairAddress: string): Promise<number> {
+    const pairs = await this.getAllPairs();
+    const pair = pairs.find(pair => pair.address === pairAddress);
+    return pair?.totalFeePercent ?? 0;
+  }
 }

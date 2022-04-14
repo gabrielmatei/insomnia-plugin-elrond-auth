@@ -48,10 +48,12 @@ export class TradingService {
       tokenOutInfo = tempInfo;
     }
 
+    const totalFeePercent = await this.maiarDexService.getTotalFeePercent(event.getAddress());
+
     const timestamp = moment.unix(event.getTimestamp().toNumber()).toDate();
     const priceWEGLD = tokenOutInfo.reserves.dividedBy(tokenInInfo.reserves);
     const volumeWEGLD = tokenOutInfo.volume;
-    const feeWEGLD = event.feeAmount.shiftedBy(-18);
+    const feeWEGLD = volumeWEGLD.times(totalFeePercent);
 
     const trades: TradingInfoEntity[] = [];
 
