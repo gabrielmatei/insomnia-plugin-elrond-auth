@@ -1,4 +1,4 @@
-import { Inject, Injectable } from "@nestjs/common";
+import { Inject, Injectable, Logger } from "@nestjs/common";
 import { ClientProxy } from "@nestjs/microservices";
 import moment from "moment";
 import { Constants } from "src/utils/constants";
@@ -12,12 +12,16 @@ import { TimescaleService } from "../timescale/timescale.service";
 
 @Injectable()
 export class TradingService {
+  private readonly logger: Logger;
+
   constructor(
     private readonly cachingService: CachingService,
     private readonly maiarDexService: MaiarDexService,
     private readonly timescaleService: TimescaleService,
     @Inject('PUBSUB_SERVICE') private clientProxy: ClientProxy,
-  ) { }
+  ) {
+    this.logger = new Logger(TradingService.name);
+  }
 
   public async indexEvent(event: SwapFixedInputEvent | SwapFixedOutputEvent): Promise<void> {
     const tokenInIdentifier = event.getTokenIn().tokenID;
@@ -93,6 +97,8 @@ export class TradingService {
       trades.push(pairWithUSDC);
     }
 
+    this.checkTrades(trades);
+
     await this.timescaleService.writeTrades(trades);
   }
 
@@ -106,5 +112,25 @@ export class TradingService {
 
   private isUSDCWEGLDPair(tokenInInfoIdentifier: string, tokenOutInfoIdentifier: string): boolean {
     return tokenInInfoIdentifier === Constants.WrappedUSDC.identifier && tokenOutInfoIdentifier === Constants.WrappedEGLD.identifier;
+  }
+
+  private checkTrades(trades: TradingInfoEntity[]): void {
+    for (const trade of trades) {
+      if (trade.firstToken === '') {
+        this.logger.warn(`Detected empty 'firstToken' on trade with identifier '${trade.identifier}'`);
+      }
+      if (trade.secondToken === '') {
+        this.logger.warn(`Detected empty 'secondToken' on trade with identifier '${trade.identifier}'`);
+      }
+      if (trade.price === 0 || trade.price < 0) {
+        this.logger.warn(`Detected zero or negative price on trade with identifier '${trade.identifier}'`);
+      }
+      if (trade.volume === 0 || trade.volume < 0) {
+        this.logger.warn(`Detected zero or negative volume on trade with identifier '${trade.identifier}'`);
+      }
+      if (trade.fee === 0 || trade.fee < 0) {
+        this.logger.warn(`Detected zero or negative fee on trade with identifier '${trade.identifier}'`);
+      }
+    }
   }
 }
