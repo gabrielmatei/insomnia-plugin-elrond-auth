@@ -12,10 +12,10 @@ import { AccountsIngest } from "src/ingesters/accounts.ingest";
 import { EconomicsIngest } from "src/ingesters/economics.ingest";
 import { ExchangesDetailedIngest } from "src/ingesters/exchanges-detailed.ingest";
 import { ExchangesIngest } from "src/ingesters/exchanges.ingest";
-import { GithubActivityIngest } from "src/ingesters/github-activity.ingest";
-import { GithubCommitsIngest } from "src/ingesters/github-commits.ingest";
-import { GithubContributorsIngest } from "src/ingesters/github-contributors.ingest";
-import { GithubIngest } from "src/ingesters/github.ingest";
+// import { GithubActivityIngest } from "src/ingesters/github-activity.ingest";
+// import { GithubCommitsIngest } from "src/ingesters/github-commits.ingest";
+// import { GithubContributorsIngest } from "src/ingesters/github-contributors.ingest";
+// import { GithubIngest } from "src/ingesters/github.ingest";
 import { GoogleIngest } from "src/ingesters/google.ingest";
 import { MaiarDexIngest } from "src/ingesters/maiar-dex.ingest";
 import { PricesIngest } from "src/ingesters/prices.ingest";
@@ -49,10 +49,10 @@ export class DataIngesterService {
     private readonly economicsIngest: EconomicsIngest,
     private readonly exchangesIngest: ExchangesIngest,
     private readonly exchangesDetailedIngest: ExchangesDetailedIngest,
-    private readonly githubIngest: GithubIngest,
-    private readonly githubActivityIngest: GithubActivityIngest,
-    private readonly githubCommitsIngest: GithubCommitsIngest,
-    private readonly githubContributorsIngest: GithubContributorsIngest,
+    // private readonly githubIngest: GithubIngest,
+    // private readonly githubActivityIngest: GithubActivityIngest,
+    // private readonly githubCommitsIngest: GithubCommitsIngest,
+    // private readonly githubContributorsIngest: GithubContributorsIngest,
     private readonly googleIngest: GoogleIngest,
     private readonly maiarDexIngest: MaiarDexIngest,
     private readonly trendsIngest: TrendsIngest,
@@ -78,10 +78,10 @@ export class DataIngesterService {
       { fetcher: this.economicsIngest, refreshInterval: CronExpressionExtended.EVERY_HOUR },
       { fetcher: this.exchangesIngest, refreshInterval: CronExpressionExtended.EVERY_DAY_AT_12_10AM },
       { fetcher: this.exchangesDetailedIngest, refreshInterval: CronExpressionExtended.EVERY_DAY_AT_12_10AM },
-      { fetcher: this.githubIngest, refreshInterval: CronExpressionExtended.EVERY_DAY_AT_4_25AM },
-      { fetcher: this.githubActivityIngest, refreshInterval: CronExpressionExtended.EVERY_HOUR },
-      { fetcher: this.githubCommitsIngest, refreshInterval: CronExpressionExtended.EVERY_DAY_AT_5_20AM },
-      { fetcher: this.githubContributorsIngest, refreshInterval: CronExpressionExtended.EVERY_DAY_AT_2_15AM },
+      // { fetcher: this.githubIngest, refreshInterval: CronExpressionExtended.EVERY_DAY_AT_4_25AM },
+      // { fetcher: this.githubActivityIngest, refreshInterval: CronExpressionExtended.EVERY_HOUR },
+      // { fetcher: this.githubCommitsIngest, refreshInterval: CronExpressionExtended.EVERY_DAY_AT_5_20AM },
+      // { fetcher: this.githubContributorsIngest, refreshInterval: CronExpressionExtended.EVERY_DAY_AT_2_15AM },
       { fetcher: this.googleIngest, refreshInterval: CronExpressionExtended.EVERY_HOUR },
       { fetcher: this.maiarDexIngest, refreshInterval: CronExpressionExtended.EVERY_DAY_AT_12_10AM },
       { fetcher: this.quotesIngest, refreshInterval: CronExpressionExtended.EVERY_HOUR },
