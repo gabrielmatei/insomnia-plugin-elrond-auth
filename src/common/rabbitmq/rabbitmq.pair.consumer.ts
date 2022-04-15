@@ -26,10 +26,18 @@ export class RabbitMqPairConsumer {
       for (const rawEvent of events) {
         switch (rawEvent.identifier) {
           case PairEventEnum.SwapTokensFixedInput:
-            await this.pairHandlerService.handleSwapEvent(new SwapFixedInputEvent(rawEvent));
+            const swapFixedInputEvent = new SwapFixedInputEvent(rawEvent);
+            if (swapFixedInputEvent.getEventName() !== 'swap') {
+              continue;
+            }
+            await this.pairHandlerService.handleSwapEvent(swapFixedInputEvent);
             break;
           case PairEventEnum.SwapTokensFixedOutput:
-            await this.pairHandlerService.handleSwapEvent(new SwapFixedOutputEvent(rawEvent));
+            const swapFixedOutputEvent = new SwapFixedOutputEvent(rawEvent);
+            if (swapFixedOutputEvent.getEventName() !== 'swap') {
+              continue;
+            }
+            await this.pairHandlerService.handleSwapEvent(swapFixedOutputEvent);
             break;
         }
       }

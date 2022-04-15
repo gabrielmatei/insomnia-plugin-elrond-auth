@@ -9,8 +9,8 @@ import * as crypto from "crypto";
 export class SwapFixedInputEvent extends GenericEvent {
   private decodedTopics: PairEventTopics;
 
-  private tokenIn: GenericToken;
-  private tokenOut: GenericToken;
+  private tokenIn: GenericToken = new GenericToken();
+  private tokenOut: GenericToken = new GenericToken();
   feeAmount!: BigNumber;
   tokenInReserves!: BigNumber;
   tokenOutReserves!: BigNumber;
@@ -18,6 +18,11 @@ export class SwapFixedInputEvent extends GenericEvent {
   constructor(init?: Partial<GenericEvent>) {
     super(init);
     this.decodedTopics = new PairEventTopics(this.topics);
+
+    if (this.decodedTopics.getEventName() !== 'swap') {
+      return;
+    }
+
     const decodedEvent = this.decodeEvent();
 
     Object.assign(this, decodedEvent);
@@ -56,6 +61,10 @@ export class SwapFixedInputEvent extends GenericEvent {
       tokenInReserves: this.tokenInReserves.toFixed(),
       tokenOutReserves: this.tokenOutReserves.toFixed(),
     };
+  }
+
+  getEventName() {
+    return this.decodedTopics.getEventName();
   }
 
   getTopics() {
