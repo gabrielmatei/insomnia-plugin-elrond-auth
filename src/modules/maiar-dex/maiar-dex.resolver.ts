@@ -31,8 +31,8 @@ export class MaiarDexResolver {
     return await this.timescaleService.resolveQuery(MaiarDexEntity, 'dashboard', 'total_value_locked', query, aggregates);
   }
 
-  @ResolveField(() => [AggregateValue], { name: 'volume' })
-  public async volume(
+  @ResolveField(() => [AggregateValue], { name: 'total_volume' })
+  public async total_volume(
     @Args('query', { nullable: true }) query: QueryInput,
     @Info(ParseQueryFieldsPipe, new ParseFilterEnumArrayPipe(AggregateEnum)) aggregates: AggregateEnum[],
   ): Promise<AggregateValue[]> {
