@@ -39,7 +39,15 @@ export class TimescaleService {
     try {
       const repository = getRepository(TradingInfoEntity);
       for (const trade of trades) {
-        await repository.save(trade);
+        try {
+          await repository.save(trade);
+        } catch (error: any) {
+          if (error?.constraint === 'UQ_ID') {
+            this.logger.log(`Could not insert duplicate trade with identifier '${trade.identifier}'`);
+          } else {
+            throw error;
+          }
+        }
       }
     } catch (error) {
       this.logger.error(`An unhandled error occurred when writing trades`);
