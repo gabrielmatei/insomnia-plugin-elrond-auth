@@ -101,7 +101,7 @@ export class MaiarDexService {
     return totalVolume;
   }
 
-  public async getToken(tokenIdentifier: string): Promise<EsdtToken> {
+  public async getToken(tokenIdentifier: string): Promise<EsdtToken | undefined> {
     return await this.cachingService.getOrSetCache(
       CacheInfo.Token(tokenIdentifier).key,
       async () => await this.getTokenRaw(tokenIdentifier),
@@ -109,7 +109,7 @@ export class MaiarDexService {
     );
   }
 
-  public async getTokenRaw(tokenIdentifier: string): Promise<EsdtToken> {
+  public async getTokenRaw(tokenIdentifier: string): Promise<EsdtToken | undefined> {
     try {
       const tokenRaw = await this.apiService.get<EsdtToken>(`${this.apiConfigService.getApiUrl()}/tokens/${tokenIdentifier} `);
 
@@ -118,7 +118,7 @@ export class MaiarDexService {
       this.logger.error(`An unhandled error occurred when fetching token with identifier '${tokenIdentifier}'`);
       this.logger.error(error);
 
-      return new EsdtToken(); // TODO
+      return undefined;
     }
   }
 
@@ -146,5 +146,11 @@ export class MaiarDexService {
     const pairs = await this.getAllPairs();
     const pair = pairs.find(pair => pair.address === pairAddress);
     return pair?.totalFeePercent ?? 0;
+  }
+
+  public async getPair(pairAddress: string): Promise<Pair | undefined> {
+    const pairs = await this.getAllPairs();
+    const pair = pairs.find(pair => pair.address === pairAddress);
+    return pair;
   }
 }

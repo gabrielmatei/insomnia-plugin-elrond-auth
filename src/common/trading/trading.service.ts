@@ -23,12 +23,23 @@ export class TradingService {
     this.logger = new Logger(TradingService.name);
   }
 
-  public async indexEvent(event: SwapFixedInputEvent | SwapFixedOutputEvent): Promise<void> {
+  public async indexEvent(event: SwapFixedInputEvent | SwapFixedOutputEvent, options: { write: boolean } = { write: true }): Promise<TradingInfoEntity[]> {
+    const swapPair = await this.maiarDexService.getPair(event.getAddress());
+    if (!swapPair) {
+      this.logger.error(`Could not find pair address for swap event: ${JSON.stringify(event.toJSON())}`);
+      return [];
+    }
+
     const tokenInIdentifier = event.getTokenIn().tokenID;
     const tokenOutIdentifier = event.getTokenOut().tokenID;
 
     const tokenIn = await this.maiarDexService.getToken(tokenInIdentifier);
     const tokenOut = await this.maiarDexService.getToken(tokenOutIdentifier);
+
+    if (tokenIn === undefined || tokenOut === undefined) {
+      this.logger.error(`Could not fetch tokens for swap event: ${JSON.stringify(event.toJSON())}`);
+      return [];
+    }
 
     let tokenInInfo = {
       identifier: tokenIn.identifier,
@@ -99,7 +110,11 @@ export class TradingService {
 
     this.checkTrades(trades);
 
-    await this.timescaleService.writeTrades(trades);
+    if (options?.write) {
+      await this.timescaleService.writeTrades(trades);
+    }
+
+    return trades;
   }
 
   private isInvertedPair(tokenInInfoIdentifier: string, tokenOutInfoIdentifier: string): boolean {

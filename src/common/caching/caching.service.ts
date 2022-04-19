@@ -89,7 +89,7 @@ export class CachingService {
 
     const value = await promise();
 
-    if (remoteTtl > 0) {
+    if (value !== undefined && remoteTtl > 0) {
       await this.setCacheLocal<T>(key, value, remoteTtl);
       await this.setCacheRemote<T>(key, value, remoteTtl);
     }
