@@ -16,13 +16,7 @@ export class CacheInfo {
     };
   }
 
-  static QueryResult<T extends GenericIngestEntity>(
-    entity: EntityTarget<T>,
-    series: string,
-    key: string,
-    query: QueryInput,
-    aggregates: AggregateEnum[],
-  ): CacheInfo {
+  static QueryResult<T extends GenericIngestEntity>(entity: EntityTarget<T>, series: string, key: string, query: QueryInput, aggregates: AggregateEnum[]): CacheInfo {
     const cacheKeyRaw = JSON.stringify({
       entity: entity.toString(),
       series,
@@ -38,6 +32,22 @@ export class CacheInfo {
     };
   }
 
+  static TradingQueryResult(firstToken: string, secondToken: string, series: string, query: QueryInput, aggregates: AggregateEnum[]): CacheInfo {
+    const cacheKeyRaw = JSON.stringify({
+      firstToken,
+      secondToken,
+      series,
+      query,
+      aggregates,
+    });
+    const keyHash = crypto.createHash('sha1').update(cacheKeyRaw).digest('base64');
+
+    return {
+      key: `tq:${keyHash}`,
+      ttl: Constants.oneMinute(),
+    };
+  }
+
   static NftCollection(collection: string): CacheInfo {
     return {
       key: `nft:${collection}`,
@@ -48,6 +58,18 @@ export class CacheInfo {
   static MaiarDexPairs: CacheInfo = {
     key: 'maiarDexPairs',
     ttl: Constants.oneHour(),
+  };
+
+  static Token(tokenIdentifier: string): CacheInfo {
+    return {
+      key: `token:${tokenIdentifier}`,
+      ttl: Constants.oneHour(),
+    };
+  }
+
+  static LastWEGLDPrice: CacheInfo = {
+    key: 'lastWEGLDPrice',
+    ttl: Constants.oneMinute() * 30,
   };
 
   static ScheduledJob(job: string = '*'): CacheInfo {

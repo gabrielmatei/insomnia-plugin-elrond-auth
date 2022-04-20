@@ -2,6 +2,7 @@ export class Pair {
   address: string = '';
   firstToken: EsdtToken;
   secondToken: EsdtToken;
+  totalFeePercent: number = 0;
 
   constructor(firstToken: EsdtToken, secondToken: EsdtToken) {
     this.firstToken = firstToken;
@@ -16,6 +17,7 @@ export class Pair {
 export class EsdtToken {
   identifier: string = '';
   name: string = '';
+  decimals: number = 0;
 
   static getTicker(token: EsdtToken) {
     return token.identifier.split('-')[0];

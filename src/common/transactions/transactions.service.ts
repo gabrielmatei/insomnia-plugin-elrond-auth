@@ -82,7 +82,7 @@ export class TransactionsService {
         return true;
       }
     } catch {
-      this.logger.error(`Unhandled error checking if an identifier is NFT`);
+      this.logger.error(`An unhandled error occurred when checking if an identifier is NFT`);
     }
 
     return false;

@@ -3,6 +3,7 @@ export function getPairsQuery(offset: number, limit: number): string {
     pairs(offset: ${offset}, limit: ${limit}) {
       address
       state
+      totalFeePercent
       firstToken {
         identifier
         name

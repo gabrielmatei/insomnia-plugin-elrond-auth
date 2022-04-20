@@ -39,3 +39,5 @@ config/config.yaml
 config/config.custom.yaml
 config/googleAuthConfig.json
 ormconfig.*json
+
+src/indexer/*

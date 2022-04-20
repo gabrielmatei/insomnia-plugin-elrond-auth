@@ -2,6 +2,7 @@ import moment from "moment";
 import { AggregateEnum } from "src/modules/models/aggregate.enum";
 import { Repository, SelectQueryBuilder } from "typeorm";
 import { GenericIngestEntity } from "./entities/generic-ingest.entity";
+import { TradingInfoEntity } from "./entities/trading-info.entity";
 
 export function getPreviousValue24hQuery<T extends GenericIngestEntity>(
   repository: Repository<T>,
@@ -72,6 +73,79 @@ export function getValuesQuery<T extends GenericIngestEntity>(
     FROM ${tableName} 
     WHERE series = $1
         AND key = $2
+        ${endDate
+      ? `AND timestamp BETWEEN '${startDate.toISOString()}' AND '${endDate?.toISOString()}'`
+      : `AND timestamp >= '${startDate.toISOString()}'`}
+    GROUP BY time
+    ORDER BY time ASC
+  `;
+
+  return query;
+}
+
+export function getLastTradeQuery(
+  repository: Repository<TradingInfoEntity>,
+  firstTokenIdentifier: string,
+  secondTokenIdentifier: string,
+  lte: Date
+): SelectQueryBuilder<TradingInfoEntity> {
+  const query = repository
+    .createQueryBuilder()
+    .where('timestamp <= :lte')
+    .andWhere('"firstToken" = :firstTokenIdentifier')
+    .andWhere('"secondToken" = :secondTokenIdentifier')
+    .setParameters({
+      lte,
+      firstTokenIdentifier,
+      secondTokenIdentifier,
+    })
+    .orderBy('timestamp', 'DESC')
+    .limit(1);
+
+  return query;
+}
+
+export function getLastTradeValueQuery(
+  repository: Repository<TradingInfoEntity>,
+  firstToken: string,
+  secondToken: string,
+): SelectQueryBuilder<TradingInfoEntity> {
+  const query = repository
+    .createQueryBuilder()
+    .where('"firstToken" = :firstToken')
+    .andWhere('"secondToken" = :secondToken')
+    .setParameters({ firstToken, secondToken })
+    .orderBy('timestamp', 'DESC')
+    .limit(1);
+
+  return query;
+}
+
+export function getTradeValuesQuery(
+  repository: Repository<TradingInfoEntity>,
+  firstToken: string,
+  secondToken: string,
+  series: string,
+  startDate: Date,
+  endDate: Date | undefined,
+  resolution: string,
+  aggregateList: string[],
+): string {
+  const tableName = repository.metadata.tableName;
+
+  const aggregates = aggregateList.map(aggregate => {
+    const agg = aggregate === AggregateEnum.FIRST || aggregate === AggregateEnum.LAST
+      ? `${aggregate}(${series}, timestamp) AS ${aggregate.toLowerCase()}`
+      : `${aggregate}(${series}) AS ${aggregate.toLowerCase()}`;
+    return agg;
+  });
+
+  const query = `
+    SELECT
+      time_bucket('${resolution}', timestamp) AS time,
+      ${aggregates.join(',')}
+    FROM ${tableName} 
+    WHERE "firstToken" = '${firstToken}' AND "secondToken" = '${secondToken}'
         ${endDate
       ? `AND timestamp BETWEEN '${startDate.toISOString()}' AND '${endDate?.toISOString()}'`
       : `AND timestamp >= '${startDate.toISOString()}'`}

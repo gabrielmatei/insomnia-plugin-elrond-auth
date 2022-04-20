@@ -89,7 +89,7 @@ export class CachingService {
 
     const value = await promise();
 
-    if (remoteTtl > 0) {
+    if (value !== undefined && remoteTtl > 0) {
       await this.setCacheLocal<T>(key, value, remoteTtl);
       await this.setCacheRemote<T>(key, value, remoteTtl);
     }
@@ -100,6 +100,9 @@ export class CachingService {
     const value = await this.getCacheRemote<T>(key);
     if (value) {
       await this.setCacheLocal<T>(key, value, ttl);
+    } else {
+      this.logger.log(`Deleting local cache key '${key}'`);
+      await this.deleteInCacheLocal(key);
     }
 
     return value;

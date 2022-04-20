@@ -1,3 +1,5 @@
+import { EsdtToken } from "src/common/maiar-dex/entities/pair";
+
 export class Constants {
   static oneSecond(): number {
     return 1;
@@ -26,4 +28,42 @@ export class Constants {
   static sqlDateFormat(): string {
     return 'yyyy-MM-DD HH:mm:ss';
   }
+
+  static WrappedEGLD: EsdtToken = {
+    identifier: "WEGLD-bd4d79",
+    name: "WrappedEGLD",
+    decimals: 18,
+  };
+
+  static WrappedUSDC: EsdtToken = {
+    identifier: "USDC-c76f1f",
+    name: "WrappedUSDC",
+    decimals: 6,
+  };
+
+  // DEVNET
+  // static WrappedEGLD: EsdtToken = {
+  //   identifier: "WEGLD-d7c6bb",
+  //   name: "WrappedEGLD",
+  //   decimals: 18,
+  // };
+
+  // static WrappedUSDC: EsdtToken = {
+  //   identifier: "USDC-8d4068",
+  //   name: "WrappedUSDC",
+  //   decimals: 6,
+  // };
+
+  // TESTNET
+  // static WrappedEGLD: EsdtToken = {
+  //   identifier: "WEGLD-71e90a",
+  //   name: "WrappedEGLD",
+  //   decimals: 18,
+  // };
+
+  // static WrappedUSDC: EsdtToken = {
+  //   identifier: "USDC-a63f36",
+  //   name: "WrappedUSDC",
+  //   decimals: 6,
+  // };
 }

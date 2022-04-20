@@ -1,11 +1,14 @@
 import { Injectable, Logger } from "@nestjs/common";
 import BigNumber from "bignumber.js";
+import { ApiUtils } from "src/utils/api.utils";
+import { Constants } from "src/utils/constants";
 import { ApiConfigService } from "../api-config/api.config.service";
 import { AWSTimestreamService } from "../aws/aws.timestream.service";
 import { CachingService } from "../caching/caching.service";
 import { CacheInfo } from "../caching/entities/cache.info";
 import { ApiService } from "../network/api.service";
-import { Pair } from "./entities/pair";
+import { TimescaleService } from "../timescale/timescale.service";
+import { EsdtToken, Pair } from "./entities/pair";
 import { Pool } from "./entities/pool";
 import { getPairsQuery, getTotalValueLockedQuery } from "./maiar-dex.queries";
 
@@ -17,6 +20,7 @@ export class MaiarDexService {
     private readonly apiConfigService: ApiConfigService,
     private readonly apiService: ApiService,
     private readonly cachingService: CachingService,
+    private readonly timescaleService: TimescaleService,
     private readonly timestreamService: AWSTimestreamService,
   ) {
     this.logger = new Logger(MaiarDexService.name);
@@ -30,7 +34,7 @@ export class MaiarDexService {
     );
   }
 
-  private async getAllPairsRaw(): Promise<Pair[]> {
+  public async getAllPairsRaw(): Promise<Pair[]> {
     // TODO maiar-dex pagination bug
     try {
       let offset = 0;
@@ -95,5 +99,64 @@ export class MaiarDexService {
     const pairs = await this.getAllPairs();
     const totalVolume = await this.timestreamService.getTotalVolume(pairs, startDate, endDate);
     return totalVolume;
+  }
+
+  public async getToken(tokenIdentifier: string): Promise<EsdtToken | undefined> {
+    return await this.cachingService.getOrSetCache(
+      CacheInfo.Token(tokenIdentifier).key,
+      async () => await this.getTokenRaw(tokenIdentifier),
+      CacheInfo.Token(tokenIdentifier).ttl
+    );
+  }
+
+  public async getTokenRaw(tokenIdentifier: string): Promise<EsdtToken | undefined> {
+    try {
+      const tokenRaw = await this.apiService.get<EsdtToken>(`${this.apiConfigService.getApiUrl()}/tokens/${tokenIdentifier} `);
+
+      return ApiUtils.mergeObjects(new EsdtToken(), tokenRaw);
+    } catch (error) {
+      this.logger.error(`An unhandled error occurred when fetching token with identifier '${tokenIdentifier}'`);
+      this.logger.error(error);
+
+      return undefined;
+    }
+  }
+
+  public async getLastWEGLDPrice(lte: Date): Promise<BigNumber> {
+    return await this.cachingService.getOrSetCache(
+      CacheInfo.LastWEGLDPrice.key,
+      async () => await this.getLastWEGLDPriceRaw(lte),
+      CacheInfo.LastWEGLDPrice.ttl
+    );
+  }
+
+  private async getLastWEGLDPriceRaw(lte: Date): Promise<BigNumber> {
+    const lastTrade = await this.timescaleService.getLastTrade(
+      Constants.WrappedEGLD.identifier,
+      Constants.WrappedUSDC.identifier,
+      lte
+    );
+
+    return lastTrade
+      ? new BigNumber(lastTrade.price)
+      : new BigNumber(0); // TODO
+  }
+
+  public async getTotalFeePercent(pairAddress: string): Promise<number> {
+    const pairs = await this.getAllPairs();
+    const pair = pairs.find(pair => pair.address === pairAddress);
+    return pair?.totalFeePercent ?? 0;
+  }
+
+  public async getPair(pairAddress: string): Promise<Pair | undefined> {
+    const pairs = await this.getAllPairs();
+    const pair = pairs.find(pair => pair.address === pairAddress);
+    return pair;
+  }
+
+  public async getPairByTokens(firstTokenIdentifier: string, secondTokenIdentifier: string): Promise<Pair | undefined> {
+    const pairs = await this.getAllPairs();
+    const pair = pairs.find(pair => pair.firstToken.identifier === firstTokenIdentifier && pair.secondToken.identifier === secondTokenIdentifier);
+    return pair;
   }
 }

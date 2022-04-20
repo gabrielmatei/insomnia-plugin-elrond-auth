@@ -4,6 +4,8 @@ import { Cron, CronExpression } from "@nestjs/schedule";
 import { CachingService } from "src/common/caching/caching.service";
 import { CacheInfo } from "src/common/caching/entities/cache.info";
 import { GithubService } from "src/common/github/github.service";
+import { EsdtToken } from "src/common/maiar-dex/entities/pair";
+import { MaiarDexService } from "src/common/maiar-dex/maiar-dex.service";
 import { Locker } from "src/utils/locker";
 @Injectable()
 export class CacheWarmerService {
@@ -13,6 +15,7 @@ export class CacheWarmerService {
     private readonly cachingService: CachingService,
     @Inject('PUBSUB_SERVICE') private clientProxy: ClientProxy,
     private readonly githubService: GithubService,
+    private readonly maiarDexService: MaiarDexService,
   ) {
     this.logger = new Logger(CacheWarmerService.name);
   }
@@ -28,6 +31,29 @@ export class CacheWarmerService {
         repositories,
         CacheInfo.Repositories(organization).ttl
       );
+    }, true);
+  }
+
+  @Cron(CronExpression.EVERY_HOUR)
+  async handleTokenInvalidations() {
+    await Locker.lock('Token invalidations', async () => {
+      const pairs = await this.maiarDexService.getAllPairsRaw();
+      const tokenIdentifiers = pairs
+        .map(pair => [pair.firstToken.identifier, pair.secondToken.identifier])
+        .flat()
+        .distinct();
+
+      const tokens = await Promise.all(tokenIdentifiers.map(async (identifier: string) => {
+        const token = await this.maiarDexService.getTokenRaw(identifier);
+        return token;
+      }));
+
+      await this.invalidateKey(CacheInfo.MaiarDexPairs.key, pairs, CacheInfo.MaiarDexPairs.ttl);
+      await Promise.all(tokens
+        .filter((token): token is EsdtToken => !!token)
+        .map(async (token) => {
+          await this.invalidateKey(CacheInfo.Token(token.identifier).key, token, CacheInfo.Token(token.identifier).ttl);
+        }));
     }, true);
   }
 
@@ -47,14 +73,12 @@ export class CacheWarmerService {
     }, true);
   }
 
-  private async invalidateKey<T>(key: string, data: T, ttl: number) {
-    await Promise.all([
-      this.cachingService.setCache(key, data, ttl),
-      this.deleteCacheKey(key),
-    ]);
+  private async invalidateKey(key: string, data: any, ttl: number) {
+    await this.cachingService.setCache(key, data, ttl);
+    this.refreshCacheKey(key, ttl);
   }
 
-  private async deleteCacheKey(key: string) {
-    await this.clientProxy.emit('deleteCacheKeys', [key]);
+  private refreshCacheKey(key: string, ttl: number) {
+    this.clientProxy.emit('refreshCacheKey', { key, ttl });
   }
 }
