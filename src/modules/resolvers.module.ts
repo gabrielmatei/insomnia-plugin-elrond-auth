@@ -12,6 +12,7 @@ import { PricesModule } from "./prices/prices.module";
 import { QuotesModule } from "./quotes/quotes.module";
 import { StakingModule } from "./staking/staking.module";
 import { TokensModule } from "./tokens/tokens.module";
+import { TradingModule } from "./trading/trading.module";
 import { TransactionsModule } from "./transactions/transactions.module";
 import { TrendsModule } from "./trends/trends.module";
 import { TwitterModule } from "./twitter/twitter.module";
@@ -31,6 +32,7 @@ import { TwitterModule } from "./twitter/twitter.module";
     forwardRef(() => QuotesModule),
     forwardRef(() => StakingModule),
     forwardRef(() => TokensModule),
+    forwardRef(() => TradingModule),
     forwardRef(() => TransactionsModule),
     forwardRef(() => TrendsModule),
     forwardRef(() => TwitterModule),
@@ -49,6 +51,7 @@ import { TwitterModule } from "./twitter/twitter.module";
     QuotesModule,
     StakingModule,
     TokensModule,
+    TradingModule,
     TransactionsModule,
     TrendsModule,
     TwitterModule,

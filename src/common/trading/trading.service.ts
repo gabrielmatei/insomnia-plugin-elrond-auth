@@ -1,9 +1,12 @@
-import { Inject, Injectable, Logger } from "@nestjs/common";
+import { BadRequestException, Inject, Injectable, Logger } from "@nestjs/common";
 import { ClientProxy } from "@nestjs/microservices";
 import moment from "moment";
+import { AggregateEnum } from "src/modules/models/aggregate.enum";
+import { QueryInput } from "src/modules/models/query.input";
 import { Constants } from "src/utils/constants";
 import { CachingService } from "../caching/caching.service";
 import { CacheInfo } from "../caching/entities/cache.info";
+import { AggregateValue } from "../entities/aggregate-value.object";
 import { MaiarDexService } from "../maiar-dex/maiar-dex.service";
 import { SwapFixedInputEvent } from "../rabbitmq/entities/pair/swap-fixed-input.event";
 import { SwapFixedOutputEvent } from "../rabbitmq/entities/pair/swap-fixed-output.event";
@@ -147,5 +150,20 @@ export class TradingService {
         this.logger.warn(`Detected zero or negative fee on trade with identifier '${trade.identifier}'`);
       }
     }
+  }
+
+  public async resolveTradingQuery(
+    firstToken: string,
+    secondToken: string,
+    series: string,
+    query: QueryInput,
+    aggregates: AggregateEnum[]
+  ): Promise<AggregateValue[]> {
+    const pair = await this.maiarDexService.getPairByTokens(firstToken, secondToken);
+    if (!pair) {
+      throw new BadRequestException(`Pair with '${firstToken}' and '${secondToken}' is not supported`);
+    }
+
+    return await this.timescaleService.resolveTradingQuery(firstToken, secondToken, series, query, aggregates);
   }
 }

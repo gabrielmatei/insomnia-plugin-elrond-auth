@@ -210,6 +210,16 @@ type TokensModel {
   transfers(query: QueryInput): [AggregateValue!]
 }
 
+type TradingInfoModel {
+  price(query: QueryInput): [AggregateValue!]
+  volume(query: QueryInput): [AggregateValue!]
+  fee(query: QueryInput): [AggregateValue!]
+}
+
+type TradingModel {
+  pair(first_token: String!, second_token: String!): TradingInfoModel
+}
+
 type TransactionsModel {
   count(query: QueryInput): [AggregateValue!]!
   count_24h(query: QueryInput): [AggregateValue!]!
@@ -241,6 +251,7 @@ type Query {
   quotes: QuotesModel!
   staking: StakingModel!
   tokens: TokensModel!
+  trading: TradingModel!
   transactions: TransactionsModel!
   trends: TrendsModel!
   twitter: TwitterModel!

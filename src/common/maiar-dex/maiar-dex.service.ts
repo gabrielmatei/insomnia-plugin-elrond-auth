@@ -153,4 +153,10 @@ export class MaiarDexService {
     const pair = pairs.find(pair => pair.address === pairAddress);
     return pair;
   }
+
+  public async getPairByTokens(firstTokenIdentifier: string, secondTokenIdentifier: string): Promise<Pair | undefined> {
+    const pairs = await this.getAllPairs();
+    const pair = pairs.find(pair => pair.firstToken.identifier === firstTokenIdentifier && pair.secondToken.identifier === secondTokenIdentifier);
+    return pair;
+  }
 }

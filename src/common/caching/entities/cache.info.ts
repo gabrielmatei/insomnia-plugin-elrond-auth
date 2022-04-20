@@ -16,13 +16,7 @@ export class CacheInfo {
     };
   }
 
-  static QueryResult<T extends GenericIngestEntity>(
-    entity: EntityTarget<T>,
-    series: string,
-    key: string,
-    query: QueryInput,
-    aggregates: AggregateEnum[],
-  ): CacheInfo {
+  static QueryResult<T extends GenericIngestEntity>(entity: EntityTarget<T>, series: string, key: string, query: QueryInput, aggregates: AggregateEnum[]): CacheInfo {
     const cacheKeyRaw = JSON.stringify({
       entity: entity.toString(),
       series,
@@ -34,6 +28,22 @@ export class CacheInfo {
 
     return {
       key: `q:${keyHash}`,
+      ttl: Constants.oneMinute(),
+    };
+  }
+
+  static TradingQueryResult(firstToken: string, secondToken: string, series: string, query: QueryInput, aggregates: AggregateEnum[]): CacheInfo {
+    const cacheKeyRaw = JSON.stringify({
+      firstToken,
+      secondToken,
+      series,
+      query,
+      aggregates,
+    });
+    const keyHash = crypto.createHash('sha1').update(cacheKeyRaw).digest('base64');
+
+    return {
+      key: `tq:${keyHash}`,
       ttl: Constants.oneMinute(),
     };
   }

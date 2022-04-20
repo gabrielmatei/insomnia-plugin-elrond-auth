@@ -14,7 +14,9 @@ import * as timescaleQueries from './timescale.queries';
 export class TimescaleService {
   private readonly logger: Logger;
 
-  constructor(private readonly cachingService: CachingService) {
+  constructor(
+    private readonly cachingService: CachingService,
+  ) {
     this.logger = new Logger(TimescaleService.name);
   }
 
@@ -70,7 +72,7 @@ export class TimescaleService {
     return entity?.value;
   }
 
-  public async getLastValue<T extends GenericIngestEntity>(
+  private async getLastValue<T extends GenericIngestEntity>(
     entityTarget: EntityTarget<T>,
     series: string,
     key: string
@@ -89,7 +91,7 @@ export class TimescaleService {
     });
   }
 
-  public async getValues<T extends GenericIngestEntity>(
+  private async getValues<T extends GenericIngestEntity>(
     entityTarget: EntityTarget<T>,
     series: string,
     key: string,
@@ -130,35 +132,43 @@ export class TimescaleService {
     query: QueryInput,
     aggregates: AggregateEnum[],
   ): Promise<AggregateValue[]> {
-    if (aggregates.length === 0) {
-      throw new BadRequestException(`At least one aggregate function is required`);
-    }
+    return await this.resolveQueryGeneric(
+      query,
+      aggregates,
+      async () => await this.getLastValue(entity, series, key),
+      async () => await this.getValues(entity, series, key, QueryInput.getStartDate(query), query.end_date, query.resolution ?? '', aggregates),
+    );
+  }
 
-    if (aggregates.length === 1 && aggregates[0] === AggregateEnum.LAST && query === undefined) {
-      const lastValue = await this.getLastValue(entity, series, key);
-      if (!lastValue) {
-        return [];
-      }
-      return [lastValue];
-    }
+  public async resolveTradingQuery(
+    firstToken: string,
+    secondToken: string,
+    series: string,
+    query: QueryInput,
+    aggregates: AggregateEnum[]
+  ): Promise<AggregateValue[]> {
+    const cacheInfo = CacheInfo.TradingQueryResult(firstToken, secondToken, series, query, aggregates);
 
-    if (!query) {
-      throw new BadRequestException(`'query' is required`);
-    }
+    return await this.cachingService.getOrSetCache(
+      cacheInfo.key,
+      async () => await this.resolveTradingQueryRaw(firstToken, secondToken, series, query, aggregates),
+      cacheInfo.ttl,
+    );
+  }
 
-    let startDate = query.start_date;
-    if (query.range) {
-      startDate = moment.utc().subtract(1, query.range).toDate();
-    } else if (!startDate) {
-      throw new BadRequestException(`'start_date' or 'range' is required`);
-    }
-
-    if (!query.resolution) {
-      throw new BadRequestException(`'resolution' is required`);
-    }
-
-    const values = await this.getValues(entity, series, key, startDate, query.end_date, query.resolution, aggregates);
-    return values;
+  public async resolveTradingQueryRaw(
+    firstToken: string,
+    secondToken: string,
+    series: string,
+    query: QueryInput,
+    aggregates: AggregateEnum[]
+  ): Promise<AggregateValue[]> {
+    return await this.resolveQueryGeneric(
+      query,
+      aggregates,
+      async () => await this.getLastTradeValue(firstToken, secondToken, series),
+      async () => await this.getTradeValues(firstToken, secondToken, series, QueryInput.getStartDate(query), query.end_date, query.resolution ?? '', aggregates),
+    );
   }
 
   public async getLastTrade(firstTokenIdentifier: string, secondTokenIdentifier: string, lte: Date): Promise<TradingInfoEntity | undefined> {
@@ -174,5 +184,71 @@ export class TimescaleService {
 
       return undefined;
     }
+  }
+
+  private async resolveQueryGeneric(
+    query: QueryInput,
+    aggregates: AggregateEnum[],
+    getLastValue: () => Promise<AggregateValue | undefined>,
+    getValues: () => Promise<AggregateValue[]>,
+  ): Promise<AggregateValue[]> {
+    if (aggregates.length === 0) {
+      throw new BadRequestException(`At least one aggregate function is required`);
+    }
+
+    if (aggregates.length === 1 && aggregates[0] === AggregateEnum.LAST && query === undefined) {
+      const lastValue = await getLastValue();
+      if (!lastValue) {
+        return [];
+      }
+      return [lastValue];
+    }
+
+    if (!query) {
+      throw new BadRequestException(`'query' is required`);
+    }
+
+    // start date validation
+    QueryInput.getStartDate(query);
+
+    if (!query.resolution) {
+      throw new BadRequestException(`'resolution' is required`);
+    }
+
+    const values = await getValues();
+    return values;
+  }
+
+  private async getLastTradeValue(firstToken: string, secondToken: string, series: string): Promise<AggregateValue | undefined> {
+    const repository = getRepository(TradingInfoEntity);
+    const query = timescaleQueries.getLastTradeValueQuery(repository, firstToken, secondToken);
+
+    const entity = await query.getOne();
+    if (!entity) {
+      return undefined;
+    }
+
+    return new AggregateValue({
+      last: (entity as any)[series],
+      time: moment(entity.timestamp).toISOString(),
+    });
+  }
+
+  private async getTradeValues(
+    firstToken: string,
+    secondToken: string,
+    series: string,
+    startDate: Date,
+    endDate: Date | undefined,
+    resolution: string,
+    aggregateList: string[],
+  ): Promise<AggregateValue[]> {
+    const repository = getRepository(TradingInfoEntity);
+
+    const query = timescaleQueries.getTradeValuesQuery(repository, firstToken, secondToken, series, startDate, endDate, resolution, aggregateList);
+    const rows: any[] = await repository.query(query, []);
+
+    const values = rows.map(row => AggregateValue.fromRow(row));
+    return values;
   }
 }
