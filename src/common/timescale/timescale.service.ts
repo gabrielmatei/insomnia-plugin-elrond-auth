@@ -37,18 +37,18 @@ export class TimescaleService {
 
   public async writeTrades(trades: TradingInfoEntity[]): Promise<void> {
     try {
+      const distinctTrades = trades.filter((a, i) => trades
+        .findIndex((s) => `${a.identifier}${a.firstToken}${a.secondToken}` === `${s.identifier}${s.firstToken}${s.secondToken}`) === i);
+
       const repository = getRepository(TradingInfoEntity);
-      for (const trade of trades) {
-        try {
-          await repository.save(trade);
-        } catch (error: any) {
-          if (error?.constraint === 'UQ_ID') {
-            this.logger.log(`Could not insert duplicate trade with identifier '${trade.identifier}'`);
-          } else {
-            throw error;
-          }
-        }
-      }
+      const query = repository
+        .createQueryBuilder()
+        .insert()
+        .into(TradingInfoEntity)
+        .values(distinctTrades)
+        .orUpdate(["price", "volume", "fee"], "UQ_ID");
+
+      await query.execute();
     } catch (error) {
       this.logger.error(`An unhandled error occurred when writing trades`);
       this.logger.error(error);

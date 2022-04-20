@@ -4,6 +4,7 @@ import { Cron, CronExpression } from "@nestjs/schedule";
 import { CachingService } from "src/common/caching/caching.service";
 import { CacheInfo } from "src/common/caching/entities/cache.info";
 import { GithubService } from "src/common/github/github.service";
+import { EsdtToken } from "src/common/maiar-dex/entities/pair";
 import { MaiarDexService } from "src/common/maiar-dex/maiar-dex.service";
 import { Locker } from "src/utils/locker";
 @Injectable()
@@ -48,9 +49,11 @@ export class CacheWarmerService {
       }));
 
       await this.invalidateKey(CacheInfo.MaiarDexPairs.key, pairs, CacheInfo.MaiarDexPairs.ttl);
-      await Promise.all(tokens.map(async (token) => {
-        await this.invalidateKey(CacheInfo.Token(token.identifier).key, token, CacheInfo.Token(token.identifier).ttl);
-      }));
+      await Promise.all(tokens
+        .filter((token): token is EsdtToken => !!token)
+        .map(async (token) => {
+          await this.invalidateKey(CacheInfo.Token(token.identifier).key, token, CacheInfo.Token(token.identifier).ttl);
+        }));
     }, true);
   }
 
