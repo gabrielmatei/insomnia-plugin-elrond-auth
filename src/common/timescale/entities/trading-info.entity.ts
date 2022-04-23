@@ -7,7 +7,11 @@ export class TradingInfoEntity {
   @PrimaryColumn({ type: 'bigint' })
   id: number = 0;
 
-  @PrimaryColumn({ type: 'timestamp without time zone' })
+  @Column({
+    nullable: false,
+    type: 'timestamp without time zone',
+  })
+  @PrimaryColumn()
   timestamp: Date = new Date();
 
   @Column({ nullable: false })
