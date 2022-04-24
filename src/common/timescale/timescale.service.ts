@@ -48,7 +48,7 @@ export class TimescaleService {
         .insert()
         .into(TradingInfoEntity)
         .values(distinctTrades)
-        .orUpdate(["price", "volume", "fee"], "UQ_ID");
+        .orUpdate(["price", "volume", "fee"], ["timestamp", "identifier", "firstToken", "secondToken"]);
 
       await query.execute();
     } catch (error) {
