@@ -1,17 +1,13 @@
 import { Column, Entity, Generated, PrimaryColumn, Unique } from "typeorm";
 
 @Entity('trading_info')
-@Unique("UQ_ID", ["identifier", "firstToken", "secondToken"])
+@Unique("UQ_ID", ["timestamp", "identifier", "firstToken", "secondToken"])
 export class TradingInfoEntity {
   @Generated('increment')
   @PrimaryColumn({ type: 'bigint' })
   id: number = 0;
 
-  @Column({
-    nullable: false,
-    type: 'timestamp without time zone',
-  })
-  @PrimaryColumn()
+  @PrimaryColumn({ type: 'timestamp without time zone' })
   timestamp: Date = new Date();
 
   @Column({ nullable: false })
