@@ -1,7 +1,8 @@
-import { Column, Entity, Generated, PrimaryColumn, Unique } from "typeorm";
+import { Column, Entity, Generated, Index, PrimaryColumn, Unique } from "typeorm";
 
 @Entity('trading_info')
 @Unique("UQ_ID", ["timestamp", "identifier", "firstToken", "secondToken"])
+@Index(["firstToken", "secondToken"])
 export class TradingInfoEntity {
   @Generated('increment')
   @PrimaryColumn({ type: 'bigint' })
