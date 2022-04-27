@@ -57,7 +57,7 @@ export class CacheInfo {
 
   static MaiarDexPairs: CacheInfo = {
     key: 'maiarDexPairs',
-    ttl: Constants.oneHour(),
+    ttl: Constants.oneMinute() * 10,
   };
 
   static Token(tokenIdentifier: string): CacheInfo {

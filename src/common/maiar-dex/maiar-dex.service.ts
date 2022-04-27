@@ -49,12 +49,7 @@ export class MaiarDexService {
           .post(this.apiConfigService.getMaiarDexUrl(), { query })
           .then((response: any) => response.data?.pairs ?? []);
 
-        const activePairs = currentPairs
-          .filter((pair: any) => pair.state === 'Active');
-
-        for (const pair of activePairs) {
-          allActivePairs.push(pair);
-        }
+        allActivePairs.push(...currentPairs);
 
         offset += limit;
       } while (currentPairs.length > 0);

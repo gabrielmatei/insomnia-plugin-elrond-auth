@@ -34,7 +34,7 @@ export class CacheWarmerService {
     }, true);
   }
 
-  @Cron(CronExpression.EVERY_HOUR)
+  @Cron(CronExpression.EVERY_10_MINUTES)
   async handleTokenInvalidations() {
     await Locker.lock('Token invalidations', async () => {
       const pairs = await this.maiarDexService.getAllPairsRaw();
