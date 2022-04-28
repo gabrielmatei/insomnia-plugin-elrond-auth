@@ -216,15 +216,18 @@ type TradingInfoModel {
   fee(query: QueryInput): [AggregateValue!]
 }
 
-type BlockModel {
-  hash: String
-  trades: [TradeModel!]
-}
-
 type TradeModel {
+  timestamp: Float
   firstToken: String
   secondToken: String
   price: Float
+  volume: Float
+}
+
+type BlockModel {
+  hash: String
+  timestamp: Float
+  trades: [TradeModel!]
 }
 
 type TradingModel {

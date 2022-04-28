@@ -71,7 +71,6 @@ export class RabbitMqPairConsumer {
       const { data } = await this.apiService.get(`${this.apiConfigService.getGatewayUrl()}/block/${shard}/by-hash/${hash}`);
       return ApiUtils.mergeObjects(new Block(), data.block);
     } catch {
-      this.logger.log(`Could not get block with hash '${hash}' for shard ${shard}`);
       return undefined;
     }
   }

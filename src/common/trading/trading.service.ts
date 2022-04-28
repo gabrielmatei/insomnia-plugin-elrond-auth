@@ -125,10 +125,6 @@ export class TradingService {
     await this.timescaleService.writeTrades(trades);
   }
 
-  public async persistTrades(trades: TradingInfoEntity[], block: Block) {
-    await this.timescaleService.writeTrades(trades);
-  }
-
   private isInvertedPair(tokenInInfoIdentifier: string, tokenOutInfoIdentifier: string): boolean {
     return tokenInInfoIdentifier === Constants.WrappedEGLD.identifier && tokenOutInfoIdentifier !== Constants.WrappedUSDC.identifier;
   }
