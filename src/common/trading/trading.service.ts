@@ -8,6 +8,7 @@ import { CachingService } from "../caching/caching.service";
 import { CacheInfo } from "../caching/entities/cache.info";
 import { AggregateValue } from "../entities/aggregate-value.object";
 import { MaiarDexService } from "../maiar-dex/maiar-dex.service";
+import { Block } from "../rabbitmq/entities/block";
 import { SwapFixedInputEvent } from "../rabbitmq/entities/pair/swap-fixed-input.event";
 import { SwapFixedOutputEvent } from "../rabbitmq/entities/pair/swap-fixed-output.event";
 import { TradingInfoEntity } from "../timescale/entities/trading-info.entity";
@@ -26,7 +27,7 @@ export class TradingService {
     this.logger = new Logger(TradingService.name);
   }
 
-  public async indexEvent(event: SwapFixedInputEvent | SwapFixedOutputEvent, options: { write: boolean } = { write: true }): Promise<TradingInfoEntity[]> {
+  public async indexEvent(event: SwapFixedInputEvent | SwapFixedOutputEvent, block?: Block): Promise<TradingInfoEntity[]> {
     const swapPair = await this.maiarDexService.getPair(event.getAddress());
     if (!swapPair) {
       this.logger.error(`Could not find pair address for swap event: ${JSON.stringify(event.toJSON())}`);
@@ -68,7 +69,11 @@ export class TradingService {
 
     const totalFeePercent = await this.maiarDexService.getTotalFeePercent(event.getAddress());
 
-    const timestamp = moment.unix(event.getTimestamp().toNumber()).toDate();
+    const timestamp = moment
+      .unix(block !== undefined
+        ? block.timestamp
+        : event.getTimestamp().toNumber())
+      .toDate();
     const priceWEGLD = tokenOutInfo.reserves.dividedBy(tokenInInfo.reserves);
     const volumeWEGLD = tokenOutInfo.volume;
     const feeWEGLD = volumeWEGLD.times(totalFeePercent);
@@ -113,11 +118,15 @@ export class TradingService {
 
     this.checkTrades(trades);
 
-    if (options?.write) {
-      await this.timescaleService.writeTrades(trades);
-    }
-
     return trades;
+  }
+
+  public async writeTrades(trades: TradingInfoEntity[]) {
+    await this.timescaleService.writeTrades(trades);
+  }
+
+  public async persistTrades(trades: TradingInfoEntity[], block: Block) {
+    await this.timescaleService.writeTrades(trades);
   }
 
   private isInvertedPair(tokenInInfoIdentifier: string, tokenOutInfoIdentifier: string): boolean {

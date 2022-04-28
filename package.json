@@ -58,6 +58,8 @@
     "googleapis": "^95.0.0",
     "graphql": "^16.3.0",
     "graphql-fields": "^2.0.3",
+    "graphql-redis-subscriptions": "^2.4.2",
+    "graphql-ws": "^5.8.1",
     "ioredis": "^4.28.3",
     "jsonwebtoken": "^8.5.1",
     "nest-winston": "^1.6.2",

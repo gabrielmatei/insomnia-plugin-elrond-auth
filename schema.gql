@@ -216,6 +216,17 @@ type TradingInfoModel {
   fee(query: QueryInput): [AggregateValue!]
 }
 
+type BlockModel {
+  hash: String
+  trades: [TradeModel!]
+}
+
+type TradeModel {
+  firstToken: String
+  secondToken: String
+  price: Float
+}
+
 type TradingModel {
   pair(first_token: String!, second_token: String!): TradingInfoModel
 }
@@ -255,4 +266,8 @@ type Query {
   transactions: TransactionsModel!
   trends: TrendsModel!
   twitter: TwitterModel!
+}
+
+type Subscription {
+  newBlock: BlockModel!
 }

@@ -1,4 +1,5 @@
 import { forwardRef, Module } from "@nestjs/common";
+import { RedisPubSubModule } from "src/modules/redis.pubSub.module";
 import { ApiConfigModule } from "./api-config/api.config.module";
 import { CachingModule } from "./caching/caching.module";
 import { ElasticModule } from "./elastic/elastic.module";
@@ -24,6 +25,7 @@ import { TransactionsModule } from "./transactions/transactions.module";
     forwardRef(() => StakingModule),
     forwardRef(() => TransactionsModule),
     forwardRef(() => MaiarDexModule),
+    RedisPubSubModule,
   ],
   exports: [
     ApiConfigModule,
@@ -37,6 +39,7 @@ import { TransactionsModule } from "./transactions/transactions.module";
     StakingModule,
     TransactionsModule,
     MaiarDexModule,
+    RedisPubSubModule,
   ],
 })
 export class CommonModule { }

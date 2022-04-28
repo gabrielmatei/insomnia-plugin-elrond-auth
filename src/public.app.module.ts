@@ -18,6 +18,7 @@ import { HealthCheckController } from './common/health-check/health.check.contro
       useGlobalPrefix: true,
       driver: ApolloDriver,
       autoSchemaFile: 'schema.gql',
+      installSubscriptionHandlers: true,
     }),
   ],
   controllers: [
