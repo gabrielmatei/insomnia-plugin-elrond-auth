@@ -35,6 +35,8 @@ export class RabbitMqPairConsumer {
 
       const events = rawEvents?.events ?? [];
 
+      this.logger.log(`Detected ${events.length} events on block with hash '${rawEvents?.hash}'`);
+
       const trades: TradingInfoEntity[] = [];
       for (const rawEvent of events) {
         switch (rawEvent.identifier) {
@@ -71,6 +73,7 @@ export class RabbitMqPairConsumer {
       const { data } = await this.apiService.get(`${this.apiConfigService.getGatewayUrl()}/block/${shard}/by-hash/${hash}`);
       return ApiUtils.mergeObjects(new Block(), data.block);
     } catch {
+      this.logger.warn(`Could not fetch block with hash '${hash}' from shard ${shard}`);
       return undefined;
     }
   }
