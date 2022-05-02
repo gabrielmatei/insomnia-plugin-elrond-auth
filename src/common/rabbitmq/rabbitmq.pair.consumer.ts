@@ -9,6 +9,7 @@ import { ApiService } from '../network/api.service';
 import { ApiConfigService } from '../api-config/api.config.service';
 import { ApiUtils } from 'src/utils/api.utils';
 import { Block } from './entities/block';
+import { ApiSettings } from '../network/entities/api.settings';
 
 @Injectable()
 export class RabbitMqPairConsumer {
@@ -70,10 +71,12 @@ export class RabbitMqPairConsumer {
 
   private async getBlockByHash(shard: number, hash: string): Promise<Block | undefined> {
     try {
-      const { data } = await this.apiService.get(`${this.apiConfigService.getGatewayUrl()}/block/${shard}/by-hash/${hash}`);
+      const { data } = await this.apiService.get(
+        `${this.apiConfigService.getGatewayUrl()}/block/${shard}/by-hash/${hash}`,
+        new ApiSettings({ verbose: false })
+      );
       return ApiUtils.mergeObjects(new Block(), data.block);
     } catch {
-      this.logger.warn(`Could not fetch block with hash '${hash}' from shard ${shard}`);
       return undefined;
     }
   }
