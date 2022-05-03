@@ -220,18 +220,18 @@ type TokensModel {
   transfers(query: QueryInput): [AggregateValue!]
 }
 
-type TradingInfoModel {
-  price(query: QueryInput): [AggregateValue!]
-  volume(query: QueryInput): [AggregateValue!]
-  fee(query: QueryInput): [AggregateValue!]
-}
-
 type TradeModel {
   timestamp: Float
   firstToken: String
   secondToken: String
   price: Float
   volume: Float
+}
+
+type TradingInfoModel {
+  price(query: QueryInput): [AggregateValue!]
+  volume(query: QueryInput): [AggregateValue!]
+  fee(query: QueryInput): [AggregateValue!]
 }
 
 type BlockModel {
@@ -253,6 +253,7 @@ type TradingModel {
     resolution: Float!
     from: Float
   ): [TradingCandlestickModel!]
+  last_trade(first_token: String!, second_token: String!, to: Float!): TradeModel
 }
 
 type TransactionsModel {

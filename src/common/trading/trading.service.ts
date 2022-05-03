@@ -3,6 +3,7 @@ import { ClientProxy } from "@nestjs/microservices";
 import moment from "moment";
 import { AggregateEnum } from "src/modules/models/aggregate.enum";
 import { QueryInput } from "src/modules/models/query.input";
+import { TradeModel } from "src/modules/trading/models/trade.model";
 import { TradingCandlestickModel } from "src/modules/trading/models/trading-candlestick.model";
 import { Constants } from "src/utils/constants";
 import { CachingService } from "../caching/caching.service";
@@ -189,6 +190,17 @@ export class TradingService {
       return await this.timescaleService.getLastCandlestickWithResolution(firstToken, secondToken, to, resolution);
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     return await this.timescaleService.getCandlesticks(firstToken, secondToken, from!, to, resolution);
+  }
+
+  public async getLastTrade(firstToken: string, secondToken: string, to: number): Promise<TradeModel | undefined> {
+    const lte = moment.unix(to).toDate();
+    const tradeEntity = await this.timescaleService.getLastTrade(firstToken, secondToken, lte);
+    if (!tradeEntity) {
+      return undefined;
+    }
+
+    return TradeModel.fromEntity(tradeEntity);
   }
 }
