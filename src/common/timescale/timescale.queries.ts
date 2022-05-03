@@ -1,5 +1,6 @@
 import moment from "moment";
 import { AggregateEnum } from "src/modules/models/aggregate.enum";
+import { DateUtils } from "src/utils/date.utils";
 import { Repository, SelectQueryBuilder } from "typeorm";
 import { GenericIngestEntity } from "./entities/generic-ingest.entity";
 import { TradingInfoEntity } from "./entities/trading-info.entity";
@@ -151,6 +152,61 @@ export function getTradeValuesQuery(
       : `AND timestamp >= '${startDate.toISOString()}'`}
     GROUP BY time
     ORDER BY time ASC
+  `;
+
+  return query;
+}
+
+export function getCandlesticks(
+  firstToken: string,
+  secondToken: string,
+  fromTimestamp: number,
+  toTimestamp: number,
+  resolution: number
+): string {
+  const from = DateUtils.unixTimestampToSql(fromTimestamp);
+  const to = DateUtils.unixTimestampToSql(toTimestamp);
+
+  const query = `
+    SELECT
+      time_bucket('${resolution} seconds', timestamp) AS time,
+      first(price, (timestamp + id * interval '1 milliseconds')) AS open,
+      last(price, (timestamp + id * interval '1 milliseconds')) AS close,
+      max(price) AS high,
+      min(price) AS low,
+      sum(volume) AS volume,
+      count(*) as count
+    FROM trading_info
+    WHERE "firstToken" = '${firstToken}' AND "secondToken" = '${secondToken}' AND timestamp BETWEEN '${from}' AND '${to}'
+    GROUP BY time
+    ORDER BY time ASC;
+  `;
+
+  return query;
+}
+
+export function getLastCandlestickWithResolution(
+  firstToken: string,
+  secondToken: string,
+  toTimestamp: number,
+  resolution: number
+): string {
+  const to = DateUtils.unixTimestampToSql(toTimestamp);
+
+  const query = `
+    SELECT
+      time_bucket('${resolution} seconds', timestamp) AS time,
+      first(price, (timestamp + id * interval '1 milliseconds')) AS open,
+      last(price, (timestamp + id * interval '1 milliseconds')) AS close,
+      max(price) AS high,
+      min(price) AS low,
+      sum(volume) AS volume,
+      count(*) as count
+    FROM trading_info
+    WHERE "firstToken" = '${firstToken}' AND "secondToken" = '${secondToken}' AND timestamp < '${to}'
+    GROUP BY time
+    ORDER BY time DESC
+    LIMIT 1;
   `;
 
   return query;

@@ -3,6 +3,7 @@ import { ClientProxy } from "@nestjs/microservices";
 import moment from "moment";
 import { AggregateEnum } from "src/modules/models/aggregate.enum";
 import { QueryInput } from "src/modules/models/query.input";
+import { TradingCandlestickModel } from "src/modules/trading/models/trading-candlestick.model";
 import { Constants } from "src/utils/constants";
 import { CachingService } from "../caching/caching.service";
 import { CacheInfo } from "../caching/entities/cache.info";
@@ -170,5 +171,24 @@ export class TradingService {
     }
 
     return await this.timescaleService.resolveTradingQuery(firstToken, secondToken, series, query, aggregates);
+  }
+
+  public async resolveCandlestickQuery(
+    firstToken: string,
+    secondToken: string,
+    from: number | undefined,
+    to: number,
+    resolution: number
+  ): Promise<TradingCandlestickModel[]> {
+    const pair = await this.maiarDexService.getPairByTokens(firstToken, secondToken);
+    if (!pair) {
+      throw new BadRequestException(`Pair with '${firstToken}' and '${secondToken}' is not supported`);
+    }
+
+    if (from === undefined) {
+      return await this.timescaleService.getLastCandlestickWithResolution(firstToken, secondToken, to, resolution);
+    }
+
+    return await this.timescaleService.getCandlesticks(firstToken, secondToken, from!, to, resolution);
   }
 }

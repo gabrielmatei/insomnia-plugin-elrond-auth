@@ -2,6 +2,8 @@ import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import moment from 'moment';
 import { AggregateEnum } from 'src/modules/models/aggregate.enum';
 import { QueryInput } from 'src/modules/models/query.input';
+import { TradingCandlestickModel } from 'src/modules/trading/models/trading-candlestick.model';
+import { PerformanceProfiler } from 'src/utils/performance.profiler';
 import { EntityTarget, getRepository } from 'typeorm';
 import { CachingService } from '../caching/caching.service';
 import { CacheInfo } from '../caching/entities/cache.info';
@@ -250,5 +252,63 @@ export class TimescaleService {
 
     const values = rows.map(row => AggregateValue.fromRow(row));
     return values;
+  }
+
+  public async getCandlesticks(
+    firstToken: string,
+    secondToken: string,
+    from: number,
+    to: number,
+    resolution: number
+  ): Promise<TradingCandlestickModel[]> {
+    const profiler = new PerformanceProfiler();
+
+    try {
+      const repository = getRepository(TradingInfoEntity);
+      const query = timescaleQueries.getCandlesticks(firstToken, secondToken, from, to, resolution);
+
+      const rows: any[] = await repository.query(query, []);
+
+      const response = rows.map(row => TradingCandlestickModel.fromRow(row));
+      return response;
+    } catch (error) {
+      this.logger.error(`An unexpected error occurred when fetching bars with resolution ${resolution} for pair (${firstToken}, ${secondToken}) between ${from} and ${to}`);
+      this.logger.error(error);
+
+      return [];
+    } finally {
+      profiler.stop();
+      // this.metricsService.setDatabaseDuration(DatabaseComponentRequest.HistoryBars, profiler.duration); // TODO
+    }
+  }
+
+  public async getLastCandlestickWithResolution(
+    firstToken: string,
+    secondToken: string,
+    to: number,
+    resolution: number
+  ): Promise<TradingCandlestickModel[]> {
+    const profiler = new PerformanceProfiler();
+
+    try {
+      const repository = getRepository(TradingInfoEntity);
+      const query = timescaleQueries.getLastCandlestickWithResolution(firstToken, secondToken, to, resolution);
+
+      const rows: any[] = await repository.query(query, []);
+      if (rows.length === 0) {
+        return [];
+      }
+
+      const response = TradingCandlestickModel.fromRow(rows[0]);
+      return [response];
+    } catch (error) {
+      this.logger.error(`An unexpected error occurred when getting next available bar with resolution ${resolution} for pair (${firstToken}, ${secondToken}) and time < ${to}`);
+      this.logger.error(error);
+
+      return [];
+    } finally {
+      profiler.stop();
+      // this.metricsService.setDatabaseDuration(DatabaseComponentRequest.HistoryBars, profiler.duration); // TODO
+    }
   }
 }

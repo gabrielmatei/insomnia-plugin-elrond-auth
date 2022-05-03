@@ -2,6 +2,16 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type TradingCandlestickModel {
+  timestamp: Float
+  open_price: Float
+  high_price: Float
+  low_price: Float
+  close_price: Float
+  volume: Float
+  count: Float
+}
+
 type AggregateValue {
   time: String
   first: Float
@@ -232,6 +242,17 @@ type BlockModel {
 
 type TradingModel {
   pair(first_token: String!, second_token: String!): TradingInfoModel
+
+  "\n    - from, to, resolution -> history bars\n    - to, resolution -> next available bar"
+  candlestick(
+    first_token: String!
+    second_token: String!
+    to: Float!
+
+    """in seconds"""
+    resolution: Float!
+    from: Float
+  ): [TradingCandlestickModel!]
 }
 
 type TransactionsModel {
