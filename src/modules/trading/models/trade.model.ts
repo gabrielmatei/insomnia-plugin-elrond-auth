@@ -1,4 +1,6 @@
 import { ObjectType, Field } from "@nestjs/graphql";
+import moment from "moment";
+import { TradingInfoEntity } from "src/common/timescale/entities/trading-info.entity";
 
 @ObjectType()
 export class TradeModel {
@@ -16,4 +18,15 @@ export class TradeModel {
 
   @Field(() => Number, { nullable: true })
   volume: number = 0;
+
+  static fromEntity(entity: TradingInfoEntity) {
+    const model = new TradeModel();
+    model.timestamp = moment.utc(entity.timestamp).unix();
+    model.firstToken = entity.firstToken;
+    model.secondToken = entity.secondToken;
+    model.price = entity.price;
+    model.volume = entity.volume;
+
+    return model;
+  }
 }

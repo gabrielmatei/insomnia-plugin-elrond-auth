@@ -6,6 +6,7 @@ import { TradingInfoEntity } from '../timescale/entities/trading-info.entity';
 import { PUB_SUB } from 'src/modules/redis.pubSub.module';
 import { RedisPubSub } from 'graphql-redis-subscriptions';
 import { Block } from './entities/block';
+import { BlockModel } from 'src/modules/trading/models/block.model';
 
 @Injectable()
 export class RabbitMqPairHandlerService {
@@ -27,12 +28,7 @@ export class RabbitMqPairHandlerService {
   public async persistTrades(trades: TradingInfoEntity[], block: Block) {
     try {
       await this.tradingService.writeTrades(trades);
-      await this.pubSub.publish('newBlock', {
-        newBlock: {
-          ...block,
-          trades,
-        },
-      });
+      await this.pubSub.publish('newBlock', { newBlock: BlockModel.fromTrades(block, trades) });
     } catch (error) {
       this.logger.error(`An unhandled error occurred when writing trades`);
       this.logger.error(error);
