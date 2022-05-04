@@ -40,4 +40,13 @@ export class CoinPriceResolver {
   ): Promise<AggregateValue[]> {
     return await this.timescaleService.resolveQuery(PricesEntity, series, 'high_24h', query, aggregates);
   }
+
+  @ResolveField(() => [AggregateValue], { name: 'total_volume' })
+  public async getTotalVolume(
+    @Parent() { series }: CoinPriceModel,
+    @Args('query', { nullable: true }) query: QueryInput,
+    @Info(ParseQueryFieldsPipe, new ParseFilterEnumArrayPipe(AggregateEnum)) aggregates: AggregateEnum[],
+  ): Promise<AggregateValue[]> {
+    return await this.timescaleService.resolveQuery(PricesEntity, series, 'total_volume', query, aggregates);
+  }
 }

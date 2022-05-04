@@ -29,13 +29,14 @@ export class PricesIngest implements Ingest {
     const prices: any = {};
     await Promise.all(vsCurrencies.map(async (currency) => {
       const [
-        { current_price, market_cap, high_24h },
+        { current_price, market_cap, high_24h, total_volume },
       ] = await this.apiService.get(`${this.apiConfigService.getCoingeckoUrl()}/coins/markets?vs_currency=${currency}&ids=${elrondId}`);
 
       prices[currency] = {
         current_price,
         market_cap,
         high_24h,
+        total_volume,
       };
     }));
 

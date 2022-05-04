@@ -15,6 +15,9 @@ export class CoinPriceModel {
   @Field(() => [AggregateValue], { name: 'high_24h', nullable: true })
   high24h?: AggregateValue[];
 
+  @Field(() => [AggregateValue], { name: 'total_volume', nullable: true })
+  total_volume?: AggregateValue[];
+
   constructor(series: string) {
     this.series = series;
   }

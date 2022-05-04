@@ -42,6 +42,8 @@ input QueryInput {
 }
 
 enum TimeResolutions {
+  INTERVAL_1_MINUTE
+  INTERVAL_10_MINUTES
   HOUR
   DAY
 }
@@ -174,6 +176,7 @@ type CoinPriceModel {
   current_price(query: QueryInput): [AggregateValue!]!
   market_cap(query: QueryInput): [AggregateValue!]!
   high_24h(query: QueryInput): [AggregateValue!]!
+  total_volume(query: QueryInput): [AggregateValue!]!
 }
 
 type PricesModel {
