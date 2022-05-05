@@ -16,7 +16,7 @@ export class CacheInfo {
     };
   }
 
-  static QueryResult<T extends GenericIngestEntity>(entity: EntityTarget<T>, series: string, key: string, query: QueryInput, aggregates: AggregateEnum[]): CacheInfo {
+  static QueryResult<T extends GenericIngestEntity>(entity: EntityTarget<T>, series: string, key: string, query: QueryInput | undefined, aggregates: AggregateEnum[]): CacheInfo {
     const cacheKeyRaw = JSON.stringify({
       entity: entity.toString(),
       series,

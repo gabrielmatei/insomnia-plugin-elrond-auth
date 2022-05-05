@@ -140,17 +140,23 @@ type MaiarDexPoolModel {
   volume(query: QueryInput): [AggregateValue!]
 }
 
+type MaiarDexPoolSimpleModel {
+  name: String
+  volume: Float
+}
+
 type MaiarDexWeeklyReportModel {
   time_interval: String
   total_value_locked: Float
-  total_volume: [AggregateValue!]
+  total_volume: Float
 
   """fees + penalities"""
-  mex_burnt: [AggregateValue!]
+  mex_burnt: Float
+  volume_pools: [MaiarDexPoolSimpleModel!]
 }
 
 type MaiarDexModel {
-  weekly_report: MaiarDexWeeklyReportModel
+  weekly_report: MaiarDexWeeklyReportModel!
   total_value_locked(query: QueryInput): [AggregateValue!]
   total_volume(query: QueryInput): [AggregateValue!]
   mex_burnt(query: QueryInput): [AggregateValue!]

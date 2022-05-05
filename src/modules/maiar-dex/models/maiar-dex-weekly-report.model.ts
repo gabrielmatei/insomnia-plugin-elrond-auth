@@ -1,5 +1,5 @@
 import { Field, ObjectType } from "@nestjs/graphql";
-import { AggregateValue } from "src/common/entities/aggregate-value.object";
+import { MaiarDexPoolSimpleModel } from "./maiar-dex-pool-simple.model";
 
 @ObjectType()
 export class MaiarDexWeeklyReportModel {
@@ -9,9 +9,16 @@ export class MaiarDexWeeklyReportModel {
   @Field(() => Number, { name: 'total_value_locked', nullable: true })
   total_value_locked?: number;
 
-  @Field(() => [AggregateValue], { name: 'total_volume', nullable: true })
-  total_volume?: AggregateValue[];
+  @Field(() => Number, { name: 'total_volume', nullable: true })
+  total_volume?: number;
 
-  @Field(() => [AggregateValue], { name: 'mex_burnt', nullable: true, description: 'fees + penalities' })
-  mex_burnt?: AggregateValue[];
+  @Field(() => Number, { name: 'mex_burnt', nullable: true, description: 'fees + penalities' })
+  mex_burnt?: number;
+
+  @Field(() => [MaiarDexPoolSimpleModel], { name: 'volume_pools', nullable: true })
+  volume_pools?: MaiarDexPoolSimpleModel[];
+
+  constructor(init?: Partial<MaiarDexWeeklyReportModel>) {
+    Object.assign(this, init);
+  }
 }

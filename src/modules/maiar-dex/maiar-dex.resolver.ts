@@ -1,21 +1,21 @@
 import { Args, Info, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { AggregateValue } from 'src/common/entities/aggregate-value.object';
-import { Pair } from 'src/common/maiar-dex/entities/pair';
-import { MaiarDexService } from 'src/common/maiar-dex/maiar-dex.service';
 import { MaiarDexEntity } from 'src/common/timescale/entities/maiar-dex.entity';
 import { TimescaleService } from 'src/common/timescale/timescale.service';
 import { ParseFilterEnumArrayPipe } from 'src/utils/pipes/parse.filter.enum.array.pipe';
 import { ParseQueryFieldsPipe } from 'src/utils/pipes/parse.query.fields.pipe';
 import { AggregateEnum } from '../models/aggregate.enum';
 import { QueryInput } from '../models/query.input';
+import { MaiarDexResolverService } from './maiar-dex.resolver.service';
 import { MaiarDexPoolModel } from './models/maiar-dex-pool.model';
+import { MaiarDexWeeklyReportModel } from './models/maiar-dex-weekly-report.model';
 import { MaiarDexModel } from './models/maiar-dex.model';
 
 @Resolver(() => MaiarDexModel)
 export class MaiarDexResolver {
   constructor(
     private readonly timescaleService: TimescaleService,
-    private readonly maiarDexService: MaiarDexService
+    private readonly maiarDexResolverService: MaiarDexResolverService
   ) { }
 
   @Query(() => MaiarDexModel, { name: 'maiar_dex' })
@@ -55,12 +55,12 @@ export class MaiarDexResolver {
   }
 
   @ResolveField(() => [MaiarDexPoolModel], { name: 'pools' })
-  async getAllPools(
-  ): Promise<MaiarDexPoolModel[]> {
-    const pairs = await this.maiarDexService.getAllPairs();
-    const pairSymbols = pairs.map(pair => Pair.getSymbol(pair));
+  async getAllPools(): Promise<MaiarDexPoolModel[]> {
+    return await this.maiarDexResolverService.getAllPools();
+  }
 
-    const pools = pairSymbols.map(pair => new MaiarDexPoolModel(pair));
-    return pools;
+  @ResolveField(() => MaiarDexWeeklyReportModel, { name: 'weekly_report' })
+  async getWeeklyReport(): Promise<MaiarDexWeeklyReportModel> {
+    return await this.maiarDexResolverService.getWeeklyReport();
   }
 }
