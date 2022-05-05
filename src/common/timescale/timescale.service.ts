@@ -115,7 +115,7 @@ export class TimescaleService {
     entity: EntityTarget<T>,
     series: string,
     key: string,
-    query: QueryInput,
+    query: QueryInput | undefined,
     aggregates: AggregateEnum[]
   ): Promise<AggregateValue[]> {
     const cacheInfo = CacheInfo.QueryResult(entity, series, key, query, aggregates);
@@ -131,14 +131,14 @@ export class TimescaleService {
     entity: EntityTarget<T>,
     series: string,
     key: string,
-    query: QueryInput,
+    query: QueryInput | undefined,
     aggregates: AggregateEnum[],
   ): Promise<AggregateValue[]> {
     return await this.resolveQueryGeneric(
       query,
       aggregates,
       async () => await this.getLastValue(entity, series, key),
-      async () => await this.getValues(entity, series, key, QueryInput.getStartDate(query), query.end_date, query.resolution ?? '', aggregates),
+      async () => await this.getValues(entity, series, key, QueryInput.getStartDate(query!), query?.end_date, query?.resolution ?? '', aggregates),
     );
   }
 
@@ -189,7 +189,7 @@ export class TimescaleService {
   }
 
   private async resolveQueryGeneric(
-    query: QueryInput,
+    query: QueryInput | undefined,
     aggregates: AggregateEnum[],
     getLastValue: () => Promise<AggregateValue | undefined>,
     getValues: () => Promise<AggregateValue[]>,
