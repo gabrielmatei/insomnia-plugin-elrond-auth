@@ -63,7 +63,9 @@ export class RabbitMqPairConsumer {
         }
       }
 
-      await this.pairHandlerService.persistTrades(trades, block);
+      if (block.shard === 1) {
+        await this.pairHandlerService.persistTrades(trades, block);
+      }
     } catch (error) {
       this.logger.error(`An unhandled error occurred when consuming events: ${JSON.stringify(rawEvents)}`);
       this.logger.error(error);
