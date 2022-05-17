@@ -29,8 +29,9 @@ export class RabbitMqPairConsumer {
   })
   async consumeEvents(rawEvents: any) {
     try {
-      const block = await this.getBlockByHash(1, rawEvents?.hash);
+      const block = await this.getBlockByHash(rawEvents?.hash);
       if (!block) {
+        this.logger.log(`Could not fetch block details for hash '${rawEvents?.hash}'`);
         return;
       }
 
@@ -69,15 +70,28 @@ export class RabbitMqPairConsumer {
     }
   }
 
-  private async getBlockByHash(shard: number, hash: string): Promise<Block | undefined> {
-    try {
-      const { data } = await this.apiService.get(
-        `${this.apiConfigService.getGatewayUrl()}/block/${shard}/by-hash/${hash}`,
-        new ApiSettings({ verbose: false })
-      );
-      return ApiUtils.mergeObjects(new Block(), data.block);
-    } catch {
-      return undefined;
+  private async getBlockByHash(hash: string): Promise<Block | undefined> {
+    const delays = [1000, 2000, 4000];
+    const shards = [0, 1, 2, 4294967295];
+
+    for (const delay of delays) {
+      for (const shard of shards) {
+        try {
+          const { data } = await this.apiService.get(
+            `${this.apiConfigService.getGatewayUrl()}/block/${shard}/by-hash/${hash}`,
+            new ApiSettings({ verbose: false })
+          );
+          return ApiUtils.mergeObjects(new Block(), data.block);
+        } catch {
+          // probably does not exist
+        }
+      }
+
+      this.logger.log(`Could not fetch details about block with hash '${hash}'. Applying delay ${delay}ms`);
+
+      await new Promise(resolve => setTimeout(resolve, delay));
     }
+
+    return undefined;
   }
 }
