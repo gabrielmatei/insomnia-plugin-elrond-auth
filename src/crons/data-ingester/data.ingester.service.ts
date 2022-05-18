@@ -18,6 +18,7 @@ import { ExchangesIngest } from "src/ingesters/exchanges.ingest";
 // import { GithubIngest } from "src/ingesters/github.ingest";
 import { GoogleIngest } from "src/ingesters/google.ingest";
 import { MaiarDexIngest } from "src/ingesters/maiar-dex.ingest";
+import { NftsIngest } from "src/ingesters/nfts.ingest";
 import { PricesIngest } from "src/ingesters/prices.ingest";
 import { QuotesIngest } from "src/ingesters/quotes.ingest";
 import { StakingDetailedIngest } from "src/ingesters/staking-detailed.ingest";
@@ -55,6 +56,7 @@ export class DataIngesterService {
     // private readonly githubContributorsIngest: GithubContributorsIngest,
     private readonly googleIngest: GoogleIngest,
     private readonly maiarDexIngest: MaiarDexIngest,
+    private readonly nftsIngest: NftsIngest,
     private readonly trendsIngest: TrendsIngest,
     private readonly quotesIngest: QuotesIngest,
     private readonly stakingIngest: StakingIngest,
@@ -84,6 +86,7 @@ export class DataIngesterService {
       // { fetcher: this.githubContributorsIngest, refreshInterval: CronExpressionExtended.EVERY_DAY_AT_2_15AM },
       { fetcher: this.googleIngest, refreshInterval: CronExpressionExtended.EVERY_HOUR },
       { fetcher: this.maiarDexIngest, refreshInterval: CronExpressionExtended.EVERY_DAY_AT_12_10AM },
+      { fetcher: this.nftsIngest, refreshInterval: CronExpressionExtended.EVERY_10_SECONDS },
       { fetcher: this.quotesIngest, refreshInterval: CronExpressionExtended.EVERY_HOUR },
       { fetcher: this.stakingIngest, refreshInterval: CronExpressionExtended.EVERY_8_HOURS },
       { fetcher: this.stakingNewIngest, refreshInterval: CronExpressionExtended.EVERY_DAY_AT_5PM },

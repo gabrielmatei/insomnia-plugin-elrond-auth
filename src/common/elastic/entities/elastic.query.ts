@@ -39,10 +39,22 @@ export class ElasticQuery {
     return this;
   }
 
-  withCondition(queryCondition: QueryConditionOptions, queries: AbstractQuery[]): ElasticQuery {
-    this.condition[queryCondition] = queries;
+  withCondition(queryCondition: QueryConditionOptions, queries: AbstractQuery[] | AbstractQuery): ElasticQuery {
+    if (!Array.isArray(queries)) {
+      queries = [queries];
+    }
+
+    if (!this.condition[queryCondition]) {
+      this.condition[queryCondition] = [];
+    }
+
+    this.condition[queryCondition].push(...queries);
 
     return this;
+  }
+
+  withMustCondition(queries: AbstractQuery[] | AbstractQuery): ElasticQuery {
+    return this.withCondition(QueryConditionOptions.must, queries);
   }
 
   withTerms(termsQuery: TermsQuery): ElasticQuery {
