@@ -10,6 +10,7 @@ import { ApiConfigService } from '../api-config/api.config.service';
 import { ApiUtils } from 'src/utils/api.utils';
 import { Block } from './entities/block';
 import { ApiSettings } from '../network/entities/api.settings';
+import { GatewayService } from '../gateway/gateway.service';
 
 @Injectable()
 export class RabbitMqPairConsumer {
@@ -18,6 +19,7 @@ export class RabbitMqPairConsumer {
   constructor(
     private readonly apiConfigService: ApiConfigService,
     private readonly apiService: ApiService,
+    private readonly gatewayService: GatewayService,
     private readonly pairHandlerService: RabbitMqPairHandlerService,
   ) {
     this.logger = new Logger(RabbitMqPairConsumer.name);
@@ -73,8 +75,8 @@ export class RabbitMqPairConsumer {
   }
 
   private async getBlockByHash(hash: string): Promise<Block | undefined> {
-    const delays = [1000, 2000, 4000];
-    const shards = [0, 1, 2, 4294967295];
+    const delays = [500, 1000, 2000, 4000];
+    const shards = await this.gatewayService.getShards();
 
     for (const delay of delays) {
       for (const shard of shards) {

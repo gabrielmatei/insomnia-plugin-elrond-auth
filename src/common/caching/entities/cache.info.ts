@@ -78,4 +78,9 @@ export class CacheInfo {
       ttl: Constants.oneHour(),
     };
   }
+
+  static Shards: CacheInfo = {
+    key: 'shards',
+    ttl: Constants.oneMinute() * 10,
+  };
 }
