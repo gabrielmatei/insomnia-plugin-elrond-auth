@@ -1,5 +1,4 @@
-import { BadRequestException, Inject, Injectable, Logger } from "@nestjs/common";
-import { ClientProxy } from "@nestjs/microservices";
+import { BadRequestException, Injectable, Logger } from "@nestjs/common";
 import moment from "moment";
 import { AggregateEnum } from "src/modules/models/aggregate.enum";
 import { QueryInput } from "src/modules/models/query.input";
@@ -24,7 +23,6 @@ export class TradingService {
     private readonly cachingService: CachingService,
     private readonly maiarDexService: MaiarDexService,
     private readonly timescaleService: TimescaleService,
-    @Inject('PUBSUB_SERVICE') private clientProxy: ClientProxy,
   ) {
     this.logger = new Logger(TradingService.name);
   }
@@ -95,27 +93,28 @@ export class TradingService {
 
     const isWEGLDUSDCPair = this.isWEGLDUSDCPair(tokenInInfo.identifier, tokenOutInfo.identifier);
     if (isWEGLDUSDCPair) {
-      await this.cachingService.setCache(
+      await this.cachingService.setCacheRemote(
         CacheInfo.LastWEGLDPrice.key,
         pairWithWEGLD.price,
         CacheInfo.LastWEGLDPrice.ttl
       );
-      this.clientProxy.emit('refreshCacheKey', CacheInfo.LastWEGLDPrice);
     }
 
     if (!isWEGLDUSDCPair) {
       const currentWEGLDPrice = await this.maiarDexService.getLastWEGLDPrice(timestamp);
 
-      const pairWithUSDC = new TradingInfoEntity({
-        timestamp,
-        identifier: event.getDatabaseIdentifier(),
-        firstToken: tokenInInfo.token.identifier,
-        secondToken: Constants.WrappedUSDC.identifier,
-        price: priceWEGLD.multipliedBy(currentWEGLDPrice).toNumber(),
-        volume: volumeWEGLD.multipliedBy(currentWEGLDPrice).toNumber(),
-        fee: feeWEGLD.multipliedBy(currentWEGLDPrice).toNumber(),
-      });
-      trades.push(pairWithUSDC);
+      if (currentWEGLDPrice) {
+        const pairWithUSDC = new TradingInfoEntity({
+          timestamp,
+          identifier: event.getDatabaseIdentifier(),
+          firstToken: tokenInInfo.token.identifier,
+          secondToken: Constants.WrappedUSDC.identifier,
+          price: priceWEGLD.multipliedBy(currentWEGLDPrice).toNumber(),
+          volume: volumeWEGLD.multipliedBy(currentWEGLDPrice).toNumber(),
+          fee: feeWEGLD.multipliedBy(currentWEGLDPrice).toNumber(),
+        });
+        trades.push(pairWithUSDC);
+      }
     }
 
     this.checkTrades(trades);

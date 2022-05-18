@@ -96,6 +96,20 @@ export class CachingService {
     return value;
   }
 
+  async getOrSetCacheRemote<T>(key: string, promise: () => Promise<T>, remoteTtl: number): Promise<T> {
+    const cached = await this.getCacheRemote<T>(key);
+    if (cached !== undefined && cached !== null) {
+      return cached;
+    }
+
+    const value = await promise();
+
+    if (value !== undefined && remoteTtl > 0) {
+      await this.setCacheRemote<T>(key, value, remoteTtl);
+    }
+    return value;
+  }
+
   async refreshCacheLocal<T>(key: string, ttl: number = Constants.oneSecond() * 6): Promise<T | undefined> {
     const value = await this.getCacheRemote<T>(key);
     if (value) {

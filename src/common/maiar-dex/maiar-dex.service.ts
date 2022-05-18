@@ -117,24 +117,24 @@ export class MaiarDexService {
     }
   }
 
-  public async getLastWEGLDPrice(lte: Date): Promise<BigNumber> {
-    return await this.cachingService.getOrSetCache(
+  public async getLastWEGLDPrice(lte: Date): Promise<BigNumber | undefined> {
+    return await this.cachingService.getOrSetCacheRemote(
       CacheInfo.LastWEGLDPrice.key,
       async () => await this.getLastWEGLDPriceRaw(lte),
       CacheInfo.LastWEGLDPrice.ttl
     );
   }
 
-  private async getLastWEGLDPriceRaw(lte: Date): Promise<BigNumber> {
+  private async getLastWEGLDPriceRaw(lte: Date): Promise<BigNumber | undefined> {
     const lastTrade = await this.timescaleService.getLastTrade(
       Constants.WrappedEGLD.identifier,
       Constants.WrappedUSDC.identifier,
       lte
     );
 
-    return lastTrade
+    return lastTrade?.price
       ? new BigNumber(lastTrade.price)
-      : new BigNumber(0); // TODO
+      : undefined;
   }
 
   public async getTotalFeePercent(pairAddress: string): Promise<number> {
