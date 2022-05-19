@@ -60,7 +60,7 @@ export class GithubService {
     return repositories;
   }
 
-  public async getCommits(organization: string, repository: string) {
+  public async getCommits(organization: string, repository: string): Promise<any[]> {
     const commits = await this.octokit.paginate('GET /repos/{owner}/{repo}/commits', {
       owner: organization,
       repo: repository,
@@ -69,8 +69,7 @@ export class GithubService {
     return commits;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public async getLastCommits(organization: string, repository: string, startDate: moment.Moment, endDate: moment.Moment): Promise<any> {
+  public async getLastCommits(organization: string, repository: string, startDate: moment.Moment, endDate: moment.Moment): Promise<any[]> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const branches: any[] = await this.octokit.paginate('GET /repos/{owner}/{repo}/branches?per_page=100', {
       owner: organization,
