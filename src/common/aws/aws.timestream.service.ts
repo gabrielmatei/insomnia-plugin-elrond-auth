@@ -31,9 +31,7 @@ export class AWSTimestreamService {
     );
     AWS.config.update({ region: this.apiConfigService.getAWSRegion() });
 
-    const httpsAgent = new HttpsAgent({
-      maxSockets: 5000,
-    });
+    const httpsAgent = new HttpsAgent();
     this.queryClient = new TimestreamQuery({
       maxRetries: 10,
       httpOptions: {
