@@ -51,6 +51,34 @@ export function getLastValueQuery<T extends GenericIngestEntity>(
   return query;
 }
 
+export function getAggregateValueQuery<T extends GenericIngestEntity>(
+  repository: Repository<T>,
+  startDate: Date,
+  endDate: Date | undefined,
+  aggregateList: string[],
+): string {
+  const tableName = repository.metadata.tableName;
+
+  const aggregates = aggregateList.map(aggregate => {
+    const agg = aggregate === AggregateEnum.FIRST || aggregate === AggregateEnum.LAST
+      ? `${aggregate}(value, timestamp) AS ${aggregate.toLowerCase()}`
+      : `${aggregate}(value) AS ${aggregate.toLowerCase()}`;
+    return agg;
+  });
+
+  const query = `
+    SELECT ${aggregates.join(',')}
+    FROM ${tableName} 
+    WHERE series = $1
+        AND key = $2
+        ${endDate
+      ? `AND timestamp BETWEEN '${startDate.toISOString()}' AND '${endDate?.toISOString()}'`
+      : `AND timestamp >= '${startDate.toISOString()}'`}
+  `;
+
+  return query;
+}
+
 export function getValuesQuery<T extends GenericIngestEntity>(
   repository: Repository<T>,
   startDate: Date,
@@ -118,6 +146,36 @@ export function getLastTradeValueQuery(
     .setParameters({ firstToken, secondToken })
     .orderBy('timestamp', 'DESC')
     .limit(1);
+
+  return query;
+}
+
+export function getAggregateTradeValueQuery(
+  repository: Repository<TradingInfoEntity>,
+  firstToken: string,
+  secondToken: string,
+  series: string,
+  startDate: Date,
+  endDate: Date | undefined,
+  aggregateList: string[],
+): string {
+  const tableName = repository.metadata.tableName;
+
+  const aggregates = aggregateList.map(aggregate => {
+    const agg = aggregate === AggregateEnum.FIRST || aggregate === AggregateEnum.LAST
+      ? `${aggregate}(${series}, timestamp) AS ${aggregate.toLowerCase()}`
+      : `${aggregate}(${series}) AS ${aggregate.toLowerCase()}`;
+    return agg;
+  });
+
+  const query = `
+    SELECT ${aggregates.join(',')}
+    FROM ${tableName} 
+    WHERE "firstToken" = '${firstToken}' AND "secondToken" = '${secondToken}'
+        ${endDate
+      ? `AND timestamp BETWEEN '${startDate.toISOString()}' AND '${endDate?.toISOString()}'`
+      : `AND timestamp >= '${startDate.toISOString()}'`}
+  `;
 
   return query;
 }

@@ -111,6 +111,26 @@ export class TimescaleService {
     return values;
   }
 
+  private async getAggregateValue<T extends GenericIngestEntity>(
+    entityTarget: EntityTarget<T>,
+    series: string,
+    key: string,
+    startDate: Date,
+    endDate: Date | undefined,
+    aggregateList: string[],
+  ): Promise<AggregateValue | undefined> {
+    const repository = getRepository(entityTarget);
+
+    const query = timescaleQueries.getAggregateValueQuery(repository, startDate, endDate, aggregateList);
+    const rows: any[] = await repository.query(query, [series, key]);
+
+    if (rows.length === 0) {
+      return undefined;
+    }
+
+    return AggregateValue.fromRow(rows[0]);
+  }
+
   public async resolveQuery<T extends GenericIngestEntity>(
     entity: EntityTarget<T>,
     series: string,
@@ -138,6 +158,9 @@ export class TimescaleService {
       query,
       aggregates,
       async () => await this.getLastValue(entity, series, key),
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      async () => await this.getAggregateValue(entity, series, key, QueryInput.getStartDate(query!), query?.end_date, aggregates),
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       async () => await this.getValues(entity, series, key, QueryInput.getStartDate(query!), query?.end_date, query?.resolution ?? '', aggregates),
     );
   }
@@ -169,6 +192,7 @@ export class TimescaleService {
       query,
       aggregates,
       async () => await this.getLastTradeValue(firstToken, secondToken, series),
+      async () => await this.getAggregateTradeValue(firstToken, secondToken, series, QueryInput.getStartDate(query), query.end_date, aggregates),
       async () => await this.getTradeValues(firstToken, secondToken, series, QueryInput.getStartDate(query), query.end_date, query.resolution ?? '', aggregates),
     );
   }
@@ -192,6 +216,7 @@ export class TimescaleService {
     query: QueryInput | undefined,
     aggregates: AggregateEnum[],
     getLastValue: () => Promise<AggregateValue | undefined>,
+    getAggregateValue: () => Promise<AggregateValue | undefined>,
     getValues: () => Promise<AggregateValue[]>,
   ): Promise<AggregateValue[]> {
     if (aggregates.length === 0) {
@@ -200,10 +225,7 @@ export class TimescaleService {
 
     if (aggregates.length === 1 && aggregates[0] === AggregateEnum.LAST && query === undefined) {
       const lastValue = await getLastValue();
-      if (!lastValue) {
-        return [];
-      }
-      return [lastValue];
+      return lastValue ? [lastValue] : [];
     }
 
     if (!query) {
@@ -214,14 +236,19 @@ export class TimescaleService {
     QueryInput.getStartDate(query);
 
     if (!query.resolution) {
-      throw new BadRequestException(`'resolution' is required`);
+      const aggregateValue = await getAggregateValue();
+      return aggregateValue ? [aggregateValue] : [];
     }
 
     const values = await getValues();
     return values;
   }
 
-  private async getLastTradeValue(firstToken: string, secondToken: string, series: string): Promise<AggregateValue | undefined> {
+  private async getLastTradeValue(
+    firstToken: string,
+    secondToken: string,
+    series: string
+  ): Promise<AggregateValue | undefined> {
     const repository = getRepository(TradingInfoEntity);
     const query = timescaleQueries.getLastTradeValueQuery(repository, firstToken, secondToken);
 
@@ -234,6 +261,25 @@ export class TimescaleService {
       last: (entity as any)[series],
       time: moment(entity.timestamp).toISOString(),
     });
+  }
+
+  private async getAggregateTradeValue(
+    firstToken: string,
+    secondToken: string,
+    series: string,
+    startDate: Date,
+    endDate: Date | undefined,
+    aggregateList: string[],
+  ): Promise<AggregateValue | undefined> {
+    const repository = getRepository(TradingInfoEntity);
+    const query = timescaleQueries.getAggregateTradeValueQuery(repository, firstToken, secondToken, series, startDate, endDate, aggregateList);
+    const rows: any[] = await repository.query(query, []);
+
+    if (rows.length === 0) {
+      return undefined;
+    }
+
+    return AggregateValue.fromRow(rows[0]);
   }
 
   private async getTradeValues(

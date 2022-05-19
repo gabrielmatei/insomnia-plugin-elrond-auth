@@ -4,7 +4,7 @@ import moment from "moment";
 @ObjectType()
 export class AggregateValue {
   @Field(() => String, { nullable: true })
-  time!: string;
+  time?: string;
 
   @Field(() => Float, { nullable: true })
   first?: number;
@@ -33,7 +33,7 @@ export class AggregateValue {
 
   static fromRow(row: any) {
     return new AggregateValue({
-      time: moment(row.time).toISOString(),
+      time: row.time ? moment(row.time).toISOString() : undefined,
       first: row.first,
       last: row.last,
       min: row.min,
