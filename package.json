@@ -53,7 +53,6 @@
     "bignumber.js": "^9.0.2",
     "cache-manager": "^3.6.0",
     "google-trends-api": "^4.9.2",
-    "googleapis": "^95.0.0",
     "graphql": "^16.3.0",
     "graphql-fields": "^2.0.3",
     "graphql-redis-subscriptions": "^2.4.2",
