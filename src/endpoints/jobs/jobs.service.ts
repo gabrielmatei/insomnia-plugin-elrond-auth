@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
-import { JobType } from "aws-sdk/clients/importexport";
 import { CachingService } from "src/common/caching/caching.service";
 import { CacheInfo } from "src/common/caching/entities/cache.info";
+import { JobType } from "./entities/job.type";
 
 @Injectable()
 export class JobsService {

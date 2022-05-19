@@ -1,6 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { HttpsAgent } from 'agentkeepalive';
-import AWS, { Credentials, TimestreamQuery } from 'aws-sdk';
+import * as AWS from "@aws-sdk/client-timestream-query";
 import BigNumber from 'bignumber.js';
 import { PerformanceProfiler } from 'src/utils/performance.profiler';
 import { ApiConfigService } from '../api-config/api.config.service';
@@ -15,7 +14,7 @@ export class AWSTimestreamService {
   private readonly TableName: string;
 
   private readonly logger: Logger;
-  private readonly queryClient: TimestreamQuery;
+  private readonly queryClient: AWS.TimestreamQuery;
 
   constructor(
     private readonly apiConfigService: ApiConfigService,
@@ -25,19 +24,12 @@ export class AWSTimestreamService {
 
     this.TableName = `"${this.apiConfigService.getAWSTimestreamDatabase()}"."${this.apiConfigService.getAWSTimestreamTable()}"`;
 
-    AWS.config.credentials = new Credentials(
-      this.apiConfigService.getAWSAccessKeyId(),
-      this.apiConfigService.getAWSSecretAccessKey()
-    );
-    AWS.config.update({ region: this.apiConfigService.getAWSRegion() });
-
-    const httpsAgent = new HttpsAgent();
-    this.queryClient = new TimestreamQuery({
-      maxRetries: 10,
-      httpOptions: {
-        timeout: 20000,
-        agent: httpsAgent,
+    this.queryClient = new AWS.TimestreamQuery({
+      credentials: {
+        accessKeyId: this.apiConfigService.getAWSAccessKeyId(),
+        secretAccessKey: this.apiConfigService.getAWSSecretAccessKey(),
       },
+      region: this.apiConfigService.getAWSRegion(),
     });
   }
 
@@ -46,7 +38,10 @@ export class AWSTimestreamService {
 
     try {
       const query = timestreamQueries.getPoolVolumesQuery(this.TableName, pairs, from, to);
-      const queryResult = await this.queryClient.query({ QueryString: query }).promise();
+      const queryResult = await this.queryClient.query({ QueryString: query });
+      if (queryResult.Rows === undefined) {
+        return [];
+      }
 
       const pools = queryResult.Rows
         ?.map(row => Pool.fromRow(pairs, row))
@@ -69,13 +64,21 @@ export class AWSTimestreamService {
 
     try {
       const query = timestreamQueries.getTotalVolumeQuery(this.TableName, pairs, from, to);
-      const queryResult = await this.queryClient.query({ QueryString: query }).promise();
+      const queryResult = await this.queryClient.query({ QueryString: query });
+      if (queryResult.Rows === undefined) {
+        return 0;
+      }
 
       if (queryResult.Rows.length === 0) {
         return 0;
       }
 
-      const volume = new BigNumber(queryResult.Rows[0]?.Data[0]?.ScalarValue ?? '0').toNumber();
+      const data = queryResult.Rows[0].Data;
+      if (data === undefined) {
+        return 0;
+      }
+
+      const volume = new BigNumber(data[0]?.ScalarValue ?? '0').toNumber();
       return volume;
     } catch (error) {
       this.logger.error(`An unhandled error occurred when querying volume`);
@@ -93,13 +96,21 @@ export class AWSTimestreamService {
 
     try {
       const query = timestreamQueries.getTokenBurntVolumeQuery(this.TableName, tokenIdentifier, from, to);
-      const queryResult = await this.queryClient.query({ QueryString: query }).promise();
+      const queryResult = await this.queryClient.query({ QueryString: query });
+      if (queryResult.Rows === undefined) {
+        return 0;
+      }
 
       if (queryResult.Rows.length === 0) {
         return 0;
       }
 
-      const volume = new BigNumber(queryResult.Rows[0]?.Data[0]?.ScalarValue ?? '0').shiftedBy(-tokenDecimals).toNumber();
+      const data = queryResult.Rows[0].Data;
+      if (data === undefined) {
+        return 0;
+      }
+
+      const volume = new BigNumber(data[0]?.ScalarValue ?? '0').shiftedBy(-tokenDecimals).toNumber();
       return volume;
     } catch (error) {
       this.logger.error(`An unhandled error occurred when querying burnt volume`);
