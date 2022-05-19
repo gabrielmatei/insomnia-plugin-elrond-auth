@@ -32,6 +32,7 @@
   },
   "dependencies": {
     "@apollo/gateway": "^0.48.1",
+    "@aws-sdk/client-timestream-query": "^3.94.0",
     "@elrondnetwork/erdjs": "^8.0.1-alpha.22",
     "@elrondnetwork/transaction-decoder": "^0.1.0",
     "@golevelup/nestjs-rabbitmq": "^2.2.0",
