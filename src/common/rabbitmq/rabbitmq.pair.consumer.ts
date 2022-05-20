@@ -27,7 +27,7 @@ export class RabbitMqPairConsumer {
 
   @CompetingRabbitConsumer({
     exchange: 'all_events',
-    queueName: 'growth-api',
+    queueName: 'data-api',
   })
   async consumeEvents(rawEvents: any) {
     try {
