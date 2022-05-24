@@ -209,12 +209,16 @@ type CoinQuoteModel {
 }
 
 type QuotesModel {
-  egld: CoinQuoteModel
-  btc: CoinQuoteModel
-  eth: CoinQuoteModel
-  bnb: CoinQuoteModel
-  busd: CoinQuoteModel
-  usdc: CoinQuoteModel
+  coin(name: QuotesCoin!): CoinQuoteModel!
+}
+
+enum QuotesCoin {
+  EGLD
+  BTC
+  ETH
+  BNB
+  BUSD
+  USDC
 }
 
 type StakingTypeModel {
